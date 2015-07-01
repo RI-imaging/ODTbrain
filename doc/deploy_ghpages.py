@@ -52,10 +52,8 @@ sp.check_output("git clone --depth 1 -b gh-pages https://github.com/paulmueller/
 sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
 
 # commit changes
-sp.check_output("git add ./gh_pages/*", shell=True)
+os.chdir("gh_pages")
+sp.check_output("git add ./*", shell=True)
 sp.check_output("git commit -a -m 'travis bot doc build'", shell=True)
 sp.check_output("git push", shell=True)
 
-
-import IPython
-IPython.embed()
