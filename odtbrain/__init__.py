@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+u""" Algorithms for scalar diffraction tomography.
+
+This package provides reconstruction algorithms for diffraction
+tomography in two and three dimensions.
+
+Obtaining ODTbrain
+------------------
+Please install `ODTbrain with the python package manger`_. Simply run 
+
+    pip install odtbrain
+
+
+The `FFTW3 library`_ and the scientific python packages
+:py:mod:`numpy` and :py:mod:`scipy` are required by ODTbrain.
+Please refer to to the `GitHub repository`_ for more information.
+
+.. _`FFTW3 library`: http://fftw.org
+.. _`GitHub repository`: https://github.com/paulmueller/ODTbrain
+.. _`ODTbrain with the python package manger`: http://pypi.org/odtbrain
+
+
+Theoretical background
+----------------------
+The Fourier diffraction theorem states, that the Fourier transform
+:math:`\widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}})` of 
+the scattered field :math:`u_\mathrm{B}(\mathbf{r_D})`, measured at 
+a certain angle :math:`\phi_0`, is distributed along a circular arc 
+(2D) or along a semi-spherical surface (3D) in the Fourier transform 
+:math:`\widehat{F}(\mathbf{k})` of the object function 
+:math:`f(\mathbf{r})`.
+
+.. math::
+
+   \widehat{F}(k_\mathrm{m}(\mathbf{s - s_0}))= 
+        - \sqrt{\\frac{2}{\pi}}  \\frac{i k_\mathrm{m}}{a_0} 
+        M \widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}}) 
+        \exp \! \\left(-i k_\mathrm{m} M l_\mathrm{D} \\right)
+    
+In this notation, 
+:math:`k_\mathrm{m}` is the wave number,
+:math:`\mathbf{s_0}` is the norm vector pointing at :math:`\phi_0`,
+:math:`M=\sqrt{1-s_\mathrm{x}^2}` (2D) and
+:math:`M=\sqrt{1-s_\mathrm{x}^2-s_\mathrm{y}^2}` (3D)
+enforces the spherical constraint, and
+:math:`l_\mathrm{D}` is the distance from the center of the object
+function :math:`f(\mathbf{r})` to the detector plane
+:math:`\mathbf{r_D}`.
+
+
+Fields of Application
+---------------------
+The algorithms presented here are based on the scalar (Helmholtz)
+wave equation. Furthermore, the Born and Rytov approximations to the
+scattered wave :math:`u(\mathbf{r})` are used to linearize the
+problem for a straight-forward inversion.
+
+The author intended this package for optical diffraction
+tomography to determine the refractive index of biological cells.
+Because the scalar Helmholtz equation is only an approximation to the
+Maxwell equations, describing the propagation of light, 
+:abbr:`FDTD (Finite Difference Time Domain)` simulations were performed
+to test the reconstruction algorithms within this package.
+The algorithms should also be valid for the following cases, but have
+not been tested accordingly:
+
+* tomographic measurements of absorbing materials (complex refractive 
+  index :math:`n(\mathbf{r})`)
+
+* ultrasonic diffraction tomography, which is correctly described by
+  the Helmholtz equation
+  
+
+"""
+from ._Back_2D import backpropagate_2d, fourier_map_2d, sum_2d
+from ._Back_3D import backpropagate_3d
+from ._br import odt_to_ri, opt_to_ri, sinogram_as_radon, sinogram_as_rytov
+from ._version import version as __version__
+
+
+__author__ = u"Paul Müller"
+__license__ = "BSD (3 clause)"
+
+
+# Shared variable used by 3D backpropagation
+_shared_array = None 
