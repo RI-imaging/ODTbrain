@@ -51,19 +51,19 @@ function :math:`f(\mathbf{r})` to the detector plane
 
 Fields of Application
 ---------------------
-The algorithms presented here are based on the scalar (Helmholtz)
-wave equation. Furthermore, the Born and Rytov approximations to the
+The algorithms presented here are based on the (scalar) Helmholtz
+equation. Furthermore, the Born and Rytov approximations to the
 scattered wave :math:`u(\mathbf{r})` are used to linearize the
 problem for a straight-forward inversion.
 
-The author intended this package for optical diffraction
+The package is intended for optical diffraction
 tomography to determine the refractive index of biological cells.
-Because the scalar Helmholtz equation is only an approximation to the
+Because the Helmholtz equation is only an approximation to the
 Maxwell equations, describing the propagation of light, 
 :abbr:`FDTD (Finite Difference Time Domain)` simulations were performed
 to test the reconstruction algorithms within this package.
-The algorithms should also be valid for the following cases, but have
-not been tested accordingly:
+The algorithms present in this package should also be valid for the
+following cases, but have not been tested accordingly:
 
 * tomographic measurements of absorbing materials (complex refractive 
   index :math:`n(\mathbf{r})`)
@@ -84,4 +84,4 @@ __license__ = "BSD (3 clause)"
 
 
 # Shared variable used by 3D backpropagation
-_shared_array = None 
+_shared_array = None

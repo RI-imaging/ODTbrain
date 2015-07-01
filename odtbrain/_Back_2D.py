@@ -631,7 +631,7 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None, jmc=None, jmm=None):
     :math:`n(x,z)`.
 
     This function implements the solution by summation in real
-    space which is extremely slow.
+    space, which is extremely slow.
 
     Parameters
     ----------

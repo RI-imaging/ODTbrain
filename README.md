@@ -19,21 +19,6 @@ This package provides image reconstruction algorithms for diffraction tomography
     - [scipy](https://github.com/scipy/scipy)
     - [unwrap](https://github.com/geggo/phase-unwrap)
 
-#### Debian/Ubuntu
-Install the following packages:
- - for Python 2.7: `sudo apt-get install libfftw3-3 libfftw3-dev python-cffi python-numpy python-pip python-scipy`
- - for Python 3.4: `sudo apt-get install libfftw3-3 libfftw3-dev python3-cffi python3-numpy python3-pip python3-scipy`
- - Install the `PyFFTW` package. Depending on your distribution, the package name is
-   either `python-fftw3`, `python3-fftw3` (old) or `python-pyfftw`, `python3-pyfftw` (new).
-   Attention: The package `python-fftw` provides a different FFTW library that is not used by ODTbrain.
-   Alternatively, install from PyPI: `pip install pyfftw`.
- - Finally: `pip install odtbrain`
-
-#### Windows
- - Install the [Anaconda](http://continuum.io/downloads#all) version matching your architecture (32-bit or 64-bit).
- - Install `PyFFTW` using the corresponding installer at PyPI:
-   https://pypi.python.org/pypi/pyFFTW
- - Finally: `pip install odtbrain`
 
 #### Mac OS X
 
@@ -54,6 +39,24 @@ Install the following packages:
          sudo brew install fftw numpy scipy
          sudo easy_install pip
          sudo pip install odtbrain
+
+
+#### Windows
+ - Install the [Anaconda](http://continuum.io/downloads#all) version matching your architecture (32-bit or 64-bit).
+ - Install `PyFFTW` using the corresponding installer at PyPI:
+   https://pypi.python.org/pypi/pyFFTW
+ - Finally: `pip install odtbrain`
+
+
+#### Debian/Ubuntu
+Install the following packages:
+ - for Python 2.7: `sudo apt-get install libfftw3-3 libfftw3-dev python-cffi python-numpy python-pip python-scipy`
+ - for Python 3.4: `sudo apt-get install libfftw3-3 libfftw3-dev python3-cffi python3-numpy python3-pip python3-scipy`
+ - Install the `PyFFTW` package. Depending on your distribution, the package name is
+   either `python-fftw3`, `python3-fftw3` (old) or `python-pyfftw`, `python3-pyfftw` (new).
+   Attention: The package `python-fftw` provides a different FFTW library that is not used by ODTbrain.
+   Alternatively, install from PyPI: `pip install pyfftw`.
+ - Finally: `pip install odtbrain`
 
 
 ### Testing
