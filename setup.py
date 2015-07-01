@@ -64,6 +64,5 @@ if __name__ == "__main__":
                      ],
         platforms=['ALL'],
         cmdclass = {'test': PyTest,
-                    'commit_doc': PyDocGitHub,
                     },
         )

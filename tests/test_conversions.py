@@ -99,7 +99,7 @@ def test_sino_rytov():
     print("running ", myname)
     sino = get_test_data_set_sino(rytov=True)
     ryt = odtbrain._br.sinogram_as_rytov(sino)
-    np.savetxt('outfile.txt', np.array(ryt).flatten().view(float), fmt="%.19e")
+    #np.savetxt('outfile.txt', np.array(ryt).flatten().view(float), fmt="%.19e")
     assert np.allclose(np.array(ryt).flatten().view(float), results[myname])
     # Check the 3D result with the 2D result. They should be the same except
     # for a multiple of 2PI offset, because odtbrain._br._align_unwrapped

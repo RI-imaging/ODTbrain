@@ -1,6 +1,9 @@
 ODTbrain
 ==========
-[![PyPI](http://img.shields.io/pypi/v/odtbrain.png)](https://pypi.python.org/pypi/odtbrain)
+[![PyPI](http://img.shields.io/pypi/v/odtbrain.svg)](https://pypi.python.org/pypi/odtbrain)
+[![Travis](http://img.shields.io/travis/paulmueller/ODTbrain.svg)](https://travis-ci.org/paulmueller/ODTbrain)
+[![Coveralls](https://img.shields.io/coveralls/paulmueller/ODTbrain.svg)](https://coveralls.io/r/paulmueller/ODTbrain)
+
 
 This package provides image reconstruction algorithms for diffraction tomography in two and three dimensions.
 
@@ -37,20 +40,20 @@ Install the following packages:
 ##### [MacPorts](https://www.macports.org/)
  - Install the FFTW3 and Python libraries. For Python 2.7, run
    
-      sudo port selfupdate  
-      sudo port install fftw-3 py27-numpy py27-scipy py27-pyfftw pip
-      sudo easy_install pip
-      sudo pip install odtbrain
+         sudo port selfupdate  
+         sudo port install fftw-3 py27-numpy py27-scipy py27-pyfftw pip
+         sudo easy_install pip
+         sudo pip install odtbrain
       
 ##### [Homebrew](http://brew.sh/)
  - Install the FFTW3 and Python libraries. For Python 2.7, run
     
-      sudo brew tap homebrew/python
-      sudo brew update && brew upgrade
-      sudo brew install python --framework
-      sudo brew install fftw numpy scipy
-      sudo easy_install pip
-      sudo pip install odtbrain
+         sudo brew tap homebrew/python
+         sudo brew update && brew upgrade
+         sudo brew install python --framework
+         sudo brew install fftw numpy scipy
+         sudo easy_install pip
+         sudo pip install odtbrain
 
 
 ### Testing
