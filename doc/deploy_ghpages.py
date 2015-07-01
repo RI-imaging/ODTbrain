@@ -60,6 +60,6 @@ sp.check_output("git add ./*", shell=True)
 sp.check_output("git commit -a -m 'travis bot doc build [ci skip]'", shell=True)
 
 try:
-    sp.check_output("git push --force --quiet 'https://${GH_TOKEN}@${GH_REF}' master:gh-pages", shell=True)
+    sp.check_output("git push --force --quiet https://${GH_TOKEN}@${GH_REF} master:gh-pages", shell=True)
 except:
     sp.check_output("git push --force --quiet origin gh-pages", shell=True)
