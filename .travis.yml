@@ -28,5 +28,6 @@ script:
   - coverage report -m
 after_success:
   - coveralls --verbose
-  - travis_retry pip install numpydoc
-  - python doc/deploy_ghpages.py
+  # deploy documentation with python 2.7
+  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install numpydoc; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python doc/deploy_ghpages.py; fi
