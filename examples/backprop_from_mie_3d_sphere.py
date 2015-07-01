@@ -16,7 +16,7 @@ is obtained by numerical autofocusing the detected field prior to the
 refractive index reconstruction and then setting :math:`l_\mathrm{D}=0`
 for the reconstruction with :func:`odtbrain.backpropagate_3d`.
 
-.. figure::  ../examples/backprop_from_mie_3d_sphere.png
+.. figure::  ../examples/backprop_from_mie_3d_sphere_repo.png
    :align:   center
 
    3D reconstruction from Mie simulations of a perfect sphere using
@@ -109,6 +109,8 @@ if __name__ == "__main__":
                                    ret_d=True)
         lD = 0
         print("Autofocusing distance [px]: ", d)
+    else:
+        lD = cfg["lD"]*cfg["res"]
 
     # Create sinogram
     u_sin = np.tile(Ex.flat,A).reshape(A, cfg["size"], cfg["size"])
@@ -121,7 +123,7 @@ if __name__ == "__main__":
                               angles = angles, 
                               res = cfg["res"],
                               nm = cfg["nm"],
-                              lD = cfg["lD"]*cfg["res"],
+                              lD = lD,
                               padfac=2.1)
 
     # RI computation

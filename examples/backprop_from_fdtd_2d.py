@@ -10,7 +10,7 @@ reconstruction of the refractive index with the Rytov approximation
 is in good agreement with the phantom that was used in the
 simulation.
 
-.. figure::  ../examples/backprop_from_fdtd_2d.png
+.. figure::  ../examples/backprop_from_fdtd_2d_repo.png
    :align:   center
 
    2D reconstruction from :abbr:`FDTD (Finite Difference Time Domain)`
