@@ -1,0 +1,1046 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>odtbrain documentation &mdash; odtbrain 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="odtbrain 0.1.0 documentation" href="#" />
+    <link rel="next" title="odtbrain documentation" href="" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="#" title="odtbrain documentation"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">odtbrain 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="odtbrain-documentation">
+<h1>odtbrain documentation<a class="headerlink" href="#odtbrain-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="content">
+<h2>Content<a class="headerlink" href="#content" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">odtbrain documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#content">Content</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-odtbrain">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#obtaining-odtbrain">Obtaining ODTbrain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#theoretical-background">Theoretical background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fields-of-application">Fields of Application</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pre-and-post-processing">Pre- and post-processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#available-approximations">Available approximations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refractive-index-computation">Refractive index computation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#d-inversion">2D inversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backpropagation">Backpropagation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fourier-mapping">Fourier mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#direct-sum">Direct sum</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">3D inversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Backpropagation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#module-backprop_from_fdtd_2d">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#d-backpropagation-fdtd">2D backpropagation (FDTD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-backpropagation-of-a-sphere-mie">3D backpropagation of a sphere (Mie)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>For an alphabetically sorted list of all methods, see <a class="reference internal" href="genindex.html"><em>Index</em></a>.</p>
+</div>
+<div class="section" id="module-odtbrain">
+<span id="introduction"></span><h2>Introduction<a class="headerlink" href="#module-odtbrain" title="Permalink to this headline">¶</a></h2>
+<p>Algorithms for scalar diffraction tomography.</p>
+<p>This package provides reconstruction algorithms for diffraction
+tomography in two and three dimensions.</p>
+<div class="section" id="obtaining-odtbrain">
+<h3>Obtaining ODTbrain<a class="headerlink" href="#obtaining-odtbrain" title="Permalink to this headline">¶</a></h3>
+<p>Please install <a class="reference external" href="http://pypi.org/odtbrain">ODTbrain with the python package manger</a>. Simply run</p>
+<blockquote>
+<div>pip install odtbrain</div></blockquote>
+<p>The <a class="reference external" href="http://fftw.org">FFTW3 library</a> and the scientific python packages
+<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/index.html#module-numpy" title="(in NumPy v1.9)"><tt class="xref py py-mod docutils literal"><span class="pre">numpy</span></tt></a> and <tt class="xref py py-mod docutils literal"><span class="pre">scipy</span></tt> are required by ODTbrain.
+Please refer to to the <a class="reference external" href="https://github.com/paulmueller/ODTbrain">GitHub repository</a> for more information.</p>
+</div>
+<div class="section" id="theoretical-background">
+<h3>Theoretical background<a class="headerlink" href="#theoretical-background" title="Permalink to this headline">¶</a></h3>
+<p>The Fourier diffraction theorem states, that the Fourier transform
+<img class="math" src="_images/math/1bff89ab95abfd426601a1b86826cc4e59764c9d.png" alt="\widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}})"/> of 
+the scattered field <img class="math" src="_images/math/c388785b4822ac6745657e23f778af30739a8f3b.png" alt="u_\mathrm{B}(\mathbf{r_D})"/>, measured at 
+a certain angle <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/>, is distributed along a circular arc 
+(2D) or along a semi-spherical surface (3D) in the Fourier transform 
+<img class="math" src="_images/math/3e0a833ef8056acf362a8e944d19689319ecc14a.png" alt="\widehat{F}(\mathbf{k})"/> of the object function 
+<img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/>.</p>
+<div class="math">
+<p><img src="_images/math/e5bf76932b81bc514089826d6e4356a021a47757.png" alt="\widehat{F}(k_\mathrm{m}(\mathbf{s - s_0}))= 
+     - \sqrt{\frac{2}{\pi}}  \frac{i k_\mathrm{m}}{a_0} 
+     M \widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}}) 
+     \exp \! \left(-i k_\mathrm{m} M l_\mathrm{D} \right)"/></p>
+</div><p>In this notation, 
+<img class="math" src="_images/math/60a54625fad369afaf118ab8ca4e9b8585f881bb.png" alt="k_\mathrm{m}"/> is the wave number,
+<img class="math" src="_images/math/0ab28237751586339c12c30f43d2e82844377142.png" alt="\mathbf{s_0}"/> is the norm vector pointing at <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/>,
+<img class="math" src="_images/math/719c633c4227f280bf8c1494a97a70dd27e210b5.png" alt="M=\sqrt{1-s_\mathrm{x}^2}"/> (2D) and
+<img class="math" src="_images/math/1f6b0bbfe24b347ecf8d8fd8b1797b3db57c72e3.png" alt="M=\sqrt{1-s_\mathrm{x}^2-s_\mathrm{y}^2}"/> (3D)
+enforces the spherical constraint, and
+<img class="math" src="_images/math/48e239cca1abf7770d2542e8996eb05f35a3a43e.png" alt="l_\mathrm{D}"/> is the distance from the center of the object
+function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> to the detector plane
+<img class="math" src="_images/math/a2d9bfb168c464d0848222cec5dbe612c6c76ab1.png" alt="\mathbf{r_D}"/>.</p>
+</div>
+<div class="section" id="fields-of-application">
+<h3>Fields of Application<a class="headerlink" href="#fields-of-application" title="Permalink to this headline">¶</a></h3>
+<p>The algorithms presented here are based on the (scalar) Helmholtz
+equation. Furthermore, the Born and Rytov approximations to the
+scattered wave <img class="math" src="_images/math/59c4da8c8c3c8c36372ba25eee2e148fb4ed5d69.png" alt="u(\mathbf{r})"/> are used to linearize the
+problem for a straight-forward inversion.</p>
+<p>The package is intended for optical diffraction
+tomography to determine the refractive index of biological cells.
+Because the Helmholtz equation is only an approximation to the
+Maxwell equations, describing the propagation of light, 
+<abbr title="Finite Difference Time Domain">FDTD</abbr> simulations were performed
+to test the reconstruction algorithms within this package.
+The algorithms present in this package should also be valid for the
+following cases, but have not been tested accordingly:</p>
+<ul class="simple">
+<li>tomographic measurements of absorbing materials (complex refractive 
+index <img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>)</li>
+<li>ultrasonic diffraction tomography, which is correctly described by
+the Helmholtz equation</li>
+</ul>
+</div>
+</div>
+<div class="section" id="pre-and-post-processing">
+<h2>Pre- and post-processing<a class="headerlink" href="#pre-and-post-processing" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#odtbrain.odt_to_ri" title="odtbrain.odt_to_ri"><tt class="xref py py-obj docutils literal"><span class="pre">odt_to_ri</span></tt></a>(f,&nbsp;res,&nbsp;nm)</td>
+<td>Converts the ODT object function to refractive index.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#odtbrain.opt_to_ri" title="odtbrain.opt_to_ri"><tt class="xref py py-obj docutils literal"><span class="pre">opt_to_ri</span></tt></a>(f,&nbsp;res,&nbsp;nm)</td>
+<td>Converts the OPT object function to refractive index.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#odtbrain.sinogram_as_radon" title="odtbrain.sinogram_as_radon"><tt class="xref py py-obj docutils literal"><span class="pre">sinogram_as_radon</span></tt></a>(uSin[,&nbsp;align])</td>
+<td>Computes the phase from a complex wave field sinogram.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#odtbrain.sinogram_as_rytov" title="odtbrain.sinogram_as_rytov"><tt class="xref py py-obj docutils literal"><span class="pre">sinogram_as_rytov</span></tt></a>(uSin[,&nbsp;u0,&nbsp;align])</td>
+<td>Converts the complex wave field sinogram to Rytov data</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-odtbrain._br"></span><p>Pre- and post-processing for diffraction tomography</p>
+<p>Tomographic data sets are stacks of detector images for different
+rotational positions <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/> of the objects. The methods
+described here can be used to filter the measured complex field 
+<img class="math" src="_images/math/59c4da8c8c3c8c36372ba25eee2e148fb4ed5d69.png" alt="u(\mathbf{r})"/> for the Radon and Rytov approximations and to
+convert the output of e.g. backprojection (Radon) or 
+backpropagation (Born/Rytov) algorithms to refractive index maps
+<img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</p>
+<div class="section" id="available-approximations">
+<h3>Available approximations<a class="headerlink" href="#available-approximations" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="odtbrain.sinogram_as_radon">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">sinogram_as_radon</tt><big>(</big><em>uSin</em>, <em>align=True</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_br.html#sinogram_as_radon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.sinogram_as_radon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the phase from a complex wave field sinogram.</p>
+<p>This step is essential when using the ray approximation before
+computation of the refractive index with the inverse Radon
+transform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>uSin</strong> : 2d or 3d complex ndarray</p>
+<blockquote>
+<div><p>The background-corrected sinogram of the complex scattered wave
+<img class="math" src="_images/math/6094623d61d54b6b422d7e95422b6f1ed6481372.png" alt="u(\mathbf{r})/u_0(\mathbf{r})"/>. The first axis iterates
+through the angles <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/>.</p>
+</div></blockquote>
+<p><strong>align</strong> : bool</p>
+<blockquote>
+<div><p>Tries to align the phase offset for each angle.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>phase</strong> : 2d or 3d real ndarray</p>
+<blockquote class="last">
+<div><p>The unwrapped phase array corresponding to <tt class="docutils literal"><span class="pre">uSin</span></tt>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The phase-unwrapping is performed with the <a class="reference external" href="https://pypi.python.org/pypi/unwrap">unwrap</a> package.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="odtbrain.sinogram_as_rytov">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">sinogram_as_rytov</tt><big>(</big><em>uSin</em>, <em>u0=1</em>, <em>align=True</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_br.html#sinogram_as_rytov"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.sinogram_as_rytov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the complex wave field sinogram to Rytov data</p>
+<p>This method effectively applies the Rytov approximation to the
+recorded complex wave sinogram. We assume that the recorded data
+<img class="math" src="_images/math/59c4da8c8c3c8c36372ba25eee2e148fb4ed5d69.png" alt="u(\mathbf{r})"/> can be approximated with the Rytov
+approximation 
+<img class="math" src="_images/math/c81f96b89a46ddd322b6b166f4be399369eff942.png" alt="u(\mathbf{r})\approx u_\mathrm{R}(\mathbf{r})+
+u_\mathrm{0}(\mathbf{r})"/>
+and then convert it in order to use the Born approximation 
+<img class="math" src="_images/math/fea285e8aa630baa489edbd758e6c7a5d2b7511e.png" alt="u_\mathrm{B}(\mathbf{r})"/>
+for which we have derived the reconstruction algorithms in
+diffraction tomography.</p>
+<div class="math">
+<p><img src="_images/math/021ff09362a37cceb0b5a2daf2e5d0b46b8b0b18.png" alt="u_\mathrm{B}(\mathbf{r}) = u_\mathrm{0}(\mathbf{r})
+    \ln\!\left(  
+    \frac{u_\mathrm{R}(\mathbf{r})}{u_\mathrm{0}(\mathbf{r})}
+     +1 \right)"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>uSin</strong> : 2d or 3d complex ndarray</p>
+<blockquote>
+<div><p>The sinogram of the complex wave 
+<img class="math" src="_images/math/e007481a8a10af3beacb6f856e9b5601cf0ca5ee.png" alt="u_\mathrm{R}(\mathbf{r}) + u_\mathrm{0}(\mathbf{r})"/>.
+The first axis iterates through the angles <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/>.</p>
+</div></blockquote>
+<p><strong>u0</strong> : ndarray of dimension as <tt class="docutils literal"><span class="pre">uSin</span></tt> or less, or int.</p>
+<blockquote>
+<div><p>The incident plane wave 
+<img class="math" src="_images/math/613b3cd37b1e475e8bd651504a1c7ab1e0de0ed2.png" alt="u_\mathrm{0}(\mathbf{r})"/> at the detector.
+If <tt class="docutils literal"><span class="pre">u0</span></tt> is &#8220;1&#8221;, it is assumed that the data is already
+background-corrected (
+<tt class="docutils literal"><span class="pre">uSin</span></tt> <img class="math" src="_images/math/33c203e829cac9fc306a6cac1914629b9b1d66c8.png" alt="= \frac{u_\mathrm{R}(\mathbf{r})}{
+u_\mathrm{0}(\mathbf{r})} + 1"/>
+). Beware that this might lead to a wrong 
+reconstruction if the reconstruction distance
+<img class="math" src="_images/math/48e239cca1abf7770d2542e8996eb05f35a3a43e.png" alt="l_\mathrm{D}"/> is non-zero, i.e. the field is not focused
+to the center of the reconstruction volume.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>uB</strong> : 2d or 3d real ndarray</p>
+<blockquote class="last">
+<div><p>The Rytov-filtered complex sinogram 
+<img class="math" src="_images/math/fea285e8aa630baa489edbd758e6c7a5d2b7511e.png" alt="u_\mathrm{B}(\mathbf{r})"/>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The phase-unwrapping is performed with the <a class="reference external" href="https://pypi.python.org/pypi/unwrap">unwrap</a> package.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="refractive-index-computation">
+<h3>Refractive index computation<a class="headerlink" href="#refractive-index-computation" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="odtbrain.odt_to_ri">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">odt_to_ri</tt><big>(</big><em>f</em>, <em>res</em>, <em>nm</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_br.html#odt_to_ri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.odt_to_ri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the ODT object function to refractive index.</p>
+<p>In <abbr title="Optical Diffraction Tomography">ODT</abbr>, the object function
+is defined by the Helmholtz equation:</p>
+<div class="math">
+<p><img src="_images/math/ed4301e4c7e913e3c71c521624238bc2f9b076a9.png" alt="f(\mathbf{r})  =  k_\mathrm{m}^2 \left[
+    \left( \frac{n(\mathbf{r})}{n_\mathrm{m}} \right)^2 - 1
+    \right]"/></p>
+</div><p>with <img class="math" src="_images/math/788c3aab03cbd51ea61a6e55535ae39932413e45.png" alt="k_\mathrm{m} = \frac{2\pi n_\mathrm{m}}{\lambda}"/>.
+By inverting this equation, we obtain the refractive index
+<img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</p>
+<div class="math">
+<p><img src="_images/math/cc5fd4f405f220b1d228193bff6c0f229efd4369.png" alt="n(\mathbf{r})  = n_\mathrm{m} 
+    \sqrt{\frac{f(\mathbf{r})}{k_\mathrm{m}^2} + 1 }"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f</strong> : n-dimensional ndarray</p>
+<blockquote>
+<div><p>The reconstructed object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/>.</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>The size of the vacuum wave length <img class="math" src="_images/math/1ab0134b6e0837594649c75a2ed83cfd85a2d03d.png" alt="\lambda"/> in pixels.</p>
+</div></blockquote>
+<p><strong>nm</strong> : float</p>
+<blockquote>
+<div><p>The refractive index of the medium <img class="math" src="_images/math/818f3f96e6b56894f9b4135e5493f114171d9a63.png" alt="n_\mathrm{m}"/> that
+surrounds the object in <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ri</strong> : n-dimensional ndarray</p>
+<blockquote class="last">
+<div><p>The complex refractive index <img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Because this function computes to root of a complex number, there
+are several solutions to the refractive index. Always the positive
+(real) root of the refractive index is used.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="odtbrain.opt_to_ri">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">opt_to_ri</tt><big>(</big><em>f</em>, <em>res</em>, <em>nm</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_br.html#opt_to_ri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.opt_to_ri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the OPT object function to refractive index.</p>
+<p>In <abbr title="Optical Projection Tomography">OPT</abbr>, the object function
+is computed from the raw phase data. This method converts phase data
+to refractive index data.</p>
+<div class="math">
+<p><img src="_images/math/63662cd1ca2e4d0ac2b53a48f4cb2cb024b60c38.png" alt="n(\mathbf{r})  = n_\mathrm{m} + 
+    \frac{f(\mathbf{r}) \cdot \lambda}{2 \pi}"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f</strong> : n-dimensional ndarray</p>
+<blockquote>
+<div><p>The reconstructed object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/>.</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>The size of the vacuum wave length <img class="math" src="_images/math/1ab0134b6e0837594649c75a2ed83cfd85a2d03d.png" alt="\lambda"/> in pixels.</p>
+</div></blockquote>
+<p><strong>nm</strong> : float</p>
+<blockquote>
+<div><p>The refractive index of the medium <img class="math" src="_images/math/818f3f96e6b56894f9b4135e5493f114171d9a63.png" alt="n_\mathrm{m}"/> that
+surrounds the object in <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ri</strong> : n-dimensional ndarray</p>
+<blockquote class="last">
+<div><p>The complex refractive index <img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This function is not meant to be used with diffraction tomography
+data. For ODT, use <a class="reference internal" href="#odtbrain.odt_to_ri" title="odtbrain.odt_to_ri"><tt class="xref py py-func docutils literal"><span class="pre">odt_to_ri()</span></tt></a> instead.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="d-inversion">
+<h2>2D inversion<a class="headerlink" href="#d-inversion" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#odtbrain.backpropagate_2d" title="odtbrain.backpropagate_2d"><tt class="xref py py-obj docutils literal"><span class="pre">backpropagate_2d</span></tt></a>(uSin,&nbsp;angles,&nbsp;res,&nbsp;nm,&nbsp;lD)</td>
+<td>2D backpropagation with the Fourier diffraction theorem</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#odtbrain.fourier_map_2d" title="odtbrain.fourier_map_2d"><tt class="xref py py-obj docutils literal"><span class="pre">fourier_map_2d</span></tt></a>(uSin,&nbsp;angles,&nbsp;res,&nbsp;nm,&nbsp;lD[,&nbsp;...])</td>
+<td>2D Fourier mapping with the Fourier diffraction theorem</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#odtbrain.sum_2d" title="odtbrain.sum_2d"><tt class="xref py py-obj docutils literal"><span class="pre">sum_2d</span></tt></a>(uSin,&nbsp;angles,&nbsp;res,&nbsp;nm,&nbsp;lD[,&nbsp;coords,&nbsp;...])</td>
+<td>2D sum-reconstruction with the Fourier diffraction theorem</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-odtbrain._Back_2D"></span><p>2D reconstruction in optical tomography with the Born approximation</p>
+<p>The first Born approximation for a 2D scattering problem with a plane
+wave 
+<img class="math" src="_images/math/fe398a3b7429d0964fb2a2622e1242c959561685.png" alt="u_0(\mathbf{r}) = a_0 \exp(-ik_\mathrm{m}\mathbf{s_0r})"/>
+reads:</p>
+<div class="math">
+<p><img src="_images/math/f501b04be56a615fc6f81ec3473237fba9c2baa2.png" alt="u_\mathrm{B}(\mathbf{r}) = \iint \!\! d^2r' 
+    G(\mathbf{r-r'}) f(\mathbf{r'}) u_0(\mathbf{r'})"/></p>
+</div><p>The Green&#8217;s function in 2D is the zero-order Hankel function
+of the first kind:</p>
+<div class="math">
+<p><img src="_images/math/9830b80ecdea960304d2e82cc3f1235f66001a2d.png" alt="G(\mathbf{r-r'}) = \frac{i}{4} 
+    H_0^\mathrm{(1)}(k_\mathrm{m} \left| \mathbf{r-r'} \right|)"/></p>
+</div><p>Solving for <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> yields the Fourier diffraction theorem
+in 2D</p>
+<div class="math">
+<p><img src="_images/math/56473693eb1aa4e6dca94732ff72f411692f85fe.png" alt="\widehat{F}(k_\mathrm{m}(\mathbf{s-s_0})) = 
+    - \sqrt{\frac{2}{\pi}} 
+    \frac{i k_\mathrm{m}}{a_0} M
+    \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx})
+    \exp \! \left(-i k_\mathrm{m} M l_\mathrm{D} \right)"/></p>
+</div><p>where 
+<img class="math" src="_images/math/0cb3b502c4faf95b23b7751795e566fa23a820a9.png" alt="\widehat{F}(k_\mathrm{x}, k_\mathrm{z})"/>
+is the Fourier transformed object function and 
+<img class="math" src="_images/math/1e91dccbd5a577860bcd00b835dcd0a8d771ae87.png" alt="\widehat{U}_{\mathrm{B}, \phi_0}(k_\mathrm{Dx})"/> is the
+Fourier transformed complex wave that travels along <img class="math" src="_images/math/0ab28237751586339c12c30f43d2e82844377142.png" alt="\mathbf{s_0}"/>
+(in the direction of <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/>) measured at the detector
+<img class="math" src="_images/math/a2d9bfb168c464d0848222cec5dbe612c6c76ab1.png" alt="\mathbf{r_D}"/>.</p>
+<p>The following identities are used:</p>
+<div class="math">
+<p><img src="_images/math/8cda2a986b9a85280272b0f0222eba4d734f7197.png" alt="k_\mathrm{m} (\mathbf{s-s_0}) &amp;= k_\mathrm{Dx} \, \mathbf{t_\perp} +
+k_\mathrm{m}(M - 1) \, \mathbf{s_0}
+
+\mathbf{s_0} &amp;= \left(p_0 , \, M_0 \right) = 
+(-\sin\phi_0, \, \cos\phi_0)
+
+\mathbf{t_\perp} &amp;= \left(- M_0 , \, p_0 \right) = 
+(\cos\phi_0, \, \sin\phi_0)"/></p>
+</div><div class="section" id="backpropagation">
+<h3>Backpropagation<a class="headerlink" href="#backpropagation" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="odtbrain.backpropagate_2d">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">backpropagate_2d</tt><big>(</big><em>uSin</em>, <em>angles</em>, <em>res</em>, <em>nm</em>, <em>lD</em>, <em>coords=None</em>, <em>onlyreal=False</em>, <em>padding=True</em>, <em>padval=0</em>, <em>jmc=None</em>, <em>jmm=None</em>, <em>verbose=1</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_Back_2D.html#backpropagate_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.backpropagate_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>2D backpropagation with the Fourier diffraction theorem</p>
+<p>Two-dimensional diffraction tomography reconstruction
+algorithm for scattering of a plane wave
+<img class="math" src="_images/math/5cf6471c3633ae3dbe6bc564fbf119a378df2fe2.png" alt="u_0(\mathbf{r}) = u_0(x,z)"/> 
+by a dielectric object with refractive index
+<img class="math" src="_images/math/6b2814d7169c70b1701a564ffc52383e08a9f480.png" alt="n(x,z)"/>.</p>
+<p>This method implements the backpropagation formula:</p>
+<div class="math">
+<p><img src="_images/math/6c472fac1b486f8dbf9be1925d7d1fcc9f959810.png" alt="f(\mathbf{r}) = 
+    - \frac{i k_\mathrm{m}}{a_0 (2 \pi)^{3/2}}
+    \int \!\! dk_\mathrm{Dx} \int_0^{2 \pi} \!\!  d\phi_0 \,
+    \left| k_\mathrm{Dx} \right|  
+    \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx})
+    \exp( -i k_\mathrm{m} M l_\mathrm{D} )  
+    \exp \! \left[ i (k_\mathrm{Dx} \, \mathbf{t_\perp} 
+    + k_\mathrm{m}(M - 1) \, \mathbf{s_0})\mathbf{r} \right]"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>uSin</strong> : (A,N) ndarray</p>
+<blockquote>
+<div><p>Two-dimensional sinogram of line recordings
+<img class="math" src="_images/math/3a393708353d35e44fde3388b5ca38be79033a82.png" alt="u_{\mathrm{B}, \phi_0}(x_\mathrm{D})"/>
+normalized by the amplitude of the unscattered wave <img class="math" src="_images/math/cd0e15e786a562c4ee815866ea64df77002e9d52.png" alt="a_0"/>.
+measured at the detector.</p>
+</div></blockquote>
+<p><strong>angles</strong> : (A,) ndarray</p>
+<blockquote>
+<div><p>Angular positions <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/> of <tt class="docutils literal"><span class="pre">uSin</span></tt> in radians.</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>Vacuum wavelength of the light <img class="math" src="_images/math/1ab0134b6e0837594649c75a2ed83cfd85a2d03d.png" alt="\lambda"/> in pixels.</p>
+</div></blockquote>
+<p><strong>nm</strong> : float</p>
+<blockquote>
+<div><p>Refractive index of the surrounding medium <img class="math" src="_images/math/818f3f96e6b56894f9b4135e5493f114171d9a63.png" alt="n_\mathrm{m}"/>.</p>
+</div></blockquote>
+<p><strong>lD</strong> : float</p>
+<blockquote>
+<div><p>Distance from center of rotation to detector plane 
+<img class="math" src="_images/math/48e239cca1abf7770d2542e8996eb05f35a3a43e.png" alt="l_\mathrm{D}"/> in pixels.</p>
+</div></blockquote>
+<p><strong>coords</strong> : None [(2,M) ndarray], optional</p>
+<blockquote>
+<div><p>Only compute the output image at these coordinates. This
+keyword is reserved for future versions and is not
+implemented yet.</p>
+</div></blockquote>
+<p><strong>onlyreal</strong> : bool, optional</p>
+<blockquote>
+<div><p>If <tt class="docutils literal"><span class="pre">True</span></tt>, only the real part of the reconstructed image
+will be returned. This saves computation time.</p>
+</div></blockquote>
+<p><strong>padding</strong> : bool, optional</p>
+<blockquote>
+<div><p>Pad the input data to the second next power of 2 before
+Fourier transforming. This reduces artifacts and speeds up
+the process for input image sizes that are not powers of 2.</p>
+</div></blockquote>
+<p><strong>padval</strong> : float</p>
+<blockquote>
+<div><p>The value used for padding. This is important for the Rytov
+approximation, where an approximat zero in the phase might
+translate to 2πi due to the unwrapping algorithm. In that
+case, this value should be a multiple of 2πi. 
+If <cite>padval</cite> is <cite>None</cite>, then the edge values are used for
+padding (see documentation of <cite>numpy.pad</cite>).</p>
+</div></blockquote>
+<p><strong>jmc, jmm</strong> : instance of <a class="reference external" href="http://docs.python.org/2.7/library/multiprocessing.html#multiprocessing.Value" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">multiprocessing.Value()</span></tt></a> or <cite>None</cite></p>
+<blockquote>
+<div><p>The progress of this function can be monitored with the 
+<a class="reference external" href="http://cimatosa.github.io/jobmanager/index.html#module-jobmanager" title="(in jobmanager v0.1.0)"><tt class="xref py py-mod docutils literal"><span class="pre">jobmanager</span></tt></a> package. The current step <cite>jmc.value</cite> is
+incremented <cite>jmm.value</cite> times. <cite>jmm.value</cite> is set at the 
+beginning.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : int</p>
+<blockquote>
+<div><p>Increment to increase verbosity.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : ndarray of shape (N,N), complex if <cite>onlyreal</cite> is False</p>
+<blockquote class="last">
+<div><p>Reconstructed object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> as defined
+by the Helmholtz equation.
+<img class="math" src="_images/math/7342e426d755de54980ae45bee4530d82d387a3e.png" alt="f(x,z) = 
+k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)"/></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#odtbrain.odt_to_ri" title="odtbrain.odt_to_ri"><tt class="xref py py-obj docutils literal"><span class="pre">odt_to_ri</span></tt></a></dt>
+<dd>conversion of the object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> to refractive index <img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</dd>
+<dt><a class="reference external" href="http://paulmueller.github.io/radontea/index.html#radontea.backproject" title="(in radontea v0.1.6)"><tt class="xref py py-obj docutils literal"><span class="pre">radontea.backproject</span></tt></a></dt>
+<dd>backprojection based on the Fourier slice theorem.</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="fourier-mapping">
+<h3>Fourier mapping<a class="headerlink" href="#fourier-mapping" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="odtbrain.fourier_map_2d">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">fourier_map_2d</tt><big>(</big><em>uSin</em>, <em>angles</em>, <em>res</em>, <em>nm</em>, <em>lD</em>, <em>semi_coverage=False</em>, <em>coords=None</em>, <em>jmc=None</em>, <em>jmm=None</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_Back_2D.html#fourier_map_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.fourier_map_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>2D Fourier mapping with the Fourier diffraction theorem</p>
+<p>Two-dimensional diffraction tomography reconstruction
+algorithm for scattering of a plane wave
+<img class="math" src="_images/math/5cf6471c3633ae3dbe6bc564fbf119a378df2fe2.png" alt="u_0(\mathbf{r}) = u_0(x,z)"/> 
+by a dielectric object with refractive index
+<img class="math" src="_images/math/6b2814d7169c70b1701a564ffc52383e08a9f480.png" alt="n(x,z)"/>.</p>
+<p>This function implements the solution by interpolation in
+Fourier space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>uSin</strong> : (A,N) ndarray</p>
+<blockquote>
+<div><p>Two-dimensional sinogram of line recordings
+<img class="math" src="_images/math/3a393708353d35e44fde3388b5ca38be79033a82.png" alt="u_{\mathrm{B}, \phi_0}(x_\mathrm{D})"/>
+normalized by the amplitude of the unscattered wave <img class="math" src="_images/math/cd0e15e786a562c4ee815866ea64df77002e9d52.png" alt="a_0"/>.
+measured at the detector.</p>
+</div></blockquote>
+<p><strong>angles</strong> : (A,) ndarray</p>
+<blockquote>
+<div><p>Angular positions <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/> of <tt class="docutils literal"><span class="pre">uSin</span></tt> in radians.</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>Vacuum wavelength of the light <img class="math" src="_images/math/1ab0134b6e0837594649c75a2ed83cfd85a2d03d.png" alt="\lambda"/> in pixels.</p>
+</div></blockquote>
+<p><strong>nm</strong> : float</p>
+<blockquote>
+<div><p>Refractive index of the surrounding medium <img class="math" src="_images/math/818f3f96e6b56894f9b4135e5493f114171d9a63.png" alt="n_\mathrm{m}"/>.</p>
+</div></blockquote>
+<p><strong>lD</strong> : float</p>
+<blockquote>
+<div><p>Distance from center of rotation to detector plane 
+<img class="math" src="_images/math/48e239cca1abf7770d2542e8996eb05f35a3a43e.png" alt="l_\mathrm{D}"/> in pixels.</p>
+</div></blockquote>
+<p><strong>semi_coverage</strong> : bool, optional</p>
+<blockquote>
+<div><p>If set to True, it is assumed that the sinogram does not 
+necessarily cover the full angular range from 0 to 2PI, but an
+equidistant coverage over 2PI can be achieved by inferring point
+(anti)symmetry of the (imaginary) real parts of the Fourier 
+transform of f. Valid for any set of angles {X} that result in
+a 2PI coverage with the union set {X}U{X+PI}.</p>
+</div></blockquote>
+<p><strong>coords</strong> : None [(2,M) ndarray], optional</p>
+<blockquote>
+<div><p>Only compute the output image at these coordinates. This
+keyword is reserved for future versions and is not
+implemented yet.</p>
+</div></blockquote>
+<p><strong>jmc, jmm</strong> : instance of <a class="reference external" href="http://docs.python.org/2.7/library/multiprocessing.html#multiprocessing.Value" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">multiprocessing.Value()</span></tt></a> or <cite>None</cite></p>
+<blockquote>
+<div><p>The progress of this function can be monitored with the 
+<a class="reference external" href="http://cimatosa.github.io/jobmanager/index.html#module-jobmanager" title="(in jobmanager v0.1.0)"><tt class="xref py py-mod docutils literal"><span class="pre">jobmanager</span></tt></a> package. The current step <cite>jmc.value</cite> is
+incremented <cite>jmm.value</cite> times. <cite>jmm.value</cite> is set at the 
+beginning.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : ndarray of shape (N,N), complex if <cite>onlyreal</cite> is False</p>
+<blockquote class="last">
+<div><p>Reconstructed object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> as defined
+by the Helmholtz equation.
+<img class="math" src="_images/math/7342e426d755de54980ae45bee4530d82d387a3e.png" alt="f(x,z) = 
+k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)"/></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#odtbrain.backpropagate_2d" title="odtbrain.backpropagate_2d"><tt class="xref py py-obj docutils literal"><span class="pre">backpropagate_2d</span></tt></a></dt>
+<dd>implementation by backpropagation</dd>
+<dt><a class="reference internal" href="#odtbrain.odt_to_ri" title="odtbrain.odt_to_ri"><tt class="xref py py-obj docutils literal"><span class="pre">odt_to_ri</span></tt></a></dt>
+<dd>conversion of the object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> to refractive index <img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="direct-sum">
+<h3>Direct sum<a class="headerlink" href="#direct-sum" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="odtbrain.sum_2d">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">sum_2d</tt><big>(</big><em>uSin</em>, <em>angles</em>, <em>res</em>, <em>nm</em>, <em>lD</em>, <em>coords=None</em>, <em>jmc=None</em>, <em>jmm=None</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_Back_2D.html#sum_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.sum_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>2D sum-reconstruction with the Fourier diffraction theorem</p>
+<p>Two-dimensional diffraction tomography reconstruction
+algorithm for scattering of a plane wave
+<img class="math" src="_images/math/5cf6471c3633ae3dbe6bc564fbf119a378df2fe2.png" alt="u_0(\mathbf{r}) = u_0(x,z)"/> 
+by a dielectric object with refractive index
+<img class="math" src="_images/math/6b2814d7169c70b1701a564ffc52383e08a9f480.png" alt="n(x,z)"/>.</p>
+<p>This function implements the solution by summation in real
+space, which is extremely slow.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>uSin</strong> : (A,N) ndarray</p>
+<blockquote>
+<div><p>Two-dimensional sinogram of line recordings
+<img class="math" src="_images/math/3a393708353d35e44fde3388b5ca38be79033a82.png" alt="u_{\mathrm{B}, \phi_0}(x_\mathrm{D})"/>
+normalized by the amplitude of the unscattered wave <img class="math" src="_images/math/cd0e15e786a562c4ee815866ea64df77002e9d52.png" alt="a_0"/>.
+measured at the detector.</p>
+</div></blockquote>
+<p><strong>angles</strong> : (A,) ndarray</p>
+<blockquote>
+<div><p>Angular positions <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/> of <tt class="docutils literal"><span class="pre">uSin</span></tt> in radians.</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>Vacuum wavelength of the light <img class="math" src="_images/math/1ab0134b6e0837594649c75a2ed83cfd85a2d03d.png" alt="\lambda"/> in pixels.</p>
+</div></blockquote>
+<p><strong>nm</strong> : float</p>
+<blockquote>
+<div><p>Refractive index of the surrounding medium <img class="math" src="_images/math/818f3f96e6b56894f9b4135e5493f114171d9a63.png" alt="n_\mathrm{m}"/>.</p>
+</div></blockquote>
+<p><strong>lD</strong> : float</p>
+<blockquote>
+<div><p>Distance from center of rotation to detector plane 
+<img class="math" src="_images/math/48e239cca1abf7770d2542e8996eb05f35a3a43e.png" alt="l_\mathrm{D}"/> in pixels.</p>
+</div></blockquote>
+<p><strong>coords</strong> : None or (2,M) ndarray], optional</p>
+<blockquote>
+<div><p>Only compute the output image at these coordinates. This
+keyword is reserved for future versions and is not
+implemented yet.</p>
+</div></blockquote>
+<p><strong>jmc, jmm</strong> : instance of <a class="reference external" href="http://docs.python.org/2.7/library/multiprocessing.html#multiprocessing.Value" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">multiprocessing.Value()</span></tt></a> or <cite>None</cite></p>
+<blockquote>
+<div><p>The progress of this function can be monitored with the 
+<a class="reference external" href="http://cimatosa.github.io/jobmanager/index.html#module-jobmanager" title="(in jobmanager v0.1.0)"><tt class="xref py py-mod docutils literal"><span class="pre">jobmanager</span></tt></a> package. The current step <cite>jmc.value</cite> is
+incremented <cite>jmm.value</cite> times. <cite>jmm.value</cite> is set at the 
+beginning.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : ndarray of shape (N,N), complex if <cite>onlyreal</cite> is False</p>
+<blockquote class="last">
+<div><p>Reconstructed object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> as defined
+by the Helmholtz equation.
+<img class="math" src="_images/math/7342e426d755de54980ae45bee4530d82d387a3e.png" alt="f(x,z) = 
+k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)"/></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#odtbrain.backpropagate_2d" title="odtbrain.backpropagate_2d"><tt class="xref py py-obj docutils literal"><span class="pre">backpropagate_2d</span></tt></a></dt>
+<dd>implementation by backprojection</dd>
+<dt><a class="reference internal" href="#odtbrain.fourier_map_2d" title="odtbrain.fourier_map_2d"><tt class="xref py py-obj docutils literal"><span class="pre">fourier_map_2d</span></tt></a></dt>
+<dd>implementation by Fourier interpolation</dd>
+<dt><a class="reference internal" href="#odtbrain.odt_to_ri" title="odtbrain.odt_to_ri"><tt class="xref py py-obj docutils literal"><span class="pre">odt_to_ri</span></tt></a></dt>
+<dd>conversion of the object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> to refractive index <img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>This method is not meant for production use. The computation time
+is very long and the reconstruction quality is bad. This function
+is included in the package, because of its educational value.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="id2">
+<h2>3D inversion<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#odtbrain.backpropagate_3d" title="odtbrain.backpropagate_3d"><tt class="xref py py-obj docutils literal"><span class="pre">backpropagate_3d</span></tt></a>(uSin,&nbsp;angles,&nbsp;res,&nbsp;nm,&nbsp;lD)</td>
+<td>3D backpropagation with the Fourier diffraction theorem</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-odtbrain._Back_3D"></span><p>3D reconstruction in optical tomography with the Born approximation</p>
+<p>The first Born approximation for a 3D scattering problem with a plane
+wave 
+<img class="math" src="_images/math/fe398a3b7429d0964fb2a2622e1242c959561685.png" alt="u_0(\mathbf{r}) = a_0 \exp(-ik_\mathrm{m}\mathbf{s_0r})"/>
+reads:</p>
+<div class="math">
+<p><img src="_images/math/ebb78b83f410f51e188ec5d1fca0105254023187.png" alt="u_\mathrm{B}(\mathbf{r}) = \iiint \!\! d^3r' 
+    G(\mathbf{r-r'}) f(\mathbf{r'}) u_0(\mathbf{r'})"/></p>
+</div><p>The Green&#8217;s function in 3D can be written as:</p>
+<div class="math">
+<p><img src="_images/math/7850d1449aef23cd5ea1d78c8094bd59e8d42b19.png" alt="G(\mathbf{r-r'}) = \frac{ik_\mathrm{m}}{8\pi^2} \iint \!\! dpdq 
+    \frac{1}{M}&amp; \exp\! \left \lbrace i k_\mathrm{m} \left[ 
+    p(x-x') + q(y-y') + M(z-z') \right] \right \rbrace"/></p>
+</div><p>with</p>
+<div class="math">
+<p><img src="_images/math/ca9df13b431341128e08237ac2ff684dd34b3eb7.png" alt="M = \sqrt{1-p^2-q^2}"/></p>
+</div><p>Solving for <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> yields the Fourier diffraction theorem
+in 3D</p>
+<div class="math">
+<p><img src="_images/math/69bf9edcfc5dc94451078784f74833de062440d4.png" alt="\widehat{F}(k_\mathrm{m}(\mathbf{s-s_0})) = 
+    - \sqrt{\frac{2}{\pi}} 
+    \frac{i k_\mathrm{m}}{a_0} M
+    \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx}, k_\mathrm{Dy})
+    \exp \! \left(-i k_\mathrm{m} M l_\mathrm{D} \right)"/></p>
+</div><p>where 
+<img class="math" src="_images/math/274aa5a1feffdab8eb60a6b2e9c03122215dbba2.png" alt="\widehat{F}(k_\mathrm{x}, k_\mathrm{y}, k_\mathrm{z})"/>
+is the Fourier transformed object function and 
+<img class="math" src="_images/math/6167aa67a903cd2cc23e36852a009cb66b857153.png" alt="\widehat{U}_{\mathrm{B}, \phi_0}(k_\mathrm{Dx}, k_\mathrm{Dy})"/> 
+is the Fourier transformed complex wave that travels along 
+<img class="math" src="_images/math/0ab28237751586339c12c30f43d2e82844377142.png" alt="\mathbf{s_0}"/>
+(in the direction of <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/>) measured at the detector
+<img class="math" src="_images/math/a2d9bfb168c464d0848222cec5dbe612c6c76ab1.png" alt="\mathbf{r_D}"/>.</p>
+<p>The following identities are used:</p>
+<div class="math">
+<p><img src="_images/math/37d53a9748e0f1a2eaf9e987367b97b5a96f1a93.png" alt="k_\mathrm{m} (\mathbf{s-s_0}) &amp;= k_\mathrm{Dx} \, \mathbf{t_\perp} +
+k_\mathrm{m}(M - 1) \, \mathbf{s_0}
+
+\mathbf{s} = (p, q, M)
+
+\mathbf{s_0} = (p_0, q_0, M_0) = (-\sin\phi_0, \, 0, \, \cos\phi_0)
+
+\mathbf{t_\perp} = \left(\cos\phi_0, \,
+            \frac{k_\mathrm{Dy}}{k_\mathrm{Dx}}, \,
+            \sin\phi_0 \right)^\top"/></p>
+</div><div class="section" id="id3">
+<h3>Backpropagation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="odtbrain.backpropagate_3d">
+<tt class="descclassname">odtbrain.</tt><tt class="descname">backpropagate_3d</tt><big>(</big><em>uSin</em>, <em>angles</em>, <em>res</em>, <em>nm</em>, <em>lD</em>, <em>coords=None</em>, <em>onlyreal=False</em>, <em>padding=(True</em>, <em>True)</em>, <em>padfac=1.75</em>, <em>padval=None</em>, <em>intp_order=2</em>, <em>dtype=dtype('float64')</em>, <em>num_cores=4</em>, <em>jmc=None</em>, <em>jmm=None</em>, <em>verbose=1</em><big>)</big><a class="reference internal" href="_modules/odtbrain/_Back_3D.html#backpropagate_3d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#odtbrain.backpropagate_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>3D backpropagation with the Fourier diffraction theorem</p>
+<p>Three-dimensional diffraction tomography reconstruction
+algorithm for scattering of a plane wave
+<img class="math" src="_images/math/0dcf8f39d6287d1fca18ab008dba51240bcd434e.png" alt="u_0(\mathbf{r}) = u_0(x,y,z)"/> 
+by a dielectric object with refractive index
+<img class="math" src="_images/math/77db3059ef582ec808aba465c243e1e42248a10a.png" alt="n(x,y,z)"/>.</p>
+<p>This method implements the 3D backpropagation formula:</p>
+<div class="math">
+<p><img src="_images/math/5f516348d93890d4be09326a15142c0f7d2a0639.png" alt="f(\mathbf{r}) &amp;= \frac{-ik_\mathrm{m}}{(2\pi)^{2}a_\mathrm0} 
+    \int_0^{2\pi} \!\! d\phi_0
+    \int_{-k_\mathrm{m}}^{k_\mathrm{m}} \!\! dk_\mathrm{Dx}
+    \int_{-k_\mathrm{m}}^{k_\mathrm{m}} \!\! dk_\mathrm{Dy} \,
+    \left| k_\mathrm{Dx} \right| 
+    \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx},k_\mathrm{Dy})
+    \exp(-ik_\mathrm{m}M l_\mathrm{D})
+    \exp[i(k_\mathrm{Dx} \, \mathbf{t_\perp} + k_\mathrm{m}(M - 1) \, \mathbf{s_0})\mathbf{r}]"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>uSin</strong> : (A, Ny, Nx) ndarray</p>
+<blockquote>
+<div><p>Three-dimensional sinogram of plane recordings
+<img class="math" src="_images/math/25cc7ae5023fa38fdb46948e34c398d74b7ee3b4.png" alt="u_{\mathrm{B}, \phi_0}(x_\mathrm{D}, y_\mathrm{D},
+z_\mathrm{D})"/>
+normalized by the amplitude of the unscattered wave <img class="math" src="_images/math/cd0e15e786a562c4ee815866ea64df77002e9d52.png" alt="a_0"/>
+measured at the detector.</p>
+</div></blockquote>
+<p><strong>angles</strong> : (A,) ndarray</p>
+<blockquote>
+<div><p>Angular positions <img class="math" src="_images/math/8b67aa9294c96292c23cd0cc36c4af0bd82c5a53.png" alt="\phi_0"/> of <tt class="docutils literal"><span class="pre">uSin</span></tt> in radians.</p>
+</div></blockquote>
+<p><strong>res</strong> : float</p>
+<blockquote>
+<div><p>Vacuum wavelength of the light <img class="math" src="_images/math/1ab0134b6e0837594649c75a2ed83cfd85a2d03d.png" alt="\lambda"/> in pixels.</p>
+</div></blockquote>
+<p><strong>nm</strong> : float</p>
+<blockquote>
+<div><p>Refractive index of the surrounding medium <img class="math" src="_images/math/818f3f96e6b56894f9b4135e5493f114171d9a63.png" alt="n_\mathrm{m}"/>.</p>
+</div></blockquote>
+<p><strong>lD</strong> : float</p>
+<blockquote>
+<div><p>Distance from center of rotation to detector plane 
+<img class="math" src="_images/math/48e239cca1abf7770d2542e8996eb05f35a3a43e.png" alt="l_\mathrm{D}"/> in pixels.</p>
+</div></blockquote>
+<p><strong>coords</strong> : None [(3, M) ndarray]</p>
+<blockquote>
+<div><p>Only compute the output image at these coordinates. This
+keyword is reserved for future versions and is not
+implemented yet.</p>
+</div></blockquote>
+<p><strong>onlyreal</strong> : bool</p>
+<blockquote>
+<div><p>If <cite>True</cite>, only the real part of the reconstructed image
+will be returned. This saves computation time.</p>
+</div></blockquote>
+<p><strong>padding</strong> : tuple of bool</p>
+<blockquote>
+<div><p>Pad the input data to the second next power of 2 before
+Fourier transforming. This reduces artifacts and speeds up
+the process for input image sizes that are not powers of 2.
+The default is padding in x and y: <cite>padding=(True, True)</cite>.
+For padding only in x-direction (e.g. for cylindrical
+symmetries), set <cite>padding</cite> to <cite>(True, False)</cite>. To turn off
+padding, set it to <cite>(False, False)</cite>.</p>
+</div></blockquote>
+<p><strong>padfac</strong> : float</p>
+<blockquote>
+<div><p>Increase padding size of the input data. A value greater
+than one will trigger padding to the second-next power of
+two. For example, a value of 1.75 will lead to a padded
+size of 256 for an initial size of 144, whereas for it will
+lead to a padded size of 512 for an initial size of 150.
+Values geater than 2 are allowed. This parameter may
+greatly increase memory usage!</p>
+</div></blockquote>
+<p><strong>padval</strong> : float</p>
+<blockquote>
+<div><p>The value used for padding. This is important for the Rytov
+approximation, where an approximat zero in the phase might
+translate to 2πi due to the unwrapping algorithm. In that
+case, this value should be a multiple of 2πi. 
+If <cite>padval</cite> is <cite>None</cite>, then the edge values are used for
+padding (see documentation of <cite>numpy.pad</cite>).</p>
+</div></blockquote>
+<p><strong>order</strong> : int between 0 and 5</p>
+<blockquote>
+<div><p>Order of the interpolation for rotation.
+See <cite>scipy.ndimage.interpolation.rotate</cite> for details.</p>
+</div></blockquote>
+<p><strong>dtype</strong> : dtype object or argument for np.dtype</p>
+<blockquote>
+<div><p>The data type that is used for calculations (float or double).
+Defaults to np.float.</p>
+</div></blockquote>
+<p><strong>num_cores</strong> : int</p>
+<blockquote>
+<div><p>The number of cores to use for parallel operations. This value
+defaults to the number of cores on the system.</p>
+</div></blockquote>
+<p><strong>jmc, jmm</strong> : instance of <a class="reference external" href="http://docs.python.org/2.7/library/multiprocessing.html#multiprocessing.Value" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">multiprocessing.Value()</span></tt></a> or <cite>None</cite></p>
+<blockquote>
+<div><p>The progress of this function can be monitored with the 
+<a class="reference external" href="http://cimatosa.github.io/jobmanager/index.html#module-jobmanager" title="(in jobmanager v0.1.0)"><tt class="xref py py-mod docutils literal"><span class="pre">jobmanager</span></tt></a> package. The current step <cite>jmc.value</cite> is
+incremented <cite>jmm.value</cite> times. <cite>jmm.value</cite> is set at the 
+beginning.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : int</p>
+<blockquote>
+<div><p>Increment to increase verbosity.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : ndarray of shape (Nx, Ny, Nx), complex if <tt class="docutils literal"><span class="pre">onlyreal==False</span></tt></p>
+<blockquote class="last">
+<div><p>Reconstructed object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> as defined
+by the Helmholtz equation.
+<img class="math" src="_images/math/7342e426d755de54980ae45bee4530d82d387a3e.png" alt="f(x,z) = 
+k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)"/></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#odtbrain.odt_to_ri" title="odtbrain.odt_to_ri"><tt class="xref py py-obj docutils literal"><span class="pre">odt_to_ri</span></tt></a></dt>
+<dd>conversion of the object function <img class="math" src="_images/math/d160b1a1ad438618dd1245841d293a2d3e28497f.png" alt="f(\mathbf{r})"/> to refractive index <img class="math" src="_images/math/28ad0a2397890935e3fe838231a551f9a239cb97.png" alt="n(\mathbf{r})"/>.</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+<div class="section" id="module-backprop_from_fdtd_2d">
+<span id="examples"></span><h1>Examples<a class="headerlink" href="#module-backprop_from_fdtd_2d" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="d-backpropagation-fdtd">
+<h2>2D backpropagation (FDTD)<a class="headerlink" href="#d-backpropagation-fdtd" title="Permalink to this headline">¶</a></h2>
+<p>The <em>in silico</em> data set was created with the 
+<abbr title="Finite Difference Time Domain">FDTD</abbr> software <a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/Meep">meep</a>. The data
+are 1D projections of a 2D refractive index phantom. The
+reconstruction of the refractive index with the Rytov approximation
+is in good agreement with the phantom that was used in the
+simulation.</p>
+<div class="figure align-center">
+<img alt="_images/backprop_from_fdtd_2d_repo.png" src="_images/backprop_from_fdtd_2d_repo.png" />
+<p class="caption">2D reconstruction from <abbr title="Finite Difference Time Domain">FDTD</abbr>
+data created by <a class="reference external" href="http://ab-initio.mit.edu/wiki/index.php/Meep">meep</a> simulations.</p>
+</div>
+<p>Download the <a class="reference download internal" href="_downloads/backprop_from_fdtd_2d.py"><tt class="xref download docutils literal"><span class="pre">full</span> <span class="pre">example</span></tt></a>.</p>
+</div>
+<span class="target" id="module-backprop_from_mie_3d_sphere"></span><div class="section" id="d-backpropagation-of-a-sphere-mie">
+<h2>3D backpropagation of a sphere (Mie)<a class="headerlink" href="#d-backpropagation-of-a-sphere-mie" title="Permalink to this headline">¶</a></h2>
+<p>The <em>in silico</em> data set was created with the Mie calculation software
+<a class="reference external" href="https://code.google.com/p/scatterlib/wiki/Nearfield">GMM-field</a>. The data consist of a two-dimensional projection of a
+sphere with radius <img class="math" src="_images/math/4275559a8ec02bd598416bc800122e46228b6daf.png" alt="R=14\lambda"/>,
+refractive index <img class="math" src="_images/math/6198335315deb97f7527240066fea776cefa9949.png" alt="n_\mathrm{sph}=1.006"/>,
+embedded in a medium of refractive index <img class="math" src="_images/math/0b4bdcfdff186551965e99f50de528fc5b8bd5e8.png" alt="n_\mathrm{med}=1.0"/>,
+onto a detector which is <img class="math" src="_images/math/6c9a3cf9a4901c5d599d8846e0cb10090f7cefe0.png" alt="l_\mathrm{D} = 20\lambda"/> away from the
+center of the sphere.</p>
+<p>If the package <tt class="xref py py-mod docutils literal"><span class="pre">nrefocus</span></tt> is installed, a better reconstruction
+is obtained by numerical autofocusing the detected field prior to the
+refractive index reconstruction and then setting <img class="math" src="_images/math/bffd8d9fa213116ca6fd89734e40d155e52fff6b.png" alt="l_\mathrm{D}=0"/>
+for the reconstruction with <a class="reference internal" href="#odtbrain.backpropagate_3d" title="odtbrain.backpropagate_3d"><tt class="xref py py-func docutils literal"><span class="pre">odtbrain.backpropagate_3d()</span></tt></a>.</p>
+<div class="figure align-center">
+<img alt="_images/backprop_from_mie_3d_sphere_repo.png" src="_images/backprop_from_mie_3d_sphere_repo.png" />
+<p class="caption">3D reconstruction from Mie simulations of a perfect sphere using
+200 projections. Missing angle artifacts are visible along the 
+<img class="math" src="_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/>-axis due to the <img class="math" src="_images/math/9871bd64995368def3d10c85692a233e4cb5e3f9.png" alt="2\pi"/>-only coverage in 3D Fourier
+space.</p>
+</div>
+<p>Download the 
+<a class="reference download internal" href="_downloads/backprop_from_mie_3d_sphere.py"><tt class="xref download docutils literal"><span class="pre">full</span> <span class="pre">example</span></tt></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">odtbrain documentation</a><ul>
+<li><a class="reference internal" href="#content">Content</a></li>
+<li><a class="reference internal" href="#module-odtbrain">Introduction</a><ul>
+<li><a class="reference internal" href="#obtaining-odtbrain">Obtaining ODTbrain</a></li>
+<li><a class="reference internal" href="#theoretical-background">Theoretical background</a></li>
+<li><a class="reference internal" href="#fields-of-application">Fields of Application</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pre-and-post-processing">Pre- and post-processing</a><ul>
+<li><a class="reference internal" href="#available-approximations">Available approximations</a></li>
+<li><a class="reference internal" href="#refractive-index-computation">Refractive index computation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#d-inversion">2D inversion</a><ul>
+<li><a class="reference internal" href="#backpropagation">Backpropagation</a></li>
+<li><a class="reference internal" href="#fourier-mapping">Fourier mapping</a></li>
+<li><a class="reference internal" href="#direct-sum">Direct sum</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">3D inversion</a><ul>
+<li><a class="reference internal" href="#id3">Backpropagation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-backprop_from_fdtd_2d">Examples</a><ul>
+<li><a class="reference internal" href="#d-backpropagation-fdtd">2D backpropagation (FDTD)</a></li>
+<li><a class="reference internal" href="#d-backpropagation-of-a-sphere-mie">3D backpropagation of a sphere (Mie)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href=""
+                        title="next chapter">odtbrain documentation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="#" title="odtbrain documentation"
+             >next</a> |</li>
+        <li><a href="#">odtbrain 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Paul Müller.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

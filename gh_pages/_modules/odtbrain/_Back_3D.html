@@ -1,0 +1,848 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>odtbrain._Back_3D &mdash; odtbrain 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="odtbrain 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">odtbrain 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for odtbrain._Back_3D</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot; 3D reconstruction in optical tomography with the Born approximation</span>
+
+<span class="sd">The first Born approximation for a 3D scattering problem with a plane</span>
+<span class="sd">wave </span>
+<span class="sd">:math:`u_0(\mathbf{r}) = a_0 \exp(-ik_\mathrm{m}\mathbf{s_0r})`</span>
+<span class="sd">reads:</span>
+
+
+<span class="sd">.. math::</span>
+<span class="sd">    u_\mathrm{B}(\mathbf{r}) = \iiint \!\! d^3r&#39; </span>
+<span class="sd">        G(\mathbf{r-r&#39;}) f(\mathbf{r&#39;}) u_0(\mathbf{r&#39;})</span>
+
+<span class="sd">The Green&#39;s function in 3D can be written as:</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    G(\mathbf{r-r&#39;}) = \\frac{ik_\mathrm{m}}{8\pi^2} \iint \!\! dpdq </span>
+<span class="sd">        \\frac{1}{M}&amp; \exp\! \\left \\lbrace i k_\mathrm{m} \\left[ </span>
+<span class="sd">        p(x-x&#39;) + q(y-y&#39;) + M(z-z&#39;) \\right] \\right \\rbrace</span>
+
+<span class="sd">with</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    </span>
+<span class="sd">    M = \sqrt{1-p^2-q^2}</span>
+<span class="sd">    </span>
+<span class="sd">Solving for :math:`f(\mathbf{r})` yields the Fourier diffraction theorem</span>
+<span class="sd">in 3D</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    \widehat{F}(k_\mathrm{m}(\mathbf{s-s_0})) = </span>
+<span class="sd">        - \sqrt{\\frac{2}{\pi}} </span>
+<span class="sd">        \\frac{i k_\mathrm{m}}{a_0} M</span>
+<span class="sd">        \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx}, k_\mathrm{Dy})</span>
+<span class="sd">        \exp \! \\left(-i k_\mathrm{m} M l_\mathrm{D} \\right)</span>
+<span class="sd">    </span>
+<span class="sd">where </span>
+<span class="sd">:math:`\widehat{F}(k_\mathrm{x}, k_\mathrm{y}, k_\mathrm{z})`</span>
+<span class="sd">is the Fourier transformed object function and </span>
+<span class="sd">:math:`\widehat{U}_{\mathrm{B}, \phi_0}(k_\mathrm{Dx}, k_\mathrm{Dy})` </span>
+<span class="sd">is the Fourier transformed complex wave that travels along </span>
+<span class="sd">:math:`\mathbf{s_0}`</span>
+<span class="sd">(in the direction of :math:`\phi_0`) measured at the detector</span>
+<span class="sd">:math:`\mathbf{r_D}`.</span>
+
+
+<span class="sd">The following identities are used:</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    k_\mathrm{m} (\mathbf{s-s_0}) &amp;= k_\mathrm{Dx} \, \mathbf{t_\perp} +</span>
+<span class="sd">    k_\mathrm{m}(M - 1) \, \mathbf{s_0}</span>
+<span class="sd">    </span>
+<span class="sd">    \mathbf{s} = (p, q, M)</span>
+
+<span class="sd">    \mathbf{s_0} = (p_0, q_0, M_0) = (-\sin\phi_0, \, 0, \, \cos\phi_0)</span>
+
+<span class="sd">    \mathbf{t_\perp} = \\left(\cos\phi_0, \,</span>
+<span class="sd">                \\frac{k_\mathrm{Dy}}{k_\mathrm{Dx}}, \,</span>
+<span class="sd">                \sin\phi_0 \\right)^\\top </span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">pyfftw</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">odtbrain</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;backpropagate_3d&quot;</span><span class="p">,</span> <span class="s">&quot;fourier_map_3d&quot;</span><span class="p">,</span> <span class="s">&quot;sum_3d&quot;</span><span class="p">,</span>
+           <span class="s">&quot;backpropagate_3d_4pi&quot;</span><span class="p">]</span>
+
+<span class="n">_ncores</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="n">_np_float32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">_np_float64</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="n">_verbose</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c"># Determine maximal available memory</span>
+<span class="n">_max_ram_gb</span> <span class="o">=</span> <span class="mi">2</span> <span class="c"># Everyone has 2</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c"># sysconf</span>
+    <span class="n">_sysmem_gb</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">sysconf</span><span class="p">(</span><span class="s">&#39;SC_PAGE_SIZE&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">os</span><span class="o">.</span><span class="n">sysconf</span><span class="p">(</span><span class="s">&#39;SC_PHYS_PAGES&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span> 
+    <span class="c"># leave 1GB for the OS</span>
+    <span class="k">if</span> <span class="n">_sysmem_gb</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">_max_ram_gb</span> <span class="o">=</span> <span class="n">_sysmem_gb</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c"># psutil (if installed)</span>
+        <span class="kn">from</span> <span class="nn">psutil</span> <span class="kn">import</span> <span class="n">virtual_memory</span>
+        <span class="n">_sysmem_gb</span> <span class="o">=</span> <span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">total</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+        <span class="c"># leave 1GB for the OS</span>
+        <span class="k">if</span> <span class="n">_sysmem_gb</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">_max_ram_gb</span> <span class="o">=</span> <span class="n">_sysmem_gb</span> <span class="o">-</span> <span class="mi">1</span>    
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Cannot determine memory size. Please install `psutil`&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_mprotate</span><span class="p">(</span><span class="n">ang</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+    <span class="sd">u&quot;&quot;&quot; Uses multiprocessing to wrap around _rotate</span>
+
+<span class="sd">    4x speedup on an intel i7-3820 CPU @ 3.60GHz with 8 cores.</span>
+
+<span class="sd">    The function calls _rotate which accesses the</span>
+<span class="sd">    `odtbrain._shared_array`. Data is rotated in-place.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ang: float</span>
+<span class="sd">        rotation angle in degrees</span>
+<span class="sd">    lny: int</span>
+<span class="sd">        total number of rotations to perform</span>
+<span class="sd">    pool: instance of multiprocessing.pool.Pool</span>
+<span class="sd">        the pool object used for the computation</span>
+<span class="sd">    order: int</span>
+<span class="sd">        interpolation order</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">targ_args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="n">slsize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">lny</span> <span class="o">/</span> <span class="n">_ncores</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_ncores</span><span class="p">):</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="n">t</span> <span class="o">*</span> <span class="n">slsize</span>
+        <span class="n">ymax</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">slsize</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">_ncores</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ymax</span> <span class="o">=</span> <span class="n">lny</span>
+        <span class="n">targ_args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">ang</span><span class="p">,</span> <span class="n">order</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;Windows&quot;</span><span class="p">:</span>
+        <span class="c"># Because Windows does not support forking,</span>
+        <span class="c"># the subprocess does not have access to</span>
+        <span class="c"># odtbrain._shared_array. We circumvent</span>
+        <span class="c"># this problem by not using a pool.</span>
+        <span class="c"># We could copy all the data instead and</span>
+        <span class="c"># use a _rotate function that accepts the</span>
+        <span class="c"># array as an argument.</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">targ_args</span><span class="p">:</span>
+            <span class="n">_rotate</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_rotate</span><span class="p">,</span> <span class="n">targ_args</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_rotate</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">ang</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="c"># print(_ang.value)</span>
+    <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">interpolation</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span>
+        <span class="n">odtbrain</span><span class="o">.</span><span class="n">_shared_array</span><span class="p">[:,</span> <span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="p">:],</span>  <span class="c"># input</span>
+        <span class="n">angle</span><span class="o">=-</span><span class="n">ang</span><span class="p">,</span>  <span class="c"># angle</span>
+        <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>  <span class="c"># axes</span>
+        <span class="n">reshape</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c"># reshape</span>
+        <span class="n">output</span><span class="o">=</span><span class="n">odtbrain</span><span class="o">.</span><span class="n">_shared_array</span><span class="p">[:,</span> <span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="p">:],</span>  <span class="c"># output</span>
+        <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>  <span class="c"># order</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s">&quot;constant&quot;</span><span class="p">,</span>  <span class="c"># mode</span>
+        <span class="n">cval</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_filter2_func</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    computes exp(1j * z * km*(M-1))</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zvp</span><span class="p">,</span> <span class="n">Mpm1</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1j</span> <span class="o">*</span> <span class="n">zvp</span> <span class="o">*</span> <span class="n">Mpm1</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="backpropagate_3d"><a class="viewcode-back" href="../../index.html#odtbrain._Back_3D.backpropagate_3d">[docs]</a><span class="k">def</span> <span class="nf">backpropagate_3d</span><span class="p">(</span><span class="n">uSin</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">nm</span><span class="p">,</span> <span class="n">lD</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                     <span class="n">onlyreal</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
+                     <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">padfac</span><span class="o">=</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">padval</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                     <span class="n">intp_order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">_np_float64</span><span class="p">,</span>
+                     <span class="n">num_cores</span><span class="o">=</span><span class="n">_ncores</span><span class="p">,</span> 
+                     <span class="n">jmc</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">jmm</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                     <span class="n">verbose</span><span class="o">=</span><span class="n">_verbose</span><span class="p">):</span>
+    <span class="sd">u&quot;&quot;&quot; 3D backpropagation with the Fourier diffraction theorem</span>
+
+<span class="sd">    Three-dimensional diffraction tomography reconstruction</span>
+<span class="sd">    algorithm for scattering of a plane wave</span>
+<span class="sd">    :math:`u_0(\mathbf{r}) = u_0(x,y,z)` </span>
+<span class="sd">    by a dielectric object with refractive index</span>
+<span class="sd">    :math:`n(x,y,z)`.</span>
+
+<span class="sd">    This method implements the 3D backpropagation formula:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        f(\mathbf{r}) &amp;= \\frac{-ik_\mathrm{m}}{(2\pi)^{2}a_\mathrm0} </span>
+<span class="sd">            \int_0^{2\pi} \!\! d\phi_0</span>
+<span class="sd">            \int_{-k_\mathrm{m}}^{k_\mathrm{m}} \!\! dk_\mathrm{Dx}</span>
+<span class="sd">            \int_{-k_\mathrm{m}}^{k_\mathrm{m}} \!\! dk_\mathrm{Dy} \,</span>
+<span class="sd">            \\left| k_\mathrm{Dx} \\right| </span>
+<span class="sd">            \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx},k_\mathrm{Dy})</span>
+<span class="sd">            \exp(-ik_\mathrm{m}M l_\mathrm{D})</span>
+<span class="sd">            \exp[i(k_\mathrm{Dx} \, \mathbf{t_\\perp} + k_\mathrm{m}(M - 1) \, \mathbf{s_0})\mathbf{r}]</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uSin : (A, Ny, Nx) ndarray</span>
+<span class="sd">        Three-dimensional sinogram of plane recordings</span>
+<span class="sd">        :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D}, y_\mathrm{D},</span>
+<span class="sd">        z_\mathrm{D})`</span>
+<span class="sd">        normalized by the amplitude of the unscattered wave :math:`a_0`</span>
+<span class="sd">        measured at the detector.</span>
+<span class="sd">    angles : (A,) ndarray</span>
+<span class="sd">        Angular positions :math:`\phi_0` of ``uSin`` in radians.</span>
+<span class="sd">    res : float</span>
+<span class="sd">        Vacuum wavelength of the light :math:`\lambda` in pixels.</span>
+<span class="sd">    nm : float</span>
+<span class="sd">        Refractive index of the surrounding medium :math:`n_\mathrm{m}`.</span>
+<span class="sd">    lD : float</span>
+<span class="sd">        Distance from center of rotation to detector plane </span>
+<span class="sd">        :math:`l_\mathrm{D}` in pixels.</span>
+<span class="sd">    coords : None [(3, M) ndarray]</span>
+<span class="sd">        Only compute the output image at these coordinates. This</span>
+<span class="sd">        keyword is reserved for future versions and is not</span>
+<span class="sd">        implemented yet.</span>
+<span class="sd">    onlyreal : bool</span>
+<span class="sd">        If `True`, only the real part of the reconstructed image</span>
+<span class="sd">        will be returned. This saves computation time.</span>
+<span class="sd">    padding : tuple of bool</span>
+<span class="sd">        Pad the input data to the second next power of 2 before</span>
+<span class="sd">        Fourier transforming. This reduces artifacts and speeds up</span>
+<span class="sd">        the process for input image sizes that are not powers of 2.</span>
+<span class="sd">        The default is padding in x and y: `padding=(True, True)`.</span>
+<span class="sd">        For padding only in x-direction (e.g. for cylindrical</span>
+<span class="sd">        symmetries), set `padding` to `(True, False)`. To turn off</span>
+<span class="sd">        padding, set it to `(False, False)`.</span>
+<span class="sd">    padfac : float</span>
+<span class="sd">        Increase padding size of the input data. A value greater</span>
+<span class="sd">        than one will trigger padding to the second-next power of</span>
+<span class="sd">        two. For example, a value of 1.75 will lead to a padded</span>
+<span class="sd">        size of 256 for an initial size of 144, whereas for it will</span>
+<span class="sd">        lead to a padded size of 512 for an initial size of 150.</span>
+<span class="sd">        Values geater than 2 are allowed. This parameter may</span>
+<span class="sd">        greatly increase memory usage!</span>
+<span class="sd">    padval : float</span>
+<span class="sd">        The value used for padding. This is important for the Rytov</span>
+<span class="sd">        approximation, where an approximat zero in the phase might</span>
+<span class="sd">        translate to 2πi due to the unwrapping algorithm. In that</span>
+<span class="sd">        case, this value should be a multiple of 2πi. </span>
+<span class="sd">        If `padval` is `None`, then the edge values are used for</span>
+<span class="sd">        padding (see documentation of `numpy.pad`).</span>
+<span class="sd">    order : int between 0 and 5</span>
+<span class="sd">        Order of the interpolation for rotation.</span>
+<span class="sd">        See `scipy.ndimage.interpolation.rotate` for details.</span>
+<span class="sd">    dtype : dtype object or argument for np.dtype</span>
+<span class="sd">        The data type that is used for calculations (float or double).</span>
+<span class="sd">        Defaults to np.float.</span>
+<span class="sd">    num_cores : int</span>
+<span class="sd">        The number of cores to use for parallel operations. This value</span>
+<span class="sd">        defaults to the number of cores on the system.</span>
+<span class="sd">    jmc, jmm : instance of :func:`multiprocessing.Value` or `None`</span>
+<span class="sd">        The progress of this function can be monitored with the </span>
+<span class="sd">        :mod:`jobmanager` package. The current step `jmc.value` is</span>
+<span class="sd">        incremented `jmm.value` times. `jmm.value` is set at the </span>
+<span class="sd">        beginning.</span>
+<span class="sd">    verbose : int</span>
+<span class="sd">        Increment to increase verbosity.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f : ndarray of shape (Nx, Ny, Nx), complex if ``onlyreal==False``</span>
+<span class="sd">        Reconstructed object function :math:`f(\mathbf{r})` as defined</span>
+<span class="sd">        by the Helmholtz equation.</span>
+<span class="sd">        :math:`f(x,z) = </span>
+<span class="sd">        k_m^2 \\left(\\left(\\frac{n(x,z)}{n_m}\\right)^2 -1\\right)`</span>
+
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    odt_to_ri : conversion of the object function :math:`f(\mathbf{r})` </span>
+<span class="sd">        to refractive index :math:`n(\mathbf{r})`.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">angles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c"># jobmanager</span>
+    <span class="k">if</span> <span class="n">jmm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">jmm</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">A</span> <span class="o">+</span> <span class="mi">2</span>
+    
+    
+    <span class="c"># check for dtype</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dtype</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;float32&quot;</span><span class="p">,</span> <span class="s">&quot;float64&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;dtype must be float32 or float64.&quot;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">num_cores</span> <span class="o">&lt;=</span> <span class="n">_ncores</span><span class="p">,</span> <span class="s">&quot;`num_cores` must not exceed number &quot;</span> <span class="o">+</span>\
+                                 <span class="s">&quot;of physical cores: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_ncores</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">uSin</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">,</span> <span class="s">&quot;uSin dtype must be complex128.&quot;</span>
+
+    <span class="n">dtype_complex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s">&quot;complex{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;float&quot;</span><span class="p">))))</span>
+
+    <span class="c"># set ctype</span>
+    <span class="n">ct_dt_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">):</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">,</span>
+                 <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span>
+                 <span class="p">}</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">uSin</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Input data `uSin` must have shape (A,Ny,Nx).&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">uSin</span><span class="p">)</span> <span class="o">!=</span> <span class="n">A</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;`len(angles)` must be  equal to `len(uSin)`.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">padding</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Parameter `padding` must be boolean tuple of&quot;</span> <span class="o">+</span>
+                         <span class="s">&quot; length 2!&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Parameter `padding` must be boolean tuple.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Output coordinates cannot yet&quot;</span> <span class="o">+</span>
+                                  <span class="s">&quot; be set for the 2D backrpopagation algorithm.&quot;</span><span class="p">)</span>
+
+    <span class="c"># Cut-Off frequency</span>
+    <span class="c"># km [1/px]</span>
+    <span class="n">km</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">nm</span><span class="p">)</span> <span class="o">/</span> <span class="n">res</span>
+    <span class="c"># The notation in the our optical tomography script for</span>
+    <span class="c"># a wave propagating to the right is:</span>
+    <span class="c">#</span>
+    <span class="c">#    u0(x) = exp(ikx)</span>
+    <span class="c">#</span>
+    <span class="c"># However, in physics usually we use the other sign convention:</span>
+    <span class="c">#</span>
+    <span class="c">#    u0(x) = exp(-ikx)</span>
+    <span class="c">#</span>
+    <span class="c"># In order to be consistent with programs like Meep or our</span>
+    <span class="c"># scattering script for a dielectric cylinder, we want to use the</span>
+    <span class="c"># latter sign convention.</span>
+    <span class="c"># This is not a big problem. We only need to multiply the imaginary</span>
+    <span class="c"># part of the scattered wave by -1.</span>
+
+    <span class="c"># save memory</span>
+    <span class="n">sinogram</span> <span class="o">=</span> <span class="n">uSin</span>
+
+    <span class="c"># lengths of the input data</span>
+    <span class="p">(</span><span class="n">la</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">lnx</span><span class="p">)</span> <span class="o">=</span> <span class="n">sinogram</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">ln</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lnx</span><span class="p">,</span> <span class="n">lny</span><span class="p">)</span>
+
+    <span class="c"># We do a zero-padding before performing the Fourier transform.</span>
+    <span class="c"># This gets rid of artifacts due to false periodicity and also</span>
+    <span class="c"># speeds up Fourier transforms of the input image size is not</span>
+    <span class="c"># a power of 2.</span>
+    <span class="c"># transpose so we can call resize correctly</span>
+
+    <span class="n">orderx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">64.</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lnx</span> <span class="o">*</span> <span class="n">padfac</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+    <span class="n">ordery</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">64.</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lny</span> <span class="o">*</span> <span class="n">padfac</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">padx</span> <span class="o">=</span> <span class="n">orderx</span> <span class="o">-</span> <span class="n">lnx</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">padx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">pady</span> <span class="o">=</span> <span class="n">ordery</span> <span class="o">-</span> <span class="n">lny</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pady</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c">## Disabled: Compute how much ram we will be using</span>
+    <span class="c">#</span>
+    <span class="c"># max_ram_gb = _max_ram_gb</span>
+    <span class="c">#</span>
+    <span class="c"># max_ram_gb : float</span>
+    <span class="c">#    Try only to use this many GB of memory.</span>
+    <span class="c">#</span>
+    <span class="c">#try:</span>
+    <span class="c">#    dt_fact = float(str(dtype_complex).strip(&quot;complex&quot;))</span>
+    <span class="c">#except:</span>
+    <span class="c">#    dt_fact = 128</span>
+    <span class="c">#    </span>
+    <span class="c">#used_ram_gb_fast = 2*(2*orderx*ordery*ln + 4*lny*lnx*ln + 2*la*lny*lnx ) * dt_fact / 8 / (1024)**3 </span>
+    <span class="c">#used_ram_gb_slow = (orderx*ordery*2 + 4*lny*lnx*ln + 2*la*lny*lnx ) * dt_fact / 8 / (1024)**3</span>
+    <span class="c">#</span>
+    <span class="c">#if max_ram_gb &lt; used_ram_gb_slow:</span>
+    <span class="c">#    raise MemoryError(&quot;Please increase parameter `max_ram_gb`.&quot;)</span>
+    <span class="c">#if max_ram_gb &lt; used_ram_gb_fast:</span>
+    <span class="c">#    fast_mode = False</span>
+    <span class="c">#    print(&quot;...Will use NOT use fast implementation ({:.1f} of {:.1f}GB)!&quot;.</span>
+    <span class="c">#                                    format(max_ram_gb, used_ram_gb_fast))</span>
+    <span class="c">#else:</span>
+    <span class="c">#    fast_mode = True</span>
+    <span class="c">#    print(&quot;...Will use FAST implementation with {:.1f}GB of RAM!&quot;.format(used_ram_gb_fast))</span>
+
+    <span class="c"># Apply a Fourier filter before projecting the sinogram slices.</span>
+    <span class="c"># Resize image to next power of two for fourier analysis</span>
+    <span class="c"># Reduces artifacts</span>
+
+    <span class="n">padyl</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">pady</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">padyr</span> <span class="o">=</span> <span class="n">pady</span> <span class="o">-</span> <span class="n">padyl</span>
+    <span class="n">padxl</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">padx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">padxr</span> <span class="o">=</span> <span class="n">padx</span> <span class="o">-</span> <span class="n">padyl</span>
+
+
+    <span class="c">#TODO: This padding takes up a lot of memory. Move it to a separate</span>
+    <span class="c"># for loop or to the main for-loop.</span>
+    <span class="k">if</span> <span class="n">padval</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">sino</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">sinogram</span><span class="p">,</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">padyl</span><span class="p">,</span> <span class="n">padyr</span><span class="p">),</span> <span class="p">(</span><span class="n">padxl</span><span class="p">,</span> <span class="n">padxr</span><span class="p">)),</span>
+                      <span class="n">mode</span><span class="o">=</span><span class="s">&quot;edge&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;......Padding with edge values.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sino</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">sinogram</span><span class="p">,</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">padyl</span><span class="p">,</span> <span class="n">padyr</span><span class="p">),</span> <span class="p">(</span><span class="n">padxl</span><span class="p">,</span> <span class="n">padxr</span><span class="p">)),</span>
+                      <span class="c"># mode=&quot;constant&quot;, constant_values=((padval,padval),</span>
+                      <span class="c">#(padval,padval),(padval,padval)))</span>
+                      <span class="n">mode</span><span class="o">=</span><span class="s">&quot;linear_ramp&quot;</span><span class="p">,</span>
+                      <span class="n">end_values</span><span class="o">=</span><span class="p">((</span><span class="n">padval</span><span class="p">,</span> <span class="n">padval</span><span class="p">),</span> <span class="p">(</span><span class="n">padval</span><span class="p">,</span> <span class="n">padval</span><span class="p">),</span>
+                                  <span class="p">(</span><span class="n">padval</span><span class="p">,</span> <span class="n">padval</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;......Verifying padding value: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">padval</span><span class="p">))</span>
+
+    <span class="c"># save memory</span>
+    <span class="k">del</span> <span class="n">sinogram</span>
+    <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;......Image size (x,y): {}x{}, padded: {}x{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">lnx</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">sino</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sino</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c"># zero-padded length of sinogram.</span>
+    <span class="p">(</span><span class="n">lA</span><span class="p">,</span> <span class="n">lNy</span><span class="p">,</span> <span class="n">lNx</span><span class="p">)</span> <span class="o">=</span> <span class="n">sino</span><span class="o">.</span><span class="n">shape</span>  <span class="c"># @UnusedVariable</span>
+    <span class="n">lNz</span> <span class="o">=</span> <span class="n">ln</span>
+
+
+    <span class="c"># Ask for the filter. Do not include zero (first element).</span>
+    <span class="c">#</span>
+    <span class="c"># Integrals over ϕ₀ [0,2π]; kx [-kₘ,kₘ]</span>
+    <span class="c">#   - double coverage factor 1/2 already included</span>
+    <span class="c">#   - unitary angular frequency to unitary ordinary frequency</span>
+    <span class="c">#     conversion performed in calculation of UB=FT(uB).</span>
+    <span class="c">#</span>
+    <span class="c"># f(r) = -i kₘ / ((2π)² a₀)                 (prefactor)</span>
+    <span class="c">#      * iiint dϕ₀ dkx dky                  (prefactor)</span>
+    <span class="c">#      * |kx|                               (prefactor)</span>
+    <span class="c">#      * exp(-i kₘ M lD )                   (prefactor)</span>
+    <span class="c">#      * UBϕ₀(kx)                           (dependent on ϕ₀)</span>
+    <span class="c">#      * exp( i (kx t⊥ + kₘ (M - 1) s₀) r ) (dependent on ϕ₀ and r)</span>
+    <span class="c"># (r and s₀ are vectors. The last term contains a dot-product)</span>
+    <span class="c">#</span>
+    <span class="c"># kₘM = sqrt( kₘ² - kx² - ky² )</span>
+    <span class="c"># t⊥  = (  cos(ϕ₀), ky/kx, sin(ϕ₀) )</span>
+    <span class="c"># s₀  = ( -sin(ϕ₀), 0    , cos(ϕ₀) )</span>
+    <span class="c">#</span>
+    <span class="c"># The filter can be split into two parts</span>
+    <span class="c">#</span>
+    <span class="c"># 1) part without dependence on the z-coordinate</span>
+    <span class="c">#</span>
+    <span class="c">#        -i kₘ / ((2π)² a₀)</span>
+    <span class="c">#      * iiint dϕ₀ dkx dky</span>
+    <span class="c">#      * |kx|</span>
+    <span class="c">#      * exp(-i kₘ M lD )</span>
+    <span class="c">#</span>
+    <span class="c"># 2) part with dependence of the z-coordinate</span>
+    <span class="c">#</span>
+    <span class="c">#        exp( i (kx t⊥ + kₘ (M - 1) s₀) r )</span>
+    <span class="c">#</span>
+    <span class="c"># The filter (1) can be performed using the classical filter process</span>
+    <span class="c"># as in the backprojection algorithm.</span>
+    <span class="c">#</span>
+    <span class="c">#</span>
+
+    <span class="c"># if lNx != lNy:</span>
+    <span class="c">#    raise NotImplementedError(&quot;Input data must be square shaped!&quot;)</span>
+
+    <span class="c"># Corresponding sample frequencies</span>
+    <span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">lNx</span><span class="p">)</span>  <span class="c"># 1D array</span>
+    <span class="n">fy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">lNy</span><span class="p">)</span>  <span class="c"># 1D array</span>
+    <span class="c"># kx is a 1D array.</span>
+    <span class="n">kx</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">fx</span>
+    <span class="n">ky</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">fy</span>
+    <span class="c"># Differentials for integral</span>
+    <span class="n">dphi0</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">A</span>
+    <span class="c"># We will later multiply with phi0.</span>
+    <span class="c">#               a, y, x</span>
+    <span class="n">kx</span> <span class="o">=</span> <span class="n">kx</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ky</span> <span class="o">=</span> <span class="n">ky</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c"># Low-pass filter:</span>
+    <span class="c"># less-than-or-equal would give us zero division error.</span>
+    <span class="n">filter_klp</span> <span class="o">=</span> <span class="p">(</span><span class="n">kx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ky</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;</span> <span class="n">km</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c"># Filter M so there are no nans from the root</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">km</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">kx</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">ky</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">filter_klp</span><span class="p">)</span>
+    <span class="c"># The input data is already divided by a0</span>
+    <span class="c">#prefactor  = -1j * km / ( 2 * np.pi * a0 )</span>
+    <span class="n">prefactor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1j</span> <span class="o">*</span> <span class="n">km</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">prefactor</span> <span class="o">*=</span> <span class="n">dphi0</span>
+    <span class="c"># Also filter the prefactor, so nothing outside the required</span>
+    <span class="c"># low-pass contributes to the sum.</span>
+    <span class="n">prefactor</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kx</span><span class="p">)</span> <span class="o">*</span> <span class="n">filter_klp</span>
+    <span class="c">#prefactor *= np.sqrt(((kx**2+ky**2)) * filter_klp )</span>
+    <span class="n">prefactor</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1j</span> <span class="o">*</span> <span class="n">km</span> <span class="o">*</span> <span class="n">M</span> <span class="o">*</span> <span class="n">lD</span><span class="p">)</span>
+    <span class="c"># Perform filtering of the sinogram,</span>
+    <span class="c"># save memory by in-place operations</span>
+    <span class="c">#projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor</span>
+    <span class="c"># Flag is &quot;estimate&quot;:</span>
+    <span class="c">#   specifies that, instead of actual measurements of different</span>
+    <span class="c">#   algorithms, a simple heuristic is used to pick a (probably</span>
+    <span class="c">#   sub-optimal) plan quickly. With this flag, the input/output</span>
+    <span class="c">#   arrays are not overwritten during planning.</span>
+
+    <span class="c"># Byte-aligned arrays</span>
+    <span class="n">temp_array</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">n_byte_align_empty</span><span class="p">(</span><span class="n">sino</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">dtype_complex</span><span class="p">)</span>
+
+    <span class="n">myfftw_plan</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">temp_array</span><span class="p">,</span> <span class="n">temp_array</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">num_cores</span><span class="p">,</span>
+                              <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;FFTW_ESTIMATE&quot;</span><span class="p">],</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+
+    <span class="k">if</span> <span class="n">jmc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">jmc</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sino</span><span class="p">)):</span>
+        <span class="c"># this overwrites sino</span>
+        <span class="n">temp_array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">sino</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">myfftw_plan</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="n">sino</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">temp_array</span><span class="p">[:]</span>
+
+    <span class="n">temp_array</span><span class="p">,</span> <span class="n">myfftw_plan</span>
+
+    <span class="n">projection</span> <span class="o">=</span> <span class="n">sino</span>
+    <span class="n">projection</span><span class="p">[:]</span> <span class="o">*=</span> <span class="n">prefactor</span>
+
+    <span class="c"># save memory</span>
+    <span class="k">del</span> <span class="n">prefactor</span><span class="p">,</span> <span class="n">filter_klp</span>
+    <span class="c">#</span>
+    <span class="c">#</span>
+    <span class="c"># filter (2) must be applied before rotation as well</span>
+    <span class="c"># exp( i (kx t⊥ + kₘ (M - 1) s₀) r )</span>
+    <span class="c">#</span>
+    <span class="c"># kₘM = sqrt( kₘ² - kx² - ky² )</span>
+    <span class="c"># t⊥  = (  cos(ϕ₀), ky/kx, sin(ϕ₀) )</span>
+    <span class="c"># s₀  = ( -sin(ϕ₀), 0    , cos(ϕ₀) )</span>
+    <span class="c">#</span>
+    <span class="c"># This filter is effectively an inverse Fourier transform</span>
+    <span class="c">#</span>
+    <span class="c"># exp(i kx xD) exp(i ky yD) exp(i kₘ (M - 1) zD )</span>
+    <span class="c">#</span>
+    <span class="c"># xD =   x cos(ϕ₀) + z sin(ϕ₀)</span>
+    <span class="c"># zD = - x sin(ϕ₀) + z cos(ϕ₀)</span>
+
+    <span class="c"># Everything is in pixels</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">lNz</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="c">#x = np.linspace(-centerx, centerx, lNx, endpoint=False)</span>
+    <span class="c">#x = np.arange(lNx) - center + .5</span>
+    <span class="c"># Meshgrid for output array</span>
+    <span class="c">#zv, yv, xv = np.meshgrid(x,x,x)</span>
+    <span class="c">#               z, y, x</span>
+    <span class="c">#xv = x.reshape( 1, 1,-1)</span>
+    <span class="c">#yv = x.reshape( 1,-1, 1)</span>
+
+    <span class="c">#z = np.arange(ln) - center + .5</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">center</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">lNz</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">zv</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c">#              z, y, x</span>
+    <span class="n">Mp</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">lNy</span><span class="p">,</span> <span class="n">lNx</span><span class="p">)</span>
+
+
+    <span class="c"># Compute the filter in Fourier space in parallel on-by one</span>
+    <span class="c"># This saves an enormous amount of memory when compared to</span>
+    <span class="c"># simply executing:</span>
+    <span class="c"># filter2 = np.exp(1j * zv * km * (Mp - 1))</span>
+    
+    <span class="n">Mpm1</span> <span class="o">=</span> <span class="n">km</span> <span class="o">*</span> <span class="p">(</span><span class="n">Mp</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">=</span><span class="nb">zip</span><span class="p">(</span><span class="n">zv</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="p">[</span><span class="n">Mpm1</span><span class="p">]</span><span class="o">*</span><span class="n">zv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">filter2_pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">num_cores</span><span class="p">)</span>
+    <span class="n">filter2</span> <span class="o">=</span> <span class="n">filter2_pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_filter2_func</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">filter2_pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+    <span class="n">filter2_pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">filter2_pool</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">Mpm1</span>
+
+    <span class="c"># occupies some amount of ram</span>
+    <span class="c">#filter2[0].size*len(filter2)*128/8/1024**3</span>
+
+    <span class="k">if</span> <span class="n">jmc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">jmc</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c">#                               a, z, y,  x</span>
+    <span class="c">#projection = projection.reshape(la, 1, lNy, lNx)</span>
+    <span class="n">projection</span> <span class="o">=</span> <span class="n">projection</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">la</span><span class="p">,</span> <span class="n">lNy</span><span class="p">,</span> <span class="n">lNx</span><span class="p">)</span>
+
+
+    <span class="c"># This frees comparatively few data</span>
+    <span class="k">del</span> <span class="n">M</span>
+    <span class="c">#del Mp</span>
+
+    <span class="c"># Prepare complex output image</span>
+    <span class="k">if</span> <span class="n">onlyreal</span><span class="p">:</span>
+        <span class="n">outarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ln</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">lnx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ln</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">lnx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype_complex</span><span class="p">)</span>
+
+    <span class="c"># Create plan for fftw:</span>
+    <span class="n">inarr</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">n_byte_align_empty</span><span class="p">((</span><span class="n">lNy</span><span class="p">,</span> <span class="n">lNx</span><span class="p">),</span> <span class="mi">16</span><span class="p">,</span> <span class="n">dtype_complex</span><span class="p">)</span>
+
+    <span class="c">#inarr[:] = (projection[0]*filter2)[0,:,:]</span>
+    <span class="c"># plan is &quot;patient&quot;:</span>
+    <span class="c">#    FFTW_PATIENT is like FFTW_MEASURE, but considers a wider range</span>
+    <span class="c">#    of algorithms and often produces a “more optimal” plan</span>
+    <span class="c">#    (especially for large transforms), but at the expense of</span>
+    <span class="c">#    several times longer planning time (especially for large</span>
+    <span class="c">#    transforms).</span>
+    <span class="c"># print(inarr.flags)</span>
+
+
+    <span class="n">myifftw_plan</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">inarr</span><span class="p">,</span> <span class="n">inarr</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">num_cores</span><span class="p">,</span>
+                               <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+                               <span class="n">direction</span><span class="o">=</span><span class="s">&quot;FFTW_BACKWARD&quot;</span><span class="p">,</span>
+                               <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;FFTW_MEASURE&quot;</span><span class="p">])</span>
+
+
+    <span class="c">#assert shared_array.base.base is shared_array_base.get_obj()</span>
+    <span class="n">shared_array_base</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">ct_dt_map</span><span class="p">[</span><span class="n">dtype</span><span class="p">],</span> <span class="n">ln</span> <span class="o">*</span> <span class="n">lny</span> <span class="o">*</span> <span class="n">lnx</span><span class="p">)</span>
+    <span class="n">_shared_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ctypeslib</span><span class="o">.</span><span class="n">as_array</span><span class="p">(</span><span class="n">shared_array_base</span><span class="o">.</span><span class="n">get_obj</span><span class="p">())</span>
+    <span class="n">_shared_array</span> <span class="o">=</span> <span class="n">_shared_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ln</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">lnx</span><span class="p">)</span>
+
+    <span class="c"># Initialize the pool with the shared array</span>
+    <span class="n">odtbrain</span><span class="o">.</span><span class="n">_shared_array</span> <span class="o">=</span> <span class="n">_shared_array</span>
+    <span class="n">pool4loop</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">num_cores</span><span class="p">)</span>
+
+    <span class="c"># filtered projections in loop</span>
+    <span class="n">filtered_proj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ln</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">lnx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype_complex</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="c"># 14x Speedup with fftw3 compared to numpy fft and</span>
+        <span class="c"># memory reduction by a factor of 2!</span>
+        <span class="c">#sino_filtered = np.fft.ifft2(projection[i]*filter2, axes=(-1,-2))</span>
+        <span class="c"># ifft will be computed in-place</span>
+
+        
+        <span class="c"># A == la</span>
+        <span class="c"># projection.shape == (A, lNx, lNy)</span>
+        <span class="c"># filter2.shape == (ln, lNx, lNy)</span>
+
+        
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zv</span><span class="p">)):</span>
+            <span class="n">inarr</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">filter2</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">*</span> <span class="n">projection</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">myifftw_plan</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+            <span class="n">filtered_proj</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">inarr</span><span class="p">[</span>
+                                           <span class="n">padyl</span><span class="p">:</span><span class="n">padyl</span> <span class="o">+</span> <span class="n">lny</span><span class="p">,</span>
+                                           <span class="n">padxl</span><span class="p">:</span><span class="n">padxl</span> <span class="o">+</span> <span class="n">lnx</span>
+                                          <span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">lNx</span> <span class="o">*</span> <span class="n">lNy</span><span class="p">)</span>
+        
+        <span class="c">#sino_filtered = projection[i] * filter2</span>
+        <span class="c">#for p in range(len(sino_filtered)):</span>
+        <span class="c">#    inarr[:] = sino_filtered[p, :, :]</span>
+        <span class="c">#    myifftw_plan.execute()</span>
+        <span class="c">#    sino_filtered[p, :, :] = inarr[:]</span>
+
+
+        <span class="c"># resize image to original size</span>
+        <span class="c"># The copy is necessary to prevent memory leakage.</span>
+        <span class="c"># The fftw did not normalize the data.</span>
+        <span class="c">#_shared_array[:] = sino_filtered.real[:ln, :lny, :lnx] / (lNx * lNy)</span>
+        <span class="c"># By performing the &quot;/&quot; operation here, we magically use less</span>
+        <span class="c"># memory and we gain speed...</span>
+        <span class="n">_shared_array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">filtered_proj</span><span class="o">.</span><span class="n">real</span><span class="p">[:]</span>
+        <span class="c">#_shared_array[:] = sino_filtered.real[ :ln, padyl:padyl + lny, padxl:padxl + lnx] / (lNx * lNy)</span>
+
+        <span class="n">phi0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">angles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">onlyreal</span><span class="p">:</span>
+            <span class="n">filtered_proj_imag</span> <span class="o">=</span> <span class="n">filtered_proj</span><span class="o">.</span><span class="n">imag</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filtered_proj_imag</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="c"># Free memory</span>
+            <span class="k">del</span> <span class="n">filtered_proj</span>
+
+        <span class="n">_mprotate</span><span class="p">(</span><span class="n">phi0</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">pool4loop</span><span class="p">,</span> <span class="n">intp_order</span><span class="p">)</span>
+
+        <span class="n">outarr</span><span class="o">.</span><span class="n">real</span> <span class="o">+=</span> <span class="n">_shared_array</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">onlyreal</span><span class="p">:</span>
+            <span class="n">_shared_array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">filtered_proj_imag</span>
+            <span class="c">#_shared_array[:] = sino_filtered_imag[</span>
+            <span class="c">#    :ln, :lny, :lnx] / (lNx * lNy)</span>
+            <span class="k">del</span> <span class="n">filtered_proj_imag</span>
+            <span class="n">_mprotate</span><span class="p">(</span><span class="n">phi0</span><span class="p">,</span> <span class="n">lny</span><span class="p">,</span> <span class="n">pool4loop</span><span class="p">,</span> <span class="n">intp_order</span><span class="p">)</span>
+            <span class="n">outarr</span><span class="o">.</span><span class="n">imag</span> <span class="o">+=</span> <span class="n">_shared_array</span>
+
+        <span class="c"># if False:</span>
+        <span class="c">#    # ~(0.9^num_cores)x speedup</span>
+        <span class="c">#    ang = np.rad2deg(angles[i])</span>
+        <span class="c">#</span>
+        <span class="c">#    N = int(ln)</span>
+        <span class="c">#</span>
+        <span class="c">#    slsize = int(np.floor(ln/N))</span>
+        <span class="c">#</span>
+        <span class="c">#    targ_args=list()</span>
+        <span class="c">#    for t in range(N):</span>
+        <span class="c">#        ymin = t*slsize</span>
+        <span class="c">#        ymax = (t+1)*slsize</span>
+        <span class="c">#        if t == N - 1:</span>
+        <span class="c">#            ymax = ln</span>
+        <span class="c">#        #print(ymin,ymax,sino_fin.shape)</span>
+        <span class="c">#        targ_args.append((sino_fin[:,ymin:ymax,:],ang))</span>
+        <span class="c">#</span>
+        <span class="c">#        if t%num_cores == num_cores-1:</span>
+        <span class="c">#            out = pool4loop.map(_rotate2, targ_args)</span>
+        <span class="c">#            um = len(out)</span>
+        <span class="c">#</span>
+        <span class="c">#            for u in range(1,um+1):</span>
+        <span class="c">#                #print(slsize, um, u, t)</span>
+        <span class="c">#                sino_fin[:,(t-um+u)*slsize:(t-um+u+1)*slsize,:] = out[u-1]</span>
+        <span class="c">#            targ_args=list()</span>
+        <span class="c">#            del out</span>
+        <span class="c">#</span>
+        <span class="c">#    #print(len(targ_args))</span>
+        <span class="c">#    #targ_args=sino_fin.real.reshape(2,ln,-1,ln)</span>
+        <span class="c">#</span>
+        <span class="c">#</span>
+        <span class="c">#    #for t in range(N):</span>
+        <span class="c">#    #    ymin = t*slsize</span>
+        <span class="c">#    #    ymax = (t+1)*slsize</span>
+        <span class="c">#    #    if t == N - 1:</span>
+        <span class="c">#    #        ymax = ln</span>
+        <span class="c">#    #    #print(ymin,ymax,sino_fin.shape)</span>
+        <span class="c">#    #    sino_fin.real[:,ymin:ymax,:] = out[t]</span>
+        <span class="c">#</span>
+        <span class="c"># if False:</span>
+        <span class="c">#    # This is very time-consuming</span>
+        <span class="c">#    rot_data = scipy.ndimage.interpolation.rotate(</span>
+        <span class="c">#                  sino_fin.real[:],</span>
+        <span class="c">#                  np.rad2deg(angles[i]),</span>
+        <span class="c">#                  (0,2),</span>
+        <span class="c">#                  False,</span>
+        <span class="c">#                  sino_fin.real[:],</span>
+        <span class="c">#                  3,</span>
+        <span class="c">#                  &quot;constant&quot;,</span>
+        <span class="c">#                  0)</span>
+
+        <span class="c">#outarr += np.array(results).reshape(ln,ln,ln)</span>
+
+        <span class="c"># if not onlyreal:</span>
+        <span class="c">#    outarr += 1j*scipy.ndimage.interpolation.rotate(</span>
+        <span class="c">#              sino_fin.imag, angles[i]*180/np.pi, reshape=False,</span>
+        <span class="c"># z,x</span>
+        <span class="c">#              mode=&quot;constant&quot;, cval=0, axes=(0,2))</span>
+
+        <span class="k">if</span> <span class="n">jmc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">jmc</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">pool4loop</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+    <span class="n">pool4loop</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">del</span> <span class="n">_shared_array</span><span class="p">,</span> <span class="n">inarr</span><span class="p">,</span> <span class="n">odtbrain</span><span class="o">.</span><span class="n">_shared_array</span>
+    <span class="k">del</span> <span class="n">shared_array_base</span>
+
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">outarr</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">odtbrain 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Paul Müller.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

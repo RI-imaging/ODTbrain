@@ -36,6 +36,26 @@ Prerequisites
 """
 import os
 from os.path import dirname, abspath
+import subprocess as sp
+
 
 # go to root of repository
 os.chdir(dirname(dirname(abspath(__file__))))
+
+# build sphinx
+sp.check_output("python setup.py build_sphinx", shell=True)
+
+# clone into new folder the gh-pages branch
+sp.check_output("git clone --depth 1 -b gh-pages https://github.com/paulmueller/ODTbrain.git gh_pages", shell=True)
+
+# copy everything from ./build/sphinx/html to ./gh_pages
+sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
+
+# commit changes
+sp.check_output("git add ./gh_pages/*", shell=True)
+sp.check_output("git commit -a -m 'travis bot doc build'", shell=True)
+sp.check_output("git push", shell=True)
+
+
+import IPython
+IPython.embed()

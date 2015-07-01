@@ -1,0 +1,393 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>odtbrain._br &mdash; odtbrain 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="odtbrain 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">odtbrain 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for odtbrain._br</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot; Pre- and post-processing for diffraction tomography</span>
+
+<span class="sd">Tomographic data sets are stacks of detector images for different</span>
+<span class="sd">rotational positions :math:`\phi_0` of the objects. The methods</span>
+<span class="sd">described here can be used to filter the measured complex field </span>
+<span class="sd">:math:`u(\mathbf{r})` for the Radon and Rytov approximations and to</span>
+<span class="sd">convert the output of e.g. backprojection (Radon) or </span>
+<span class="sd">backpropagation (Born/Rytov) algorithms to refractive index maps</span>
+<span class="sd">:math:`n(\mathbf{r})`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">mode</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">unwrap</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Could not import module unwrap!&quot;</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;odt_to_ri&quot;</span><span class="p">,</span> <span class="s">&quot;opt_to_ri&quot;</span><span class="p">,</span>
+           <span class="s">&quot;sinogram_as_rytov&quot;</span><span class="p">,</span> <span class="s">&quot;sinogram_as_radon&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">align_unwrapped</span><span class="p">(</span><span class="n">sino</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;tries to align an unwrapped phase array</span>
+<span class="sd">    </span>
+<span class="sd">    all operations are performed in-place</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sino</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c"># 2D</span>
+        <span class="c"># take 1D samples at beginning and end of array</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+        
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sino</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c"># 3D</span>
+        <span class="c"># take 1D samples at beginning and end of array</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sino</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        
+    <span class="c"># find discontinuities in the samples</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">steps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span>
+    
+    <span class="c"># if the majority believes so, add a step of PI</span>
+    <span class="n">remove</span> <span class="o">=</span> <span class="n">mode</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c"># obtain divmod min</span>
+    <span class="n">twopi</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="n">minimum</span> <span class="o">=</span> <span class="n">divmod_neg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sino</span><span class="p">),</span> <span class="n">twopi</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">remove</span> <span class="o">+=</span> <span class="n">minimum</span><span class="o">*</span><span class="n">twopi</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sino</span><span class="p">)):</span>
+        <span class="n">sino</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="n">remove</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">divmod_neg</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;returns divmod with closest result to zero&quot;&quot;&quot;</span>
+    <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+    <span class="c"># make sure r is close to zero</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">&gt;</span><span class="n">b</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">-=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span>
+
+
+<div class="viewcode-block" id="odt_to_ri"><a class="viewcode-back" href="../../index.html#odtbrain._br.odt_to_ri">[docs]</a><span class="k">def</span> <span class="nf">odt_to_ri</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">nm</span><span class="p">):</span>
+    <span class="sd">u&quot;&quot;&quot; Converts the ODT object function to refractive index.</span>
+
+<span class="sd">    In :abbr:`ODT (Optical Diffraction Tomography)`, the object function</span>
+<span class="sd">    is defined by the Helmholtz equation:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        f(\mathbf{r})  =  k_\mathrm{m}^2 \\left[</span>
+<span class="sd">            \\left( \\frac{n(\mathbf{r})}{n_\mathrm{m}} \\right)^2 - 1</span>
+<span class="sd">            \\right]</span>
+
+<span class="sd">    with :math:`k_\mathrm{m} = \\frac{2\pi n_\mathrm{m}}{\lambda}`.</span>
+<span class="sd">    By inverting this equation, we obtain the refractive index</span>
+<span class="sd">    :math:`n(\mathbf{r})`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        n(\mathbf{r})  = n_\mathrm{m} </span>
+<span class="sd">            \sqrt{\\frac{f(\mathbf{r})}{k_\mathrm{m}^2} + 1 }</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : n-dimensional ndarray</span>
+<span class="sd">        The reconstructed object function :math:`f(\mathbf{r})`.</span>
+<span class="sd">    res : float</span>
+<span class="sd">        The size of the vacuum wave length :math:`\lambda` in pixels.</span>
+<span class="sd">    nm : float</span>
+<span class="sd">        The refractive index of the medium :math:`n_\mathrm{m}` that</span>
+<span class="sd">        surrounds the object in :math:`f(\mathbf{r})`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ri : n-dimensional ndarray</span>
+<span class="sd">        The complex refractive index :math:`n(\mathbf{r})`.</span>
+
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Because this function computes to root of a complex number, there</span>
+<span class="sd">    are several solutions to the refractive index. Always the positive</span>
+<span class="sd">    (real) root of the refractive index is used.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">km</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">nm</span><span class="p">)</span> <span class="o">/</span> <span class="n">res</span>
+    <span class="n">ri</span> <span class="o">=</span> <span class="n">nm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">f</span> <span class="o">/</span> <span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c"># Always take the positive root as the refractive index.</span>
+    <span class="c"># Because f can be imaginary, numpy cannot return the correct</span>
+    <span class="c"># positive root of f. However, we know that *ri* must be postive and</span>
+    <span class="c"># thus we take the absolute value of ri.</span>
+    <span class="c"># This also is what happens in Slaneys</span>
+    <span class="c"># diffract/Src/back.c in line 414.</span>
+    <span class="n">negrootcoord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ri</span><span class="o">.</span><span class="n">real</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">ri</span><span class="p">[</span><span class="n">negrootcoord</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">ri</span>
+
+</div>
+<div class="viewcode-block" id="opt_to_ri"><a class="viewcode-back" href="../../index.html#odtbrain._br.opt_to_ri">[docs]</a><span class="k">def</span> <span class="nf">opt_to_ri</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">nm</span><span class="p">):</span>
+    <span class="sd">u&quot;&quot;&quot; Converts the OPT object function to refractive index.</span>
+
+<span class="sd">    In :abbr:`OPT (Optical Projection Tomography)`, the object function</span>
+<span class="sd">    is computed from the raw phase data. This method converts phase data</span>
+<span class="sd">    to refractive index data.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        n(\mathbf{r})  = n_\mathrm{m} + </span>
+<span class="sd">            \\frac{f(\mathbf{r}) \cdot \lambda}{2 \pi}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : n-dimensional ndarray</span>
+<span class="sd">        The reconstructed object function :math:`f(\mathbf{r})`.</span>
+<span class="sd">    res : float</span>
+<span class="sd">        The size of the vacuum wave length :math:`\lambda` in pixels.</span>
+<span class="sd">    nm : float</span>
+<span class="sd">        The refractive index of the medium :math:`n_\mathrm{m}` that</span>
+<span class="sd">        surrounds the object in :math:`f(\mathbf{r})`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ri : n-dimensional ndarray</span>
+<span class="sd">        The complex refractive index :math:`n(\mathbf{r})`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function is not meant to be used with diffraction tomography</span>
+<span class="sd">    data. For ODT, use :py:func:`odt_to_ri` instead.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ri</span> <span class="o">=</span> <span class="n">nm</span> <span class="o">+</span> <span class="n">f</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">res</span>
+    <span class="k">return</span> <span class="n">ri</span>
+
+</div>
+<div class="viewcode-block" id="sinogram_as_radon"><a class="viewcode-back" href="../../index.html#odtbrain._br.sinogram_as_radon">[docs]</a><span class="k">def</span> <span class="nf">sinogram_as_radon</span><span class="p">(</span><span class="n">uSin</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">u&quot;&quot;&quot; Computes the phase from a complex wave field sinogram.</span>
+
+<span class="sd">    This step is essential when using the ray approximation before</span>
+<span class="sd">    computation of the refractive index with the inverse Radon</span>
+<span class="sd">    transform.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uSin : 2d or 3d complex ndarray</span>
+<span class="sd">        The background-corrected sinogram of the complex scattered wave</span>
+<span class="sd">        :math:`u(\mathbf{r})/u_0(\mathbf{r})`. The first axis iterates</span>
+<span class="sd">        through the angles :math:`\phi_0`.</span>
+<span class="sd">    align : bool</span>
+<span class="sd">        Tries to align the phase offset for each angle.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    phase : 2d or 3d real ndarray</span>
+<span class="sd">        The unwrapped phase array corresponding to ``uSin``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The phase-unwrapping is performed with the `unwrap`_ package.</span>
+
+<span class="sd">    .. _unwrap: https://pypi.python.org/pypi/unwrap</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uSin</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ndims</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c"># unwrapping is very important</span>
+        <span class="n">phiR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">uSin</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Unwrap gets the dimension of the problem from the input</span>
+        <span class="c"># data. Since we have a sinogram, we need to pass it the</span>
+        <span class="c"># slices one by one.</span>
+        <span class="n">phiR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">uSin</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">phiR</span><span class="p">)):</span>
+            <span class="n">phiR</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">unwrap</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">phiR</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">align</span><span class="p">:</span>
+        <span class="n">align_unwrapped</span><span class="p">(</span><span class="n">phiR</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">phiR</span>
+
+</div>
+<div class="viewcode-block" id="sinogram_as_rytov"><a class="viewcode-back" href="../../index.html#odtbrain._br.sinogram_as_rytov">[docs]</a><span class="k">def</span> <span class="nf">sinogram_as_rytov</span><span class="p">(</span><span class="n">uSin</span><span class="p">,</span> <span class="n">u0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">u&quot;&quot;&quot; Converts the complex wave field sinogram to Rytov data</span>
+
+<span class="sd">    This method effectively applies the Rytov approximation to the</span>
+<span class="sd">    recorded complex wave sinogram. We assume that the recorded data</span>
+<span class="sd">    :math:`u(\mathbf{r})` can be approximated with the Rytov</span>
+<span class="sd">    approximation </span>
+<span class="sd">    :math:`u(\mathbf{r})\\approx u_\mathrm{R}(\mathbf{r})+</span>
+<span class="sd">    u_\mathrm{0}(\mathbf{r})`</span>
+<span class="sd">    and then convert it in order to use the Born approximation </span>
+<span class="sd">    :math:`u_\mathrm{B}(\mathbf{r})`</span>
+<span class="sd">    for which we have derived the reconstruction algorithms in</span>
+<span class="sd">    diffraction tomography.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        u_\mathrm{B}(\mathbf{r}) = u_\mathrm{0}(\mathbf{r})</span>
+<span class="sd">            \ln\!\\left(  </span>
+<span class="sd">            \\frac{u_\mathrm{R}(\mathbf{r})}{u_\mathrm{0}(\mathbf{r})}</span>
+<span class="sd">             +1 \\right)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uSin : 2d or 3d complex ndarray</span>
+<span class="sd">        The sinogram of the complex wave </span>
+<span class="sd">        :math:`u_\mathrm{R}(\mathbf{r}) + u_\mathrm{0}(\mathbf{r})`.</span>
+<span class="sd">        The first axis iterates through the angles :math:`\phi_0`.</span>
+<span class="sd">    u0 : ndarray of dimension as ``uSin`` or less, or int.</span>
+<span class="sd">        The incident plane wave </span>
+<span class="sd">        :math:`u_\mathrm{0}(\mathbf{r})` at the detector.</span>
+<span class="sd">        If ``u0`` is &quot;1&quot;, it is assumed that the data is already</span>
+<span class="sd">        background-corrected (</span>
+<span class="sd">        ``uSin`` :math:`= \\frac{u_\mathrm{R}(\mathbf{r})}{</span>
+<span class="sd">        u_\mathrm{0}(\mathbf{r})} + 1`</span>
+<span class="sd">        ). Beware that this might lead to a wrong </span>
+<span class="sd">        reconstruction if the reconstruction distance</span>
+<span class="sd">        :math:`l_\mathrm{D}` is non-zero, i.e. the field is not focused</span>
+<span class="sd">        to the center of the reconstruction volume.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    uB : 2d or 3d real ndarray</span>
+<span class="sd">        The Rytov-filtered complex sinogram </span>
+<span class="sd">        :math:`u_\mathrm{B}(\mathbf{r})`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The phase-unwrapping is performed with the `unwrap`_ package.</span>
+
+<span class="sd">    .. _unwrap: https://pypi.python.org/pypi/unwrap    &quot;&quot;&quot;</span>
+    <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uSin</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="c"># imaginary part of the complex Rytov phase</span>
+    <span class="n">phiR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">uSin</span> <span class="o">/</span> <span class="n">u0</span><span class="p">)</span>
+
+    <span class="c"># real part of the complex Rytov phase</span>
+    <span class="n">lna</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">uSin</span> <span class="o">/</span> <span class="n">u0</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">ndims</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c"># unwrapping is very important</span>
+        <span class="n">phiR</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">phiR</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Unwrap gets the dimension of the problem from the input</span>
+        <span class="c"># data. Since we have a sinogram, we need to pass it the</span>
+        <span class="c"># slices one by one.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">phiR</span><span class="p">)):</span>
+            <span class="n">phiR</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">unwrap</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">phiR</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">align</span><span class="p">:</span>
+        <span class="n">align_unwrapped</span><span class="p">(</span><span class="n">phiR</span><span class="p">)</span>
+
+    <span class="c">#rytovSin = u0*(np.log(a/a0) + 1j*phiR)</span>
+    <span class="c"># u0 is one - we already did background correction</span>
+
+    <span class="c"># complex rytov phase:</span>
+    <span class="n">rytovSin</span> <span class="o">=</span> <span class="mi">1j</span> <span class="o">*</span> <span class="n">phiR</span> <span class="o">+</span> <span class="n">lna</span>
+    <span class="k">return</span> <span class="n">u0</span> <span class="o">*</span> <span class="n">rytovSin</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">odtbrain 0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Paul Müller.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
