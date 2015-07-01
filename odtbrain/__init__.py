@@ -14,7 +14,8 @@ Please install `ODTbrain with the python package manger`_. Simply run
 
 The `FFTW3 library`_ and the scientific python packages
 :py:mod:`numpy` and :py:mod:`scipy` are required by ODTbrain.
-Please refer to to the `GitHub repository`_ for more information.
+If the above command does not work, please refer to to the 
+installation instructions at the `GitHub repository`_.
 
 .. _`FFTW3 library`: http://fftw.org
 .. _`GitHub repository`: https://github.com/paulmueller/ODTbrain

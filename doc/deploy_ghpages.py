@@ -31,6 +31,7 @@ Prerequisites
 
     env:
       global:
+      - GH_REF: github.com/<your name>/<your repo>.git
       - secure: "PUjnq3yn84H9fxhceq9JmykWywz9pCoy4j/+GruTQsO1OCuZEcvvMWDmqEzSDzOLL7rb5hE9GXV9YJaC9yiTpl6nhRojL710lEK+9jK+cv49EA/lvWaxSzicdCiEDkDjbhKmrTZtfprCLKIXC2C843vFSOspLuyMiMBquKBsecY43lw+Z9ZQePxbhNzeIDp8wbsW+gIAteI7BjT/fZ+KroGdkyyQMfHTakxNZCJEK38RwR3OuAaZ931P3XXuh7fnEEIHcTbvd7gSfiokmkGL/6vMBTids3uzOnv+WAH6zSiy9+fAPnZqOe06/+1sAg2Iu0/GFLHCXaHREpRyFb7CBQ2tJ5ZnvETahMsbA3cZc67vhs1Zg56PMhDpB0Hvg3vksV4FipA3xJgExsxVvAahvEiq3D6rs6yDfrNgbRi+Ha/zQ9EP/eNWqWsVnDMG0yce6t6xbCXBj9/J5UBYnHiY6E54V9SM3/9mCnM79Z2qOCDZEoJzGENNDzpggeNa0F5ihdK2AZ5HzncX+H69jZM4azFlqKxdW3d9RRafkggnJ/VMInHciJKu+4VuNWRn8IHKCS2q55n4gJtgeJdUkzjjAv4zSNpfX70X66O26asqJWsrGMXyYyPyVxmD3PSx7ZsdHoU2OnqzH8nSv+tlIM0fsW8551Zka+dmsmC3UzG88RE="
 
 """
@@ -46,7 +47,7 @@ os.chdir(dirname(dirname(abspath(__file__))))
 sp.check_output("python setup.py build_sphinx", shell=True)
 
 # clone into new folder the gh-pages branch
-sp.check_output("git clone --depth 1 -b gh-pages https://github.com/paulmueller/ODTbrain.git gh_pages", shell=True)
+sp.check_output("git clone --depth 1 -b gh-pages https://${GH_REF} gh_pages", shell=True)
 
 # copy everything from ./build/sphinx/html to ./gh_pages
 sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
@@ -54,6 +55,9 @@ sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
 # commit changes
 os.chdir("gh_pages")
 sp.check_output("git add ./*", shell=True)
-sp.check_output("git commit -a -m 'travis bot doc build'", shell=True)
-sp.check_output("git push", shell=True)
+sp.check_output("git commit -a -m 'travis bot doc build [ci skip]'", shell=True)
 
+try:
+    sp.check_output("git push --force --quiet 'https://${GH_TOKEN}@${GH_REF}' master:gh-pages", shell=True)
+except:
+    sp.check_output("git push --force --quiet origin gh-pages", shell=True)

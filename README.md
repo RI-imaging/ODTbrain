@@ -8,6 +8,10 @@ ODTbrain
 This package provides image reconstruction algorithms for diffraction tomography in two and three dimensions.
 
 
+### Documentation
+The documentation, including the reference and examples, is available at [here](http://paulmueller.github.io/ODTbrain/).
+
+
 ### Install requirements
 
 #### General requirements
