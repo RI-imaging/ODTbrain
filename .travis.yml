@@ -28,5 +28,7 @@ script:
 - coverage report -m
 after_success:
 - coveralls --verbose
+- git config credential.helper "store --file=.git/credentials"
+- echo "https://${GH_TOKEN}:@github.com" > .git/credentials
 - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install numpydoc; fi
 - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python doc/deploy_ghpages.py; fi
