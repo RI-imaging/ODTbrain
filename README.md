@@ -9,7 +9,7 @@ This package provides image reconstruction algorithms for diffraction tomography
 
 
 ### Documentation
-The documentation, including the reference and examples, is available at [here](http://paulmueller.github.io/ODTbrain/).
+The documentation, including the reference and examples, is available [here](http://paulmueller.github.io/ODTbrain/).
 
 
 ### Install requirements

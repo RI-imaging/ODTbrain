@@ -7,7 +7,7 @@ The *in silico* data set was created with the Mie calculation software
 `GMM-field`_. The data consist of a two-dimensional projection of a
 sphere with radius :math:`R=14\lambda`,
 refractive index :math:`n_\mathrm{sph}=1.006`,
-embedded in a medium of refractive index :math:`n_\mathrm{med}=1.0`,
+embedded in a medium of refractive index :math:`n_\mathrm{med}=1.0`
 onto a detector which is :math:`l_\mathrm{D} = 20\lambda` away from the
 center of the sphere.
 

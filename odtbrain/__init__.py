@@ -7,7 +7,7 @@ tomography in two and three dimensions.
 
 Obtaining ODTbrain
 ------------------
-Please install `ODTbrain with the python package manger`_. Simply run 
+Please install `ODTbrain with the python package manager`_. Simply run 
 
     pip install odtbrain
 
@@ -19,7 +19,7 @@ installation instructions at the `GitHub repository`_.
 
 .. _`FFTW3 library`: http://fftw.org
 .. _`GitHub repository`: https://github.com/paulmueller/ODTbrain
-.. _`ODTbrain with the python package manger`: http://pypi.org/odtbrain
+.. _`ODTbrain with the python package manager`: http://pypi.org/odtbrain
 
 
 Theoretical background
