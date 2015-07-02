@@ -25,15 +25,14 @@ Prerequisites
 3. Create GitHub repo token and encrypt it 
 
     gem install travis
-    travis encrypt -r <username>/<repo> GIT_NAME="Your Name" GIT_EMAIL=you@example.com GH_TOKEN=<token>
+    travis encrypt GH_TOKEN="<token>"
 
 4. Add the encrypted token to .travis.yml
 
     env:
       global:
       - GH_REF: github.com/<your name>/<your repo>.git
-      - secure: "PUjnq3yn84H9fxhceq9JmykWywz9pCoy4j/+GruTQsO1OCuZEcvvMWDmqEzSDzOLL7rb5hE9GXV9YJaC9yiTpl6nhRojL710lEK+9jK+cv49EA/lvWaxSzicdCiEDkDjbhKmrTZtfprCLKIXC2C843vFSOspLuyMiMBquKBsecY43lw+Z9ZQePxbhNzeIDp8wbsW+gIAteI7BjT/fZ+KroGdkyyQMfHTakxNZCJEK38RwR3OuAaZ931P3XXuh7fnEEIHcTbvd7gSfiokmkGL/6vMBTids3uzOnv+WAH6zSiy9+fAPnZqOe06/+1sAg2Iu0/GFLHCXaHREpRyFb7CBQ2tJ5ZnvETahMsbA3cZc67vhs1Zg56PMhDpB0Hvg3vksV4FipA3xJgExsxVvAahvEiq3D6rs6yDfrNgbRi+Ha/zQ9EP/eNWqWsVnDMG0yce6t6xbCXBj9/J5UBYnHiY6E54V9SM3/9mCnM79Z2qOCDZEoJzGENNDzpggeNa0F5ihdK2AZ5HzncX+H69jZM4azFlqKxdW3d9RRafkggnJ/VMInHciJKu+4VuNWRn8IHKCS2q55n4gJtgeJdUkzjjAv4zSNpfX70X66O26asqJWsrGMXyYyPyVxmD3PSx7ZsdHoU2OnqzH8nSv+tlIM0fsW8551Zka+dmsmC3UzG88RE="
-
+      - secure: "jdcn3kM/dI0zvVTn0UKgal8Br+745Qc1plaKXHcoKhwcwN+0Q1y5H1BnaF0KV2dWWeExVXMpqQMLOCylUSUmd30+hFqUgd3gFQ+oh9pF/+N72uzjnxHAyVjai5Lh7QnjN0SLCd2/xLYwaUIHjWbWsr5t2vK9UuyphZ6/F+7OHf+u8BErviE9HUunD7u4Q2XRaUF0oHuF8stoWbJgnQZtUZFr+qS1Gc3vF6/KBkMqjnq/DgBV61cWsnVUS1HVak/sGClPRXZMSGyz8d63zDxfA5NDO6AbPVgK02k+QV8KQCyIX7of8rBvBmWkBYGw5RnaeETLIAf6JrCKMiQzlJQZiMyLUvd/WflSIBKJyr5YmUKCjFkwvbKKvCU3WBUxFT2p7trKZip5JWg37OMvOAO8eiatf2FC1klNly1KHADU88QqNoi/0y2R/a+1Csrl8Gr/lXZkW4mMkI2due9epLwccDJtMF8Xc39EqRR46xA7Lx9vy7szYW5lLux3zwx1tH40wV6/dX4ZVFoWp/zfJw7TKdOHuOwjZuOuKp/shfJs94G9YCu7bBtvrGv9qCH2KiSgm1NJviwcsZWsVHaq1nP0LliDE7EM3Q0mnkYzlvfOOhA2G5Ka3rHl1RFj7+WYzO5GaAFWU7piP/kdBwc0Mu+hb6PMoy0oeLt39BDr29bNKMs="
 """
 import os
 from os.path import dirname, abspath
