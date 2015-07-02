@@ -47,22 +47,27 @@ os.chdir(dirname(dirname(abspath(__file__))))
 sp.check_output("python setup.py build_sphinx", shell=True)
 
 # clone into new folder the gh-pages branch
-sp.check_output("git clone --depth 1 -b gh-pages https://${GH_REF} gh_pages", shell=True)
+sp.check_output("git config --global user.email 'travis@example.com'", shell=True)
+sp.check_output("git config --global user.name 'Travis CI'", shell=True)
+sp.check_output("git config --global credential.helper 'store --file=.git/credentials'", shell=True)
+sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", shell=True)
+sp.check_output("git clone --depth 1 -b gh-pages https://${GH_TOKEN}@${GH_REF} gh_pages", shell=True)
 
 # copy everything from ./build/sphinx/html to ./gh_pages
 sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
 
 # commit changes
 os.chdir("gh_pages")
-sp.check_output("git config --global user.email 'travis@example.com'", shell=True)
-sp.check_output("git config --global user.name 'Travis CI'", shell=True)
-sp.check_output("git config --global credential.helper 'store --file=.git/credentials'", shell=True)
 sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", shell=True)
-
 sp.check_output("git add ./*", shell=True)
 sp.check_output("git commit -a -m 'travis bot doc build [ci skip]'", shell=True)
 
+sp.check_output("echo 'Pushing to gh-pages'", shell=True)
 try:
     sp.check_output("git push --force --quiet https://${GH_REF} origin gh-pages", shell=True)
 except:
-    sp.check_output("git push --force --quiet origin gh-pages", shell=True)
+    try:
+        sp.check_output("git push --force --quiet origin gh-pages", shell=True)
+    except:
+        try:
+            sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
