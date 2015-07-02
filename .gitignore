@@ -61,3 +61,4 @@ target/
 *.txt~
 *.py~
 *.in~
+*.yml~

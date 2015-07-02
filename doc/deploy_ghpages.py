@@ -35,6 +35,7 @@ Prerequisites
       - GH_REF: github.com/<your name>/<your repo>.git
       - secure: "jdcn3kM/dI0zvVTn0UKgal8Br+745Qc1plaKXHcoKhwcwN+0Q1y5H1BnaF0KV2dWWeExVXMpqQMLOCylUSUmd30+hFqUgd3gFQ+oh9pF/+N72uzjnxHAyVjai5Lh7QnjN0SLCd2/xLYwaUIHjWbWsr5t2vK9UuyphZ6/F+7OHf+u8BErviE9HUunD7u4Q2XRaUF0oHuF8stoWbJgnQZtUZFr+qS1Gc3vF6/KBkMqjnq/DgBV61cWsnVUS1HVak/sGClPRXZMSGyz8d63zDxfA5NDO6AbPVgK02k+QV8KQCyIX7of8rBvBmWkBYGw5RnaeETLIAf6JrCKMiQzlJQZiMyLUvd/WflSIBKJyr5YmUKCjFkwvbKKvCU3WBUxFT2p7trKZip5JWg37OMvOAO8eiatf2FC1klNly1KHADU88QqNoi/0y2R/a+1Csrl8Gr/lXZkW4mMkI2due9epLwccDJtMF8Xc39EqRR46xA7Lx9vy7szYW5lLux3zwx1tH40wV6/dX4ZVFoWp/zfJw7TKdOHuOwjZuOuKp/shfJs94G9YCu7bBtvrGv9qCH2KiSgm1NJviwcsZWsVHaq1nP0LliDE7EM3Q0mnkYzlvfOOhA2G5Ka3rHl1RFj7+WYzO5GaAFWU7piP/kdBwc0Mu+hb6PMoy0oeLt39BDr29bNKMs="
 """
+from __future__ import print_function
 import os
 from os.path import dirname, abspath
 import subprocess as sp
@@ -54,7 +55,8 @@ sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", she
 sp.check_output("git clone --depth 1 -b gh-pages https://${GH_TOKEN}@${GH_REF} gh_pages", shell=True)
 
 # copy everything from ./build/sphinx/html to ./gh_pages
-sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
+#sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
+sp.check_output("rsync -rt --del --exclude='.git' --exclude='.nojekyll' ./build/sphinx/html/* ./gh_pages/", shell=True)
 
 # commit changes
 os.chdir("gh_pages")
@@ -62,19 +64,22 @@ sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", she
 sp.check_output("git add ./*", shell=True)
 sp.check_output("git commit -a -m 'travis bot doc build [ci skip]'", shell=True)
 
-sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
-
-#try:
-#    sp.check_output("git push --force --quiet https://${GH_REF} origin gh-pages", shell=True)
-#except:
-#    try:
-#        sp.check_output("git push --force --quiet origin gh-pages", shell=True)
-#    except:
-#        try:
-#            sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
-#        except:
-#            try:
-#                sp.check_output("git push --force --quiet https://${GH_TOKEN}:@${GH_REF} master:'gh-pages'", shell=True)
-#            except:
-#                sp.check_output("git push --force --quiet https://${GH_TOKEN}@${GH_REF} master:'gh-pages'", shell=True)
+try:
+    print("a")
+    sp.check_output("git push --force --quiet https://${GH_REF} origin gh-pages", shell=True)
+except:
+    try:
+        print("b")
+        sp.check_output("git push --force --quiet origin gh-pages", shell=True)
+    except:
+        try:
+            print("c")
+            sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
+        except:
+            try:
+                print("d")
+                sp.check_output("git push --force --quiet https://${GH_TOKEN}:@${GH_REF} master:'gh-pages'", shell=True)
+            except:
+                print("e")
+                sp.check_output("git push --force --quiet https://${GH_TOKEN}@${GH_REF} master:'gh-pages'", shell=True)
         
