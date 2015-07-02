@@ -25,7 +25,8 @@ Prerequisites
 3. Create GitHub repo token and encrypt it 
 
     gem install travis
-    travis encrypt GH_TOKEN="<token>"
+    travis encrypt GH_TOKEN="<token>" --add
+    
 
 4. Add the encrypted token to .travis.yml
 
