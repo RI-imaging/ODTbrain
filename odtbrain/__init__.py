@@ -72,7 +72,6 @@ following cases, but have not been tested accordingly:
 * ultrasonic diffraction tomography, which is correctly described by
   the Helmholtz equation
   
-
 """
 from ._Back_2D import backpropagate_2d, fourier_map_2d, sum_2d
 from ._Back_3D import backpropagate_3d

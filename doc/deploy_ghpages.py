@@ -61,7 +61,11 @@ sp.check_output("rsync -rt --del --exclude='.git' --exclude='.nojekyll' ./build/
 # commit changes
 os.chdir("gh_pages")
 sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", shell=True)
-sp.check_output("git add ./*", shell=True)
-sp.check_output("git commit -a -m 'travis bot build ${TRAVIS_COMMIT} [ci skip]'", shell=True)
-sp.check_output("git push --force --quiet origin gh-pages", shell=True)
+sp.check_output("git add --all ./*", shell=True)
+try:
+    sp.check_output("git commit -a -m 'travis bot build ${TRAVIS_COMMIT} [ci skip]'", shell=True)
+except:
+    pass #nothing to do
+else:
+    sp.check_output("git push --force --quiet origin gh-pages", shell=True)
         
