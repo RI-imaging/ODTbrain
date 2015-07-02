@@ -56,6 +56,9 @@ sp.check_output("cp -r ./build/sphinx/html/* ./gh_pages/", shell=True)
 os.chdir("gh_pages")
 sp.check_output("git config --global user.email 'travis@example.com'", shell=True)
 sp.check_output("git config --global user.name 'Travis CI'", shell=True)
+sp.check_output("git config --global credential.helper 'store --file=.git/credentials'", shell=True)
+sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", shell=True)
+
 sp.check_output("git add ./*", shell=True)
 sp.check_output("git commit -a -m 'travis bot doc build [ci skip]'", shell=True)
 
