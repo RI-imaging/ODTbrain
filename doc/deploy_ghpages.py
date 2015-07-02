@@ -69,5 +69,4 @@ except:
     try:
         sp.check_output("git push --force --quiet origin gh-pages", shell=True)
     except:
-        try:
-            sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
+        sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
