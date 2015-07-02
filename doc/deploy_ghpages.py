@@ -61,25 +61,27 @@ sp.check_output("rsync -rt --del --exclude='.git' --exclude='.nojekyll' ./build/
 # commit changes
 os.chdir("gh_pages")
 sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", shell=True)
-sp.check_output("git add ./*", shell=True)
+sp.check_output("git add --all ./*", shell=True)
 sp.check_output("git commit -a -m 'travis bot doc build [ci skip]'", shell=True)
+sp.check_output("git push --force --quiet origin gh-pages", shell=True)
 
-try:
-    print("a")
-    sp.check_output("git push --force --quiet https://${GH_REF} origin gh-pages", shell=True)
-except:
-    try:
-        print("b")
-        sp.check_output("git push --force --quiet origin gh-pages", shell=True)
-    except:
-        try:
-            print("c")
-            sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
-        except:
-            try:
-                print("d")
-                sp.check_output("git push --force --quiet https://${GH_TOKEN}:@${GH_REF} master:'gh-pages'", shell=True)
-            except:
-                print("e")
-                sp.check_output("git push --force --quiet https://${GH_TOKEN}@${GH_REF} master:'gh-pages'", shell=True)
+
+#try:
+#    print("a")
+#    sp.check_output("git push --force --quiet https://${GH_REF} origin gh-pages", shell=True)
+#except:
+#    try:
+#        print("b")
+#        sp.check_output("git push --force --quiet origin gh-pages", shell=True)
+#    except:
+#        try:
+#            print("c")
+#            sp.check_output("git push --force --quiet https://${GH_REF} master:'gh-pages'", shell=True)
+#        except:
+#            try:
+#                print("d")
+#                sp.check_output("git push --force --quiet https://${GH_TOKEN}:@${GH_REF} master:'gh-pages'", shell=True)
+#            except:
+#                print("e")
+#                sp.check_output("git push --force --quiet https://${GH_TOKEN}@${GH_REF} master:'gh-pages'", shell=True)
         
