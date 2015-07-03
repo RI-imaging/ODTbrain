@@ -5,21 +5,23 @@ u""" Algorithms for scalar diffraction tomography.
 This package provides reconstruction algorithms for diffraction
 tomography in two and three dimensions.
 
-Obtaining ODTbrain
-------------------
-Please install `ODTbrain with the python package manager`_. Simply run 
+Installation
+------------
+ODTbrain is a python library that is compatible to Python 2 and Python 3.
+To install via the `Python package manager (PyPi)`_, simply issue the
+following command.
 
     pip install odtbrain
 
 
 The `FFTW3 library`_ and the scientific python packages
 :py:mod:`numpy` and :py:mod:`scipy` are required by ODTbrain.
-If the above command does not work, please refer to to the 
+If the above command does not work, please refer to the 
 installation instructions at the `GitHub repository`_.
 
 .. _`FFTW3 library`: http://fftw.org
 .. _`GitHub repository`: https://github.com/paulmueller/ODTbrain
-.. _`ODTbrain with the python package manager`: http://pypi.org/odtbrain
+.. _`Python package manager (PyPi)`: http://pypi.org/odtbrain
 
 
 Theoretical background
