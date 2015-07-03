@@ -5,7 +5,7 @@ ODTbrain
 [![Coveralls](https://img.shields.io/coveralls/paulmueller/ODTbrain.svg)](https://coveralls.io/r/paulmueller/ODTbrain)
 
 
-This package provides image reconstruction algorithms for diffraction tomography in two and three dimensions.
+This package provides image reconstruction algorithms for **O**ptical **D**iffraction **T**omography with a **B**orn and **R**ytov **A**pproximation-based **I**nversion to compute the refractive index ***n*** in 2D and in 3D.
 
 
 ### Documentation

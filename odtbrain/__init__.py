@@ -21,11 +21,14 @@ installation instructions at the `GitHub repository`_.
 
 .. _`FFTW3 library`: http://fftw.org
 .. _`GitHub repository`: https://github.com/paulmueller/ODTbrain
-.. _`Python package manager (PyPi)`: http://pypi.org/odtbrain
+.. _`Python package manager (PyPi)`: https://pypi.python.org/pypi/odtbrain/
 
 
 Theoretical background
 ----------------------
+A detailed summary of the underlying theory is available on
+`arXiv <http://arxiv.org/abs/1507.00466>`_.
+
 The Fourier diffraction theorem states, that the Fourier transform
 :math:`\widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}})` of 
 the scattered field :math:`u_\mathrm{B}(\mathbf{r_D})`, measured at 
