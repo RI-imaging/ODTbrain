@@ -167,8 +167,8 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     # Cut-Off frequency
     # km [1/px]
     km = (2 * np.pi * nm) / res
-    # The notation in the our optical tomography script for
-    # a wave propagating to the right is:
+    # Here, the notation defines 
+    # a wave propagating to the right as:
     #
     #    u0(x) = exp(ikx)
     #
@@ -187,7 +187,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     # Size of the input data
     ln = sinogram.shape[1]
 
-    # We do a padding before performing the Fourier transform.
+    # We perform padding before performing the Fourier transform.
     # This gets rid of artifacts due to false periodicity and also
     # speeds up Fourier transforms of the input image size is not
     # a power of 2.
@@ -299,11 +299,8 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
 
     # Everything is in pixels
     center = ln / 2.0
-    #x = np.linspace(-center, center, lN, endpoint=False)
     x = np.arange(lN) - center + .5
     # Meshgrid for output array
-    #xv, yv = np.meshgrid(x,x)
-    #xv = x.reshape( 1,-1)
     yv = x.reshape(-1, 1)
 
     Mp = M.reshape(1, -1)
@@ -323,13 +320,6 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     # Calculate backpropagations
     for i in np.arange(A):
         # Create an interpolation object of the projection.
-
-        # if i == A/2:
-        #    filter2 = np.conj(filter2)
-        #    print("HA")
-
-        #xp =  xv*np.cos(phi0) + yv*np.sin(phi0)
-        #yp = -xv*np.sin(phi0) + yv*np.cos(phi0)
 
         # interpolation of the rotated fourier transformed projection
         # this is already tiled onto the entire image.
@@ -357,7 +347,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
 
 
 def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
-                   coords=None, jmc=None, jmm=None):
+                   coords=None, jmc=None, jmm=None, verbose=_verbose):
     u""" 2D Fourier mapping with the Fourier diffraction theorem
 
     Two-dimensional diffraction tomography reconstruction
@@ -401,7 +391,8 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
         :mod:`jobmanager` package. The current step `jmc.value` is
         incremented `jmm.value` times. `jmm.value` is set at the 
         beginning.
-
+    verbose : int
+        Increment to increase verbosity.
 
 
     Returns
@@ -474,8 +465,8 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     #UB =  np.fft.fft(np.fft.ifftshift(uSin, axes=-1))/np.sqrt(2*np.pi)
     #
     #
-    # Furthermore, The notation in the our optical tomography script for
-    # a wave propagating to the right is:
+    # Furthermore, we define 
+    # a wave propagating to the right as:
     #
     #    u0(x) = exp(ikx)
     #
@@ -506,7 +497,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     # Determine if the resolution of the image is too low by looking
     # at the maximum value for kx. This is no comparison between
     # Nyquist and Rayleigh frequency.
-    if np.max(kx**2) <= km**2:
+    if verbose and np.max(kx**2) <= km**2:
         # Detector is not set up properly. Higher resolution
         # can be achieved.
         print("......Measurement data is undersampled.")
@@ -573,25 +564,6 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     # plt.axes().set_aspect('equal')
     # plt.show()
 
-    # Results in the same:
-    #Kf = np.zeros((len(Xf),2))
-    #Kf[:,0] = Xf
-    #Kf[:,1] = Yf
-    # Fr=intp.LinearNDInterpolator(Kf,Zf.real)
-    # Fi=intp.LinearNDInterpolator(Kf,Zf.imag)
-    # How large should the interpolation be?
-    # Let's say
-    #Nintp = 512
-    #kintp = np.linspace(-km+.5, km-.5, Nintp)
-    #Kintx, Kinty = np.meshgrid(kintp,kintp)
-    #Kintx = Kintx.flatten()
-    #Kinty = Kinty.flatten()
-    #coords = np.zeros((len(Kintx), 2))
-    #coords[:,0] = Kintx
-    #coords[:,1] = Kinty
-    # Maybe don't do everything at once?
-    #Fcomp = (Fr(coords) + 1j*Fi(coords)).reshape(Nintp,Nintp)
-
     # interpolation on grid with same resolution as input data
     kintp = np.fft.fftshift(kx.reshape(-1))
 
@@ -621,7 +593,8 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     return f[::-1]
 
 
-def sum_2d(uSin, angles, res, nm, lD, coords=None, jmc=None, jmm=None):
+def sum_2d(uSin, angles, res, nm, lD, coords=None,
+           jmc=None, jmm=None, verbose=_verbose):
     u""" 2D sum-reconstruction with the Fourier diffraction theorem
 
     Two-dimensional diffraction tomography reconstruction
@@ -658,7 +631,8 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None, jmc=None, jmm=None):
         :mod:`jobmanager` package. The current step `jmc.value` is
         incremented `jmm.value` times. `jmm.value` is set at the 
         beginning.
-
+    verbose : int
+        Increment to increase verbosity.
 
     Returns
     -------
@@ -729,9 +703,11 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None, jmc=None, jmm=None):
     if np.max(kx**2) <= 2 * km**2:
         # Detector is not set up properly. Higher resolution
         # can be achieved.
-        print("......Measurement data is undersampled.")
+        if verbose:
+            print("......Measurement data is undersampled.")
     else:
-        print("......Measurement data is oversampled.")
+        if verbose:
+            print("......Measurement data is oversampled.")
         raise NotImplementedError("Oversampled data not yet supported." +
                                   " Please rescale input data")
 
@@ -741,8 +717,6 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None, jmc=None, jmm=None):
 
     # We will later multiply with phi0.
     # Make sure we are using correct shapes
-    #kx=kx.reshape(1, kx.shape[0], kx.shape[1])
-    #ky=ky.reshape(1, ky.shape[0], ky.shape[1])
     kx = kx.reshape(1, kx.shape[0])
 
     # Low-pass filter:

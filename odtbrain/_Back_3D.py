@@ -66,11 +66,9 @@ import ctypes
 import gc
 import multiprocessing as mp
 import numpy as np
-import os
 import platform
 import pyfftw
 import scipy.ndimage
-import warnings
 
 import odtbrain
 
@@ -82,25 +80,6 @@ _ncores = mp.cpu_count()
 _np_float32 = np.dtype(np.float32)
 _np_float64 = np.dtype(np.float64)
 _verbose = 1
-
-# Determine maximal available memory
-_max_ram_gb = 2 # Everyone has 2
-try:
-    # sysconf
-    _sysmem_gb = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') / (1024)**3 
-    # leave 1GB for the OS
-    if _sysmem_gb > 1:
-        _max_ram_gb = _sysmem_gb - 1
-except:
-    try:
-        # psutil (if installed)
-        from psutil import virtual_memory
-        _sysmem_gb = virtual_memory().total / (1024)**3
-        # leave 1GB for the OS
-        if _sysmem_gb > 1:
-            _max_ram_gb = _sysmem_gb - 1    
-    except:
-        warnings.warn("Cannot determine memory size. Please install `psutil`")
 
 
 def _mprotate(ang, lny, pool, order):
@@ -319,7 +298,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     # Cut-Off frequency
     # km [1/px]
     km = (2 * np.pi * nm) / res
-    # The notation in the our optical tomography script for
+    # Here, the notation for
     # a wave propagating to the right is:
     #
     #    u0(x) = exp(ikx)
@@ -341,7 +320,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     (la, lny, lnx) = sinogram.shape
     ln = max(lnx, lny)
 
-    # We do a zero-padding before performing the Fourier transform.
+    # We perform padding before performing the Fourier transform.
     # This gets rid of artifacts due to false periodicity and also
     # speeds up Fourier transforms of the input image size is not
     # a power of 2.
@@ -358,31 +337,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
         pady = ordery - lny
     else:
         pady = 0
-
-    ## Disabled: Compute how much ram we will be using
-    #
-    # max_ram_gb = _max_ram_gb
-    #
-    # max_ram_gb : float
-    #    Try only to use this many GB of memory.
-    #
-    #try:
-    #    dt_fact = float(str(dtype_complex).strip("complex"))
-    #except:
-    #    dt_fact = 128
-    #    
-    #used_ram_gb_fast = 2*(2*orderx*ordery*ln + 4*lny*lnx*ln + 2*la*lny*lnx ) * dt_fact / 8 / (1024)**3 
-    #used_ram_gb_slow = (orderx*ordery*2 + 4*lny*lnx*ln + 2*la*lny*lnx ) * dt_fact / 8 / (1024)**3
-    #
-    #if max_ram_gb < used_ram_gb_slow:
-    #    raise MemoryError("Please increase parameter `max_ram_gb`.")
-    #if max_ram_gb < used_ram_gb_fast:
-    #    fast_mode = False
-    #    print("...Will use NOT use fast implementation ({:.1f} of {:.1f}GB)!".
-    #                                    format(max_ram_gb, used_ram_gb_fast))
-    #else:
-    #    fast_mode = True
-    #    print("...Will use FAST implementation with {:.1f}GB of RAM!".format(used_ram_gb_fast))
 
     # Apply a Fourier filter before projecting the sinogram slices.
     # Resize image to next power of two for fourier analysis
@@ -459,9 +413,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     #
     #
 
-    # if lNx != lNy:
-    #    raise NotImplementedError("Input data must be square shaped!")
-
     # Corresponding sample frequencies
     fx = np.fft.fftfreq(lNx)  # 1D array
     fy = np.fft.fftfreq(lNy)  # 1D array
@@ -492,7 +443,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     # Perform filtering of the sinogram,
     # save memory by in-place operations
     #projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor
-    # Flag is "estimate":
+    # FFTW-flag is "estimate":
     #   specifies that, instead of actual measurements of different
     #   algorithms, a simple heuristic is used to pick a (probably
     #   sub-optimal) plan quickly. With this flag, the input/output
@@ -539,15 +490,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
 
     # Everything is in pixels
     center = lNz / 2.0
-    #x = np.linspace(-centerx, centerx, lNx, endpoint=False)
-    #x = np.arange(lNx) - center + .5
-    # Meshgrid for output array
-    #zv, yv, xv = np.meshgrid(x,x,x)
-    #               z, y, x
-    #xv = x.reshape( 1, 1,-1)
-    #yv = x.reshape( 1,-1, 1)
 
-    #z = np.arange(ln) - center + .5
     z = np.linspace(-center, center, lNz, endpoint=False)
     zv = z.reshape(-1, 1, 1)
 
@@ -591,7 +534,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
 
     # Create plan for fftw:
     inarr = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
-
     #inarr[:] = (projection[0]*filter2)[0,:,:]
     # plan is "patient":
     #    FFTW_PATIENT is like FFTW_MEASURE, but considers a wider range
@@ -623,15 +565,11 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     for i in np.arange(A):
         # 14x Speedup with fftw3 compared to numpy fft and
         # memory reduction by a factor of 2!
-        #sino_filtered = np.fft.ifft2(projection[i]*filter2, axes=(-1,-2))
         # ifft will be computed in-place
 
-        
         # A == la
         # projection.shape == (A, lNx, lNy)
         # filter2.shape == (ln, lNx, lNy)
-
-        
         for p in range(len(zv)):
             inarr[:] = filter2[p] * projection[i]
             myifftw_plan.execute()
@@ -639,13 +577,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
                                            padyl:padyl + lny,
                                            padxl:padxl + lnx
                                           ] / (lNx * lNy)
-        
-        #sino_filtered = projection[i] * filter2
-        #for p in range(len(sino_filtered)):
-        #    inarr[:] = sino_filtered[p, :, :]
-        #    myifftw_plan.execute()
-        #    sino_filtered[p, :, :] = inarr[:]
-
 
         # resize image to original size
         # The copy is necessary to prevent memory leakage.
@@ -677,64 +608,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
             _mprotate(phi0, lny, pool4loop, intp_order)
             outarr.imag += _shared_array
 
-        # if False:
-        #    # ~(0.9^num_cores)x speedup
-        #    ang = np.rad2deg(angles[i])
-        #
-        #    N = int(ln)
-        #
-        #    slsize = int(np.floor(ln/N))
-        #
-        #    targ_args=list()
-        #    for t in range(N):
-        #        ymin = t*slsize
-        #        ymax = (t+1)*slsize
-        #        if t == N - 1:
-        #            ymax = ln
-        #        #print(ymin,ymax,sino_fin.shape)
-        #        targ_args.append((sino_fin[:,ymin:ymax,:],ang))
-        #
-        #        if t%num_cores == num_cores-1:
-        #            out = pool4loop.map(_rotate2, targ_args)
-        #            um = len(out)
-        #
-        #            for u in range(1,um+1):
-        #                #print(slsize, um, u, t)
-        #                sino_fin[:,(t-um+u)*slsize:(t-um+u+1)*slsize,:] = out[u-1]
-        #            targ_args=list()
-        #            del out
-        #
-        #    #print(len(targ_args))
-        #    #targ_args=sino_fin.real.reshape(2,ln,-1,ln)
-        #
-        #
-        #    #for t in range(N):
-        #    #    ymin = t*slsize
-        #    #    ymax = (t+1)*slsize
-        #    #    if t == N - 1:
-        #    #        ymax = ln
-        #    #    #print(ymin,ymax,sino_fin.shape)
-        #    #    sino_fin.real[:,ymin:ymax,:] = out[t]
-        #
-        # if False:
-        #    # This is very time-consuming
-        #    rot_data = scipy.ndimage.interpolation.rotate(
-        #                  sino_fin.real[:],
-        #                  np.rad2deg(angles[i]),
-        #                  (0,2),
-        #                  False,
-        #                  sino_fin.real[:],
-        #                  3,
-        #                  "constant",
-        #                  0)
-
-        #outarr += np.array(results).reshape(ln,ln,ln)
-
-        # if not onlyreal:
-        #    outarr += 1j*scipy.ndimage.interpolation.rotate(
-        #              sino_fin.imag, angles[i]*180/np.pi, reshape=False,
-        # z,x
-        #              mode="constant", cval=0, axes=(0,2))
 
         if jmc is not None:
             jmc.value += 1
