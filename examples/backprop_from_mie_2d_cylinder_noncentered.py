@@ -23,7 +23,7 @@ the reconstruction.
 
 Download the :download:`full example <../examples/backprop_from_mie_2d_cylinder_noncentered.py>`.
 If you are not running the example from the git repository, make sure the
-file `example_helper.py <../examples/example_helper.py>` is present
+file :download:`example_helper.py <../examples/example_helper.py>` is present
 in the current directory.
 
 """
