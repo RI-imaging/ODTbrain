@@ -53,7 +53,7 @@ if __name__ == "__main__":
     
     import matplotlib.pylab as plt
     import numpy as np
-    from os.path import abspath, dirname, split
+    from os.path import abspath, dirname, split, join
     import sys
     import warnings
     import zipfile
@@ -188,4 +188,7 @@ if __name__ == "__main__":
 
     plt.tight_layout()
 
-    plt.savefig("backprop_from_mie_3d_sphere.png")
+    outname = join(DIR, "backprop_from_mie_3d_sphere.png")
+
+    print("Creating output file:", outname)
+    plt.savefig(outname)

@@ -36,7 +36,7 @@ if __name__ == "__main__":
         raise
     import matplotlib.pylab as plt
     import numpy as np
-    from os.path import abspath, dirname, split
+    from os.path import abspath, dirname, split, join
     import sys
     import zipfile
     
@@ -125,4 +125,7 @@ if __name__ == "__main__":
     axes[1].set_yticklabels(labels)
 
     plt.tight_layout()
-    plt.savefig(DIR+"/backprop_from_fdtd_2d.png")
+   
+    outname = join(DIR, "backprop_from_fdtd_2d.png")
+    print("Creating output file:", outname)
+    plt.savefig(outname)
