@@ -1,4 +1,4 @@
-odtbrain documentation
+ODTbrain documentation
 ======================
 
 

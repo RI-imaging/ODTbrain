@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ 
-2D backpropagation (FDTD)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+2D cell phantom (FDTD simulations)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *in silico* data set was created with the 
 :abbr:`FDTD (Finite Difference Time Domain)` software `meep`_. The data
 are 1D projections of a 2D refractive index phantom. The

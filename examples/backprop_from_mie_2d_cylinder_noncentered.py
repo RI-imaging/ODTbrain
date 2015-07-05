@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ 
-2D backpropagation (Mie)
-~~~~~~~~~~~~~~~~~~~~~~~~
+2D non-centered cylinder (Mie theory)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *in silico* data set was created with the 
-softare `miefield  <https://github.com/paulmueller/miefield>.
+softare `miefield  <https://github.com/paulmueller/miefield>`.
 The data are 1D projections of a non-centered cylinder of constant
 refractive index. The Born approximation is error-prone due to
 a relatively large radius of the cylinder (30 wavelengths) and

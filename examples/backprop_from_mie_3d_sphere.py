@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-3D backpropagation of a sphere (Mie)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3D sphere (Mie theory)
+~~~~~~~~~~~~~~~~~~~~~~
 The *in silico* data set was created with the Mie calculation software
 `GMM-field`_. The data consist of a two-dimensional projection of a
 sphere with radius :math:`R=14\lambda`,

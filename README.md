@@ -75,7 +75,7 @@ Install all dependencies
     
 Running an example
 
-    python examples/simple_example.py
+    python examples/backprop_from_fdtd_2d.py
    
 Running tests
 
