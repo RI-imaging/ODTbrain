@@ -17,37 +17,44 @@ simulation.
    data created by `meep`_ simulations.
 
 Download the :download:`full example <../examples/backprop_from_fdtd_2d.py>`.
+If you are not running the example from the git repository, make sure the
+file `example_helper.py <../examples/example_helper.py>` is present
+in the current directory.
 
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 
 """
 from __future__ import division, print_function
 
+try:
+    from example_helper import get_file
+except ImportError:
+    print("Please make sure example_helper.py is available.")
+    raise
+import matplotlib.pylab as plt
+import numpy as np
+from os.path import abspath, dirname, split
+import sys
+import zipfile
+
+# Add parent directory to beginning of path variable
+DIR = dirname(abspath(__file__))
+sys.path.insert(0, split(DIR)[0])
+
+import odtbrain as odt
+
+# use jobmanager if available
+try:
+    import jobmanager as jm
+    jm.decorators.decorate_module_ProgressBar(odt, 
+                        decorator=jm.decorators.ProgressBarOverrideCount,
+                        interval=.1)
+except:
+    pass
+
 
 if __name__ == "__main__":
-    import matplotlib.pylab as plt
-    import numpy as np
-    from os.path import abspath, dirname, join, split
-    import sys
-    import zipfile
-
-    # Add parent directory to beginning of path variable
-    DIR = dirname(abspath(__file__))
-    sys.path.insert(0, split(DIR)[0])
-
-    import odtbrain as odt
-
-    # use jobmanager if available
-    try:
-        import jobmanager as jm
-        jm.decorators.decorate_module_ProgressBar(odt, 
-                            decorator=jm.decorators.ProgressBarOverrideCount,
-                            interval=.1)
-    except:
-        pass
-
-
-    datazip = join(dirname(__file__), "fdtd_2d_sino_A100_R13.zip")
+    datazip = get_file("fdtd_2d_sino_A100_R13.zip")
     # Get simulation data
     arc = zipfile.ZipFile(datazip)
 

@@ -27,6 +27,10 @@ for the reconstruction with :func:`odtbrain.backpropagate_3d`.
 
 Download the 
 :download:`full example <../examples/backprop_from_mie_3d_sphere.py>`.
+If you are not running the example from the git repository, make sure the
+file `example_helper.py <../examples/example_helper.py>` is present
+in the current directory.
+
 
 .. _`GMM-field`: https://code.google.com/p/scatterlib/wiki/Nearfield
 
@@ -35,43 +39,49 @@ Download the
 # TODO:
 # - in reconstruction label axes according to wavelengths
 # - use latex for axis labeling
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
+
+try:
+    from example_helper import get_file
+except ImportError:
+    print("Please make sure example_helper.py is available.")
+    raise
+
+import matplotlib.pylab as plt
+import numpy as np
+from os.path import abspath, dirname, split
+import sys
+import warnings
+import zipfile
+
+# Add parent directory to beginning of path variable
+DIR = dirname(abspath(__file__))
+sys.path.insert(0, split(DIR)[0])
+
+import odtbrain as odt
+
+# Use nrefocus package for autofocusing
+try:
+    import nrefocus
+except:
+    warnings.warn("Package `nrefocus` not available. Proceeding "
+                  "without autofocusing.")
+    autofocus = False
+else:
+    autofocus = True
+
+# use jobmanager if available
+try:
+    import jobmanager as jm
+    jm.decorators.decorate_module_ProgressBar(odt, 
+                        decorator=jm.decorators.ProgressBarOverrideCount,
+                        interval=.1)
+except:
+    pass
+
 
 if __name__ == "__main__":
-    import matplotlib.pylab as plt
-    import numpy as np
-    from os.path import abspath, dirname, join, split
-    import sys
-    import warnings
-    import zipfile
-
-    # Add parent directory to beginning of path variable
-    DIR = dirname(abspath(__file__))
-    sys.path.insert(0, split(DIR)[0])
-
-    import odtbrain as odt
-
-    # Use nrefocus package for autofocusing
-    try:
-        import nrefocus
-    except:
-        warnings.warn("Package `nrefocus` not available. Proceeding "
-                      "without autofocusing.")
-        autofocus = False
-    else:
-        autofocus = True
-
-    # use jobmanager if available
-    try:
-        import jobmanager as jm
-        jm.decorators.decorate_module_ProgressBar(odt, 
-                            decorator=jm.decorators.ProgressBarOverrideCount,
-                            interval=.1)
-    except:
-        pass
-
-    datazip = join(dirname(__file__), "mie_3d_sphere_field.zip")
+    datazip = get_file("mie_3d_sphere_field.zip")
     # Get simulation data
     arc = zipfile.ZipFile(datazip)
 
