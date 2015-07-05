@@ -26,34 +26,35 @@ in the current directory.
 """
 from __future__ import division, print_function
 
-try:
-    from example_helper import get_file
-except ImportError:
-    print("Please make sure example_helper.py is available.")
-    raise
-import matplotlib.pylab as plt
-import numpy as np
-from os.path import abspath, dirname, split
-import sys
-import zipfile
-
-# Add parent directory to beginning of path variable
-DIR = dirname(abspath(__file__))
-sys.path.insert(0, split(DIR)[0])
-
-import odtbrain as odt
-
-# use jobmanager if available
-try:
-    import jobmanager as jm
-    jm.decorators.decorate_module_ProgressBar(odt, 
-                        decorator=jm.decorators.ProgressBarOverrideCount,
-                        interval=.1)
-except:
-    pass
-
-
+# All imports are moved to "__main__", because
+# sphinx might complain about some imports (e.g. mpl).
 if __name__ == "__main__":
+    try:
+        from example_helper import get_file
+    except ImportError:
+        print("Please make sure example_helper.py is available.")
+        raise
+    import matplotlib.pylab as plt
+    import numpy as np
+    from os.path import abspath, dirname, split
+    import sys
+    import zipfile
+    
+    # Add parent directory to beginning of path variable
+    DIR = dirname(abspath(__file__))
+    sys.path.insert(0, split(DIR)[0])
+    
+    import odtbrain as odt
+    
+    # use jobmanager if available
+    try:
+        import jobmanager as jm
+        jm.decorators.decorate_module_ProgressBar(odt, 
+                            decorator=jm.decorators.ProgressBarOverrideCount,
+                            interval=.1)
+    except:
+        pass
+
     datazip = get_file("fdtd_2d_sino_A100_R13.zip")
     # Get simulation data
     arc = zipfile.ZipFile(datazip)
