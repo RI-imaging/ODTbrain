@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 """ Pre- and post-processing for diffraction tomography
 
-Tomographic data sets are stacks of detector images for different
+Tomographic data sets consist of detector images for different
 rotational positions :math:`\phi_0` of the objects. The methods
-described here can be used to filter the measured complex field 
-:math:`u(\mathbf{r})` for the Radon and Rytov approximations and to
-convert the output of e.g. backprojection (Radon) or 
-backpropagation (Born/Rytov) algorithms to refractive index maps
-:math:`n(\mathbf{r})`.
+described here include pre-processing filters that are applied 
+to the measured field :math:`u(\mathbf{r})` to achieve the Radon or the
+Rytov approximation. To obtain the refractive index map :math:`n(\mathbf{r})`
+from an object function :math:`f(\mathbf{r})`, this submodule 
+also provides post-processing methods 
+(for backprojection/Radon or backpropagation/Born,Rytov).
 """
 import numpy as np
 from scipy.stats import mode
@@ -80,7 +81,7 @@ def odt_to_ri(f, res, nm):
     u""" Converts the ODT object function to refractive index.
 
     In :abbr:`ODT (Optical Diffraction Tomography)`, the object function
-    is defined by the Helmholtz equation:
+    is defined by the Helmholtz equation
 
     .. math::
 
@@ -115,7 +116,7 @@ def odt_to_ri(f, res, nm):
 
     Notes
     -----
-    Because this function computes to root of a complex number, there
+    Because this function computes the root of a complex number, there
     are several solutions to the refractive index. Always the positive
     (real) root of the refractive index is used.
 
@@ -219,22 +220,23 @@ def sinogram_as_radon(uSin, align=True):
 def sinogram_as_rytov(uSin, u0=1, align=True):
     u""" Converts the complex wave field sinogram to Rytov data
 
-    This method effectively applies the Rytov approximation to the
-    recorded complex wave sinogram. We assume that the recorded data
-    :math:`u(\mathbf{r})` can be approximated with the Rytov
-    approximation 
-    :math:`u(\mathbf{r})\\approx u_\mathrm{R}(\mathbf{r})+
-    u_\mathrm{0}(\mathbf{r})`
-    and then convert it in order to use the Born approximation 
-    :math:`u_\mathrm{B}(\mathbf{r})`
-    for which we have derived the reconstruction algorithms in
-    diffraction tomography.
+    This method applies the Rytov approximation to the
+    recorded complex wave sinogram. To achieve this, the following
+    filter is applied:
 
     .. math::
         u_\mathrm{B}(\mathbf{r}) = u_\mathrm{0}(\mathbf{r})
             \ln\!\\left(  
             \\frac{u_\mathrm{R}(\mathbf{r})}{u_\mathrm{0}(\mathbf{r})}
              +1 \\right)
+
+    This filter step effectively replaces the Born approximation
+    :math:`u_\mathrm{B}(\mathbf{r})` with the Rytov approximation
+    :math:`u_\mathrm{R}(\mathbf{r})`, assuming that the scattered
+    field is equal to
+    :math:`u(\mathbf{r})\\approx u_\mathrm{R}(\mathbf{r})+
+    u_\mathrm{0}(\mathbf{r})`.
+    
 
     Parameters
     ----------
@@ -249,7 +251,7 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         background-corrected (
         ``uSin`` :math:`= \\frac{u_\mathrm{R}(\mathbf{r})}{
         u_\mathrm{0}(\mathbf{r})} + 1`
-        ). Beware that this might lead to a wrong 
+        ). Note that this might lead to a wrong 
         reconstruction if the reconstruction distance
         :math:`l_\mathrm{D}` is non-zero, i.e. the field is not focused
         to the center of the reconstruction volume.

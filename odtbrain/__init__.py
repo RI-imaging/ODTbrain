@@ -33,7 +33,8 @@ The Fourier diffraction theorem states, that the Fourier transform
 :math:`\widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}})` of 
 the scattered field :math:`u_\mathrm{B}(\mathbf{r_D})`, measured at 
 a certain angle :math:`\phi_0`, is distributed along a circular arc 
-(2D) or along a semi-spherical surface (3D) in the Fourier transform 
+(2D) or along a semi-spherical surface (3D) in Fourier space,
+synthesizing the Fourier transform 
 :math:`\widehat{F}(\mathbf{k})` of the object function 
 :math:`f(\mathbf{r})`.
 
@@ -69,7 +70,7 @@ Maxwell equations, describing the propagation of light,
 :abbr:`FDTD (Finite Difference Time Domain)` simulations were performed
 to test the reconstruction algorithms within this package.
 The algorithms present in this package should also be valid for the
-following cases, but have not been tested accordingly:
+following cases, but have not been tested appropriately:
 
 * tomographic measurements of absorbing materials (complex refractive 
   index :math:`n(\mathbf{r})`)
