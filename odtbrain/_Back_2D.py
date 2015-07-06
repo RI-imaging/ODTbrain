@@ -91,7 +91,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     uSin : (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D})`
-        normalized by the amplitude of the unscattered wave :math:`a_0`.
+        normalized by the amplitude of the unscattered wave :math:`a_0`
         measured at the detector.
     angles : (A,) ndarray
         Angular positions :math:`\phi_0` of ``uSin`` in radians.
@@ -364,7 +364,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     uSin : (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D})`
-        normalized by the amplitude of the unscattered wave :math:`a_0`.
+        normalized by the amplitude of the unscattered wave :math:`a_0`
         measured at the detector.
     angles : (A,) ndarray
         Angular positions :math:`\phi_0` of ``uSin`` in radians.
@@ -611,7 +611,7 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
     uSin : (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D})`
-        normalized by the amplitude of the unscattered wave :math:`a_0`.
+        normalized by the amplitude of the unscattered wave :math:`a_0`
         measured at the detector.
     angles : (A,) ndarray
         Angular positions :math:`\phi_0` of ``uSin`` in radians.
@@ -655,7 +655,8 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
     -----
     This method is not meant for production use. The computation time
     is very long and the reconstruction quality is bad. This function
-    is included in the package, because of its educational value.
+    is included in the package, because of its educational value,
+    exemplifying the backpropagation algorithm.
 
     """
     if coords is None:

@@ -213,7 +213,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
         Increase padding size of the input data. A value greater
         than one will trigger padding to the second-next power of
         two. For example, a value of 1.75 will lead to a padded
-        size of 256 for an initial size of 144, whereas for it will
+        size of 256 for an initial size of 144, whereas it will
         lead to a padded size of 512 for an initial size of 150.
         Values geater than 2 are allowed. This parameter may
         greatly increase memory usage!
