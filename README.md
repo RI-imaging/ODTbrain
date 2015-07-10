@@ -62,6 +62,14 @@ Install the following packages:
    Alternatively, install from PyPI: `pip install pyfftw`.
  - Finally: `pip install odtbrain`
 
+##### Known Problems
+For older versions of Ubuntu, `python-cffi` is not available. Install the following packages
+
+    sudo apt-get install python-dev libffi-dev
+    
+and install cffi via
+
+    pip install cffi
 
 ### Testing
 After cloning into odtbrain, create a virtual environment
