@@ -72,10 +72,11 @@ Install the following packages:
       pip install cffi
       pip install numpy==1.7.0
 
-- The tests fail on old Python installations. Please check the algorithms by running the examples.
-
 
 ### Testing
+**Note**: The tests may fail for some Python installations. Please check the algorithms by running the examples or update your distribution to the latest version. 
+
+
 After cloning into odtbrain, create a virtual environment
 
     virtualenv --system-site-packages ve
