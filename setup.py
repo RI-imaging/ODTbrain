@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-from os.path import abspath, dirname, join, realpath
-from setuptools import setup, find_packages, Command
+from os.path import dirname, realpath
+from setuptools import setup, Command
 import subprocess
 import sys
-from warnings import warn
 
 
 author = u"Paul Müller"
@@ -13,6 +11,11 @@ authors = [author]
 name = 'odtbrain'
 description = 'Algorithms for diffraction tomography'
 year = "2015"
+
+long_description = """
+This package provides inverse scattering algorithms in 2D and 3D
+for diffraction tomogrpahy. Visit the home page for more information.
+"""
 
 
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
@@ -33,7 +36,6 @@ class PyTest(Command):
         pass
 
     def run(self):
-        import sys,subprocess
         errno = subprocess.call([sys.executable, 'tests/runtests.py'])
         raise SystemExit(errno)
 
@@ -43,16 +45,15 @@ if __name__ == "__main__":
         name=name,
         author=author,
         author_email='paul.mueller at biotec.tu-dresden.de',
-        url='https://github.com/paulmueller/odtbrain',
+        url='http://paulmueller.github.io/ODTbrain/',
         version=version,
         packages=[name],
         package_dir={name: name},
         license="BSD (3 clause)",
         description=description,
-        long_description="""Python algorithm for diffraction tomography""",
-        install_requires=["unwrap>=0.1.1", "NumPy>=1.7.0", "SciPy>=0.13.0",
+        long_description=long_description,
+        install_requires=["unwrap>=0.1.1", "NumPy>=1.7.0", "SciPy>=0.10.0",
                           "PyFFTW>=0.9.2"],
-        #tests_require=["psutil"],
         keywords=["odt", "opt", "diffraction", "born", "rytov", "radon",
                   "backprojection", "backpropagation", "inverse problem",
                   "Fourier diffraction theorem", "Fourier slice theorem"],
