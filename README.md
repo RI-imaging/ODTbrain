@@ -63,13 +63,17 @@ Install the following packages:
  - Finally: `pip install odtbrain`
 
 ##### Known Problems
-For older versions of Ubuntu, `python-cffi` is not available. Install the following packages
+- For older versions of Ubuntu, `python-cffi` is not available. Install the following packages
 
-    sudo apt-get install python-dev libffi-dev
+      sudo apt-get install python-dev libffi-dev
     
-and install cffi via
+  and install cffi and numpy > 1.7.0 via pip, e.g.
 
-    pip install cffi
+      pip install cffi
+      pip install numpy==1.7.0
+    
+- The tests fail on old Python installations. Please check the algorithms by running the examples.
+
 
 ### Testing
 After cloning into odtbrain, create a virtual environment

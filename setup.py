@@ -50,7 +50,7 @@ if __name__ == "__main__":
         license="BSD (3 clause)",
         description=description,
         long_description="""Python algorithm for diffraction tomography""",
-        install_requires=["unwrap>=0.1.1", "NumPy>=1.5.1", "SciPy>=0.9.0",
+        install_requires=["unwrap>=0.1.1", "NumPy>=1.7.0", "SciPy>=0.13.0",
                           "PyFFTW>=0.9.2"],
         #tests_require=["psutil"],
         keywords=["odt", "opt", "diffraction", "born", "rytov", "radon",
