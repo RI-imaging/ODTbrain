@@ -65,13 +65,13 @@ Install the following packages:
 ##### Known Problems
 - For older versions of Ubuntu, `python-cffi` is not available. Install the following packages
 
-      sudo apt-get install python-dev libffi-dev
-    
-  and install cffi and numpy > 1.7.0 via pip, e.g.
+        sudo apt-get install python-dev libffi-dev
+ 
+ and install cffi and numpy > 1.7.0 via pip, e.g.
 
       pip install cffi
       pip install numpy==1.7.0
-    
+
 - The tests fail on old Python installations. Please check the algorithms by running the examples.
 
 
