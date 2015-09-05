@@ -17,7 +17,6 @@ before_install:
 - export PATH=/home/travis/miniconda/bin:$PATH
 - conda update --yes conda
 - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy cffi
-  sphinx
 - travis_retry pip install .
 install:
 - travis_retry pip install coverage
@@ -30,5 +29,6 @@ after_success:
 - coveralls --verbose
 - git config credential.helper "store --file=.git/credentials"
 - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
+- if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then travis_retry conda install --yes sphinx; fi
 - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install numpydoc; fi
 - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python doc/deploy_ghpages.py; fi
