@@ -40,8 +40,8 @@ Prerequisites
     after_success:
     - git config credential.helper "store --file=.git/credentials"
     - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install numpydoc sphinx; fi
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python doc/deploy_ghpages.py; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then pip install numpydoc sphinx; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then python doc/deploy_ghpages.py; fi
 
 """
 from __future__ import print_function
@@ -71,10 +71,7 @@ sp.check_output("rsync -rt --del --exclude='.git' --exclude='.nojekyll' ./build/
 os.chdir("gh_pages")
 sp.check_output("echo 'https://${GH_TOKEN}:@github.com' > .git/credentials", shell=True)
 sp.check_output("git add --all ./*", shell=True)
-try:
-    sp.check_output("git commit -a -m 'travis bot build ${TRAVIS_COMMIT} [ci skip]'", shell=True)
-except:
-    pass #nothing to do
-else:
-    sp.check_output("git push --force --quiet origin gh-pages", shell=True)
+
+sp.check_output("git commit -a -m 'travis bot build {} [ci skip]'".format(os.getenv("TRAVIS_COMMIT")), shell=True)
+sp.check_output("git push --force --quiet origin gh-pages", shell=True)
         
