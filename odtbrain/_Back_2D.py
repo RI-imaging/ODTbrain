@@ -115,7 +115,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
         the process for input image sizes that are not powers of 2.
     padval : float
         The value used for padding. This is important for the Rytov
-        approximation, where an approximat zero in the phase might
+        approximation, where an approximate zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi. 
         If `padval` is `None`, then the edge values are used for
