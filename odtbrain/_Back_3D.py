@@ -574,9 +574,9 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
             inarr[:] = filter2[p] * projection[i]
             myifftw_plan.execute()
             filtered_proj[p, :, :] = inarr[
-                                           padyl:padyl + lny,
-                                           padxl:padxl + lnx
-                                          ] / (lNx * lNy)
+                                       padyl:padyl + lny,
+                                       padxl:padxl + lnx
+                                      ] / (lNx * lNy)
 
         # resize image to original size
         # The copy is necessary to prevent memory leakage.
@@ -593,8 +593,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
             filtered_proj_imag = filtered_proj.imag
         else:
             filtered_proj_imag = None
-            # Free memory
-            del filtered_proj
 
         _mprotate(phi0, lny, pool4loop, intp_order)
 

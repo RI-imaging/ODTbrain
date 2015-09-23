@@ -6,8 +6,11 @@ from __future__ import division, print_function
 
 import numpy as np
 import os
-from os.path import abspath, dirname, join, split
+from os.path import abspath, basename, dirname, join, split, exists
+import platform
 import sys
+import warnings
+import zipfile
 
 # Add parent directory to beginning of path variable
 DIR = dirname(abspath(__file__))
@@ -18,79 +21,111 @@ import odtbrain._Back_2D
 import odtbrain._Back_3D
 import odtbrain._br
 
+from common_methods import create_test_sino_2d, create_test_sino_3d, cutout, get_test_parameter_set, write_results, get_results
 
-def get_2d_test_sinogram(A=5, N=13):
-    phase = np.exp(np.linspace(.1, 6, A*N))
-    ampl = np.arange(.7, 1.5, A*N)
-    sino = (ampl * np.exp(1j*phase)).reshape(A,N)
-    angles = np.linspace(0,2*np.pi,A)
-    return sino, angles
+WRITE_RES = False
 
 
-def get_3d_test_sinogram(A=5, M=11, N=13):
-    phase = np.exp(np.linspace(.1, .3, A*M*N))
-    ampl = np.arange(.7, 1.5, A*M*N)
-    sino = (ampl * np.exp(1j*phase)).reshape(A,M,N)
-    angles = np.linspace(0,2*np.pi,A)
-    return sino, angles
-
-
-def get_test_parameter_set(set_number=1):
-    res = 2.1
-    lD = 0
-    nm = 1.333
-    parameters = []
-    for i in range(set_number):
-        parameters.append({"res" : res,
-                           "lD" : lD,
-                           "nm" : nm})
-        res += .1
-        lD += np.pi
-        nm *= 1.01
-    return parameters
-
-
-def test_2d_backpropagate():
-    myname = sys._getframe().f_code.co_name
+def test_2d_backprop_phase():
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
-    sino, angles = get_2d_test_sinogram()
+    sino, angles = create_test_sino_2d()
     parameters = get_test_parameter_set(2)
     r = list()
     for p in parameters:
-        r.append(odtbrain._Back_2D.backpropagate_2d(sino, angles, **p))
-    assert np.allclose(np.array(r).flatten().view(float), results[myname])
+        f = odtbrain._Back_2D.backpropagate_2d(sino, angles, **p)
+        r.append(cutout(f))
+    if WRITE_RES:
+        write_results(myframe, r)
+    assert np.allclose(np.array(r).flatten().view(float), get_results(myframe))
 
-
-def test_3d_backpropagate():
-    myname = sys._getframe().f_code.co_name
+def test_2d_backprop_full():
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
-    sino, angles = get_3d_test_sinogram()
+    sino, angles = create_test_sino_2d(ampl_range=(0.9,1.1))
     parameters = get_test_parameter_set(2)
     r = list()
     for p in parameters:
-        r.append(odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=0, **p))
-    ri = odtbrain._br.odt_to_ri(np.array(r), 5.0, 1.4)
-    assert np.allclose(np.array(ri).flatten().view(float), results[myname], atol=5e-6)
+        f = odtbrain._Back_2D.backpropagate_2d(sino, angles, **p)
+        r.append(cutout(f))
+    if WRITE_RES:
+        write_results(myframe, r)
+    assert np.allclose(np.array(r).flatten().view(float), get_results(myframe))
 
 
-def test_3d_backpropagate32():
-    # Check if float32 operations also go through
-    myname = sys._getframe().f_code.co_name.strip("32")
+def test_3d_backprop_phase():
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
-    sino, angles = get_3d_test_sinogram()
+    sino, angles = create_test_sino_3d()
     parameters = get_test_parameter_set(2)
     r = list()
     for p in parameters:
-        r.append(odtbrain._Back_3D.backpropagate_3d(sino, angles,
-            dtype=np.float32, padval=0, **p))
-    ri = odtbrain._br.odt_to_ri(np.array(r), 5.0, 1.4)
-    assert np.allclose(np.array(ri).flatten().view(np.float32),
-                       results[myname],
-                       atol=5e-6)
+        f = odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=0,
+                                               dtype=np.float64, **p)
+        r.append(cutout(f))
+    if WRITE_RES:
+        write_results(myframe, r)
+    data = np.array(r).flatten().view(float)
+    assert np.allclose(data, get_results(myframe))
+    return data
+
+
+def test_3d_backprop_nopadreal():
+    """
+    - no padding
+    - only real result
+    """
+    platform.system = lambda:"Windows"
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
+    print("running ", myname)
+    sino, angles = create_test_sino_3d()
+    parameters = get_test_parameter_set(2)
+    r = list()
+    for p in parameters:
+        f = odtbrain._Back_3D.backpropagate_3d(sino, angles, padding=(False,False),
+                                               dtype=np.float64, onlyreal=True, **p)
+        r.append(cutout(f))
+    if WRITE_RES:
+        write_results(myframe, r)
+    data = np.array(r).flatten().view(float)
+    assert np.allclose(data, get_results(myframe))
+
+
+def test_3d_backprop_windows():
+    """
+    We assume that we are not running these tests on windows.
+    So we perform a test with fake windows to increase coverage.
+    """
+    datalin = test_3d_backprop_phase()
+    real_system = platform.system
+    datawin = test_3d_backprop_phase()
+    platform.system = real_system
+    assert np.allclose(datalin, datawin)
+
+
+def test_3d_backprop_phase32():
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
+    print("running ", myname)
+    sino, angles = create_test_sino_3d()
+    parameters = get_test_parameter_set(2)
+    r = list()
+    for p in parameters:
+        f = odtbrain._Back_3D.backpropagate_3d(sino, angles,
+            dtype=np.float32, padval=0, **p)
+        r.append(cutout(f))
+    data32 = np.array(r).flatten().view(np.float32)
+    data64 = test_3d_backprop_phase()
+    assert np.allclose(data32, data64, atol=2e-7)
 
 
 def test_3d_mprotate():
-    myname = sys._getframe().f_code.co_name
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
     import ctypes
     import multiprocessing as mp
@@ -106,19 +141,12 @@ def test_3d_mprotate():
     # pool must be created after _shared array
     pool = mp.Pool(processes=mp.cpu_count())
     odtbrain._Back_3D._mprotate(2, ln, pool, 2)
-    assert np.allclose(np.array(_shared_array).flatten().view(float), results[myname])
- 
+    if WRITE_RES:
+        write_results(myframe, _shared_array)
+    assert np.allclose(np.array(_shared_array).flatten().view(float), get_results(myframe))
 
-# Get results
-results = dict()
-datadir = join(DIR, "data")
-for f in os.listdir(datadir):
-    #np.savetxt('outfile.txt', np.array(r).flatten().view(float), fmt="%.10f")
-    #np.savetxt('outfile.txt', np.array(r).flatten().view(float))
-    glob = globals()
-    if f.endswith(".txt") and f[:-4] in list(glob.keys()):
-        results[f[:-4]] = np.loadtxt(join(datadir, f))
 
+    
 
 if __name__ == "__main__":
     # Run all tests

@@ -63,3 +63,6 @@ target/
 *.in~
 *.yml~
 *.rst~
+
+# extracted test files
+tests/data/*__*.txt
