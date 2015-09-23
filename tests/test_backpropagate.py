@@ -55,6 +55,31 @@ def test_2d_backprop_full():
     assert np.allclose(np.array(r).flatten().view(float), get_results(myframe))
 
 
+def test_2d_backprop_real():
+    """
+    Check if the real reconstruction matches the real part
+    of the complex reconstruction.
+    """
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
+    print("running ", myname)
+    sino, angles = create_test_sino_2d()
+    parameters = get_test_parameter_set(2)
+    # complex
+    r = list()
+    for p in parameters:
+        f = odtbrain._Back_2D.backpropagate_2d(sino, angles, padval=0,
+                                               **p)
+        r.append(f)
+    # real
+    r2 = list()
+    for p in parameters:
+        f = odtbrain._Back_2D.backpropagate_2d(sino, angles, padval=0,
+                                               onlyreal=True, **p)
+        r2.append(f)
+    assert np.allclose(np.array(r).real, np.array(r2))
+
+
 def test_3d_backprop_phase():
     myframe = sys._getframe()
     myname = myframe.f_code.co_name

@@ -542,6 +542,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
         Fsin = np.vstack((Fsin, np.conj(Fsin)))
         ang = np.vstack((ang, ang + np.pi))
 
+
     if jmc is not None:
         jmc.value += 1
 
@@ -849,4 +850,4 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
         if jmc is not None:
             jmc.value += 1
 
-    return f[::-1]
+    return f.reshape(lx,lx)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Tests fourier_map algorithm
+""" Tests slow summing algorithm
 """
 from __future__ import division, print_function
 
@@ -21,19 +21,22 @@ from common_methods import create_test_sino_2d, create_test_sino_3d, cutout, get
 WRITE_RES = False
 
 
-def test_2d_fmap():
+def test_2dsum():
     myframe = sys._getframe()
     myname = myframe.f_code.co_name
     print("running ", myname)
     sino, angles = create_test_sino_2d()
     parameters = get_test_parameter_set(2)
     r = list()
+
     for p in parameters:
-        f = odtbrain._Back_2D.fourier_map_2d(sino, angles, **p)
+        f = odtbrain._Back_2D.sum_2d(sino, angles, **p)
         r.append(cutout(f))
+
     if WRITE_RES:
         write_results(myframe, r)
     assert np.allclose(np.array(r).flatten().view(float), get_results(myframe))
+
     
 
 if __name__ == "__main__":
