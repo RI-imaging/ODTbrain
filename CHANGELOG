@@ -1,0 +1,4 @@
+0.1.1
+- bugfix: backpropagate_3d with keyword `onlyreal=True` did not work
+- bugfix: sum_2d did not return correctly reshaped array
+- code coverage is now 90%
