@@ -796,7 +796,7 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
     if jmc is not None:
         jmc.value += 1
 
-    for j in xrange(lenf):
+    for j in range(lenf):
         # Get r (We compute f(r) in this for-loop)
         r[0][:] = coords[0, j]  # x
         r[1][:] = coords[1, j]  # y
