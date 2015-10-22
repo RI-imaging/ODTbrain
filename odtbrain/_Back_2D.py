@@ -56,13 +56,15 @@ from __future__ import division, print_function
 import numpy as np
 import scipy.interpolate as intp
 import scipy.ndimage
-#import warnings
+
+from . import _util as util
 
 __all__ = ["backpropagate_2d", "fourier_map_2d", "sum_2d"]
 _verbose = 1
 
 
 def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
+                     weight_angles=True,
                      onlyreal=False, padding=True, padval=0,
                      jmc=None, jmm=None, verbose=_verbose):
     u""" 2D backpropagation with the Fourier diffraction theorem
@@ -106,6 +108,12 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
+    weight_angles : bool, optional
+        If `True` weight each backpropagated projection with a factor
+        proportional to the angular distance between the neighboring
+        projections.
+        
+        .. versionadded:: 0.1.1
     onlyreal : bool, optional
         If `True`, only the real part of the reconstructed image
         will be returned. This saves computation time.
@@ -182,7 +190,12 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
 
-    sinogram = uSin
+    # Perform weighting
+    if weight_angles:
+        weights = util.compute_angle_weights_1d(angles).reshape(-1,1)
+        sinogram = uSin * weights
+    else:
+        sinogram = uSin
 
     # Size of the input data
     ln = sinogram.shape[1]
@@ -307,6 +320,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     filter2 = np.exp(1j * yv * km * (Mp - 1))  # .reshape(1,lN,lN)
 
     projection = projection.reshape(A, 1, lN)  # * filter2
+
 
     # Prepare complex output image
     if onlyreal:
