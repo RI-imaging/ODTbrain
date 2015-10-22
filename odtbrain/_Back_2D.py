@@ -224,7 +224,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
                       # mode="constant", constant_values=((padval,padval),
                       #(padval,padval),(padval,padval)))
                       mode="linear_ramp",
-                      end_values=((padval, padval), (padval, padval)))
+                      end_values=padval)
         if verbose > 0:
             print("......Verifying padding value: {}".format(padval))
 

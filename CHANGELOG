@@ -1,4 +1,6 @@
 0.1.1
+- support NumPy 1.10
+- allow to weight backpropagation using keyword `weight_angles`
 - bugfix: backpropagate_3d with keyword `onlyreal=True` did not work
 - bugfix: sum_2d did not return correctly reshaped array
 - code coverage is now 90%
