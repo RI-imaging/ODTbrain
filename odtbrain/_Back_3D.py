@@ -368,10 +368,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
             print("......Padding with edge values.")
     else:
         sino = np.pad(sinogram, ((0, 0), (padyl, padyr), (padxl, padxr)),
-                      # mode="constant", constant_values=((padval,padval),
-                      #(padval,padval),(padval,padval)))
                       mode="linear_ramp",
-                      end_values=padval)
+                      end_values=(padval,))
         if verbose > 0:
             print("......Verifying padding value: {}".format(padval))
 
