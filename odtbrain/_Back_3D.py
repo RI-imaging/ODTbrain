@@ -72,6 +72,7 @@ import scipy.ndimage
 
 import odtbrain
 
+from . import _util as util
 
 __all__ = ["backpropagate_3d", "fourier_map_3d", "sum_3d",
            "backpropagate_3d_4pi"]
@@ -150,7 +151,7 @@ def _filter2_func(args):
 
 
 def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
-                     onlyreal=False, 
+                     weight_angles=True, onlyreal=False, 
                      padding=(True, True), padfac=1.75, padval=None,
                      intp_order=2, dtype=_np_float64,
                      num_cores=_ncores, 
@@ -198,6 +199,12 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
         Only compute the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
+    weight_angles : bool, optional
+        If `True` weight each backpropagated projection with a factor
+        proportional to the angular distance between the neighboring
+        projections.
+        
+        .. versionadded:: 0.1.1
     onlyreal : bool
         If `True`, only the real part of the reconstructed image
         will be returned. This saves computation time.
@@ -313,8 +320,13 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
 
-    # save memory
-    sinogram = uSin
+    # Perform weighting
+    if weight_angles:
+        weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
+        sinogram = weights * uSin
+    else:
+        # save memory
+        sinogram = uSin
 
     # lengths of the input data
     (la, lny, lnx) = sinogram.shape
@@ -343,10 +355,9 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     # Reduces artifacts
 
     padyl = int(np.ceil(pady / 2))
-    padyr = pady - padyl
+    padyr = int(pady - padyl)
     padxl = int(np.ceil(padx / 2))
-    padxr = padx - padyl
-
+    padxr = int(padx - padyl)
 
     #TODO: This padding takes up a lot of memory. Move it to a separate
     # for loop or to the main for-loop.
