@@ -211,8 +211,8 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     else:
         pad = 0
 
-    padl = int(np.ceil(pad / 2))
-    padr = pad - padl
+    padl = np.int(np.ceil(pad / 2))
+    padr = np.int(pad - padl)
 
     if padval is None:
         sino = np.pad(sinogram, ((0, 0), (padl, padr)),

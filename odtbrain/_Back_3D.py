@@ -104,7 +104,7 @@ def _mprotate(ang, lny, pool, order):
     """
     targ_args = list()
 
-    slsize = int(np.floor(lny / _ncores))
+    slsize = np.int(np.floor(lny / _ncores))
 
     for t in range(_ncores):
         ymin = t * slsize
@@ -282,7 +282,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     assert uSin.dtype == np.complex128, "uSin dtype must be complex128."
 
     dtype_complex = np.dtype("complex{}".format(
-        2 * int(dtype.name.strip("float"))))
+        2 * np.int(dtype.name.strip("float"))))
 
     # set ctype
     ct_dt_map = {np.dtype(np.float32): ctypes.c_float,
@@ -354,10 +354,10 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     # Resize image to next power of two for fourier analysis
     # Reduces artifacts
 
-    padyl = int(np.ceil(pady / 2))
-    padyr = int(pady - padyl)
-    padxl = int(np.ceil(padx / 2))
-    padxr = int(padx - padyl)
+    padyl = np.int(np.ceil(pady / 2))
+    padyr = np.int(pady - padyl)
+    padxl = np.int(np.ceil(padx / 2))
+    padxr = np.int(padx - padyl)
 
     #TODO: This padding takes up a lot of memory. Move it to a separate
     # for loop or to the main for-loop.
