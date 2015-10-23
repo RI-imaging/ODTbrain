@@ -18,7 +18,7 @@ simulation.
 
 Download the :download:`full example <../examples/backprop_from_fdtd_2d.py>`.
 If you are not running the example from the git repository, make sure the
-file `example_helper.py <../examples/example_helper.py>` is present
+file :download:`example_helper.py <../examples/example_helper.py>` is present
 in the current directory.
 
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
