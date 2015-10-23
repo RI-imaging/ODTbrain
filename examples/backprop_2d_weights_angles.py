@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
     kw_ph = {"vmin": np.min(np.array([ph200, ph50])),
              "vmax": np.max(np.array([ph200, ph50])),
-             "cmap": plt.cm.coolwarm
+             "cmap": plt.cm.coolwarm  # @UndefinedVariable
              }
     
     

@@ -29,12 +29,13 @@ Introduction
 Examples
 ========
 
-.. automodule:: backprop_from_fdtd_2d
-
 .. automodule:: backprop_from_mie_2d_cylinder_noncentered
 
 .. automodule:: backprop_2d_weights_angles
 
+.. automodule:: backprop_from_fdtd_2d
+
 .. automodule:: backprop_from_mie_3d_sphere
 
+.. automodule:: backprop_from_fdtd_3d
 

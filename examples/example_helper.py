@@ -7,7 +7,7 @@ example scripts.
 from __future__ import print_function
 import os
 from os.path import dirname, join, exists, isdir
-from urllib2 import urlopen
+
 import warnings
 
 datadir = "data"
@@ -43,6 +43,7 @@ def get_file(fname):
             break
                 
     if foundloc is None:
+        from urllib2 import urlopen
         # Download file with urllib2.urlopen
         print("Attempting to download file {} from {} to {}.".
               format(fname, webloc, dlloc))
