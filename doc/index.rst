@@ -33,6 +33,8 @@ Examples
 
 .. automodule:: backprop_from_mie_2d_cylinder_noncentered
 
+.. automodule:: backprop_from_mie_2d_weights_angles
+
 .. automodule:: backprop_from_mie_3d_sphere
 
 
