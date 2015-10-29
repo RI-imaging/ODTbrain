@@ -21,9 +21,9 @@ weights. The keyword argument `weight_angle` was introduced in version
 .. figure::  ../examples/backprop_2d_incomplete_coverage_repo.png
    :align:   center
 
-   A 180 degree coverage is sufficient to reconstruct the full object.
+   A 180 degree coverage results in a good reconstruction of the object.
    Angular weighting as implemented in the backpropagation algorithm
-   of ODTbrain automatically addresses this issue.
+   of ODTbrain automatically addresses uneven and incomplete angular coverage.
 
 Download the :download:`full example <../examples/backprop_2d_incomplete_coverage.py>`.
 If you are not running the example from the git repository, make sure the
