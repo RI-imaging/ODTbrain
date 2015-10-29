@@ -25,12 +25,12 @@ def compute_angle_weights_1d(angles):
     """
     # copy and modulo 2*np.pi
     # This is an array with values in [0, 2*np.pi)
-    angles = angles.flatten() % (2*np.pi) 
+    angles = angles.flatten() % (np.pi) 
     # sort the array
     sortargs = np.argsort(angles)
     sortangl = angles[sortargs]
     # compute weights for sorted angles
-    da = (np.roll(sortangl, -1) - np.roll(sortangl, 1)) % (2*np.pi)
+    da = (np.roll(sortangl, -1) - np.roll(sortangl, 1)) % (np.pi)
     weights = da/np.sum(da)*da.shape[0]
     
     unsortweights = np.zeros_like(weights)

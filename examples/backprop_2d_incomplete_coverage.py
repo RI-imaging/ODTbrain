@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ 
-Unevenly spaced angles (2D)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Incomplete angular coverage (2D)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This example illustrates how the backpropagation algorithm of ODTbrain
+handles incomplete angular coverage. All examples use 100 projections
+at 100%, 60%, and 40% total angular coverage. The keyword argument
+`weight_angles` that invokes angular weighting is set to `True` by default.
 The *in silico* data set was created with the 
 softare `miefield  <https://github.com/paulmueller/miefield>`_.
 The data are 1D projections of a non-centered cylinder of constant
@@ -14,13 +18,14 @@ weights and the third column shows the reconstruction with angular
 weights. The keyword argument `weight_angle` was introduced in version
 0.1.1. 
 
-.. figure::  ../examples/backprop_2d_weights_angles_repo.png
+.. figure::  ../examples/backprop_2d_incomplete_coverage_repo.png
    :align:   center
 
-   Impact of angular weighting on backpropagation with the Rytov
-   approximation. 
+   A 180 degree coverage is sufficient to reconstruct the full object.
+   Angular weighting as implemented in the backpropagation algorithm
+   of ODTbrain automatically addresses this issue.
 
-Download the :download:`full example <../examples/backprop_2d_weights_angles.py>`.
+Download the :download:`full example <../examples/backprop_2d_incomplete_coverage.py>`.
 If you are not running the example from the git repository, make sure the
 file :download:`example_helper.py <../examples/example_helper.py>` is present
 in the current directory.
@@ -124,78 +129,103 @@ if __name__ == "__main__":
 
     u_sinR = odt.sinogram_as_rytov(sino/u0)
     
-    # Rytov 200 projections    
-    # remove 50 projections from total of 250 projections
-    remove200 = np.argsort(angles % .002)[:50]
-    angles200 = np.delete(angles, remove200, axis=0)
-    u_sinR200 = np.delete(u_sinR, remove200, axis=0)
-    ph200 = unwrap.unwrap(np.angle(sino/u0))
-    ph200[remove200] = 0
+    # Rytov 100 projections evenly distributed    
+    removeeven = np.argsort(angles % .002)[:150]
+    angleseven = np.delete(angles, removeeven, axis=0)
+    u_sinReven = np.delete(u_sinR, removeeven, axis=0)
+    pheven = unwrap.unwrap(np.angle(sino/u0))
+    pheven[removeeven] = 0
     
-    fR200 = odt.backpropagate_2d(u_sinR200, angles200, res, nmed, lD*res)
-    nR200 = odt.odt_to_ri(fR200, res, nmed)
-    fR200nw = odt.backpropagate_2d(u_sinR200, angles200, res, nmed, lD*res, weight_angles=False)
-    nR200nw = odt.odt_to_ri(fR200nw, res, nmed)
+    fReven = odt.backpropagate_2d(u_sinReven, angleseven, res, nmed, lD*res)
+    nReven = odt.odt_to_ri(fReven, res, nmed)
+    fRevennw = odt.backpropagate_2d(u_sinReven, angleseven, res, nmed, lD*res, weight_angles=False)
+    nRevennw = odt.odt_to_ri(fRevennw, res, nmed)
     
     
-    # Rytov 50 projections
-    remove50 = np.argsort(angles % .002)[:200]
-    angles50 = np.delete(angles, remove50, axis=0)
-    u_sinR50 = np.delete(u_sinR, remove50, axis=0)
-    ph50 = unwrap.unwrap(np.angle(sino/u0))
-    ph50[remove50] = 0
+    # Rytov 100 projections more than 180
+    removemiss = 249 - np.concatenate((np.arange(100), 100+np.arange(150)[::3]))
+    anglesmiss = np.delete(angles, removemiss, axis=0)
+    u_sinRmiss = np.delete(u_sinR, removemiss, axis=0)
+    phmiss = unwrap.unwrap(np.angle(sino/u0))
+    phmiss[removemiss] = 0
     
-    fR50 = odt.backpropagate_2d(u_sinR50, angles50, res, nmed, lD*res)
-    nR50 = odt.odt_to_ri(fR50, res, nmed)    
-    fR50nw = odt.backpropagate_2d(u_sinR50, angles50, res, nmed, lD*res, weight_angles=False)
-    nR50nw = odt.odt_to_ri(fR50nw, res, nmed)
+    fRmiss = odt.backpropagate_2d(u_sinRmiss, anglesmiss, res, nmed, lD*res)
+    nRmiss = odt.odt_to_ri(fRmiss, res, nmed)    
+    fRmissnw = odt.backpropagate_2d(u_sinRmiss, anglesmiss, res, nmed, lD*res, weight_angles=False)
+    nRmissnw = odt.odt_to_ri(fRmissnw, res, nmed)
+    
+
+    # Rytov 100 projections less than 180
+    removebad = 249 - np.arange(150)
+    anglesbad = np.delete(angles, removebad, axis=0)
+    u_sinRbad = np.delete(u_sinR, removebad, axis=0)
+    phbad = unwrap.unwrap(np.angle(sino/u0))
+    phbad[removebad] = 0
+    
+    fRbad = odt.backpropagate_2d(u_sinRbad, anglesbad, res, nmed, lD*res)
+    nRbad = odt.odt_to_ri(fRbad, res, nmed)    
+    fRbadnw = odt.backpropagate_2d(u_sinRbad, anglesbad, res, nmed, lD*res, weight_angles=False)
+    nRbadnw = odt.odt_to_ri(fRbadnw, res, nmed)    
     
     # prepare plot
     
-    kw_ri = {"vmin": np.min(np.array([phantom, nR50.real, nR200.real])),
-             "vmax": np.max(np.array([phantom, nR50.real, nR200.real]))
+    kw_ri = {"vmin": np.min(np.array([phantom, nRmiss.real, nReven.real])),
+             "vmax": np.max(np.array([phantom, nRmiss.real, nReven.real]))
              }
 
-    kw_ph = {"vmin": np.min(np.array([ph200, ph50])),
-             "vmax": np.max(np.array([ph200, ph50])),
+    kw_ph = {"vmin": np.min(np.array([pheven, phmiss])),
+             "vmax": np.max(np.array([pheven, phmiss])),
              "cmap": plt.cm.coolwarm  # @UndefinedVariable
              }
     
     
-    fig, axes = plt.subplots(2,3, figsize=(12,7), dpi=300)
-    axes = np.array(axes).flatten()
+    fig, axes = plt.subplots(3,3, figsize=(12,10), dpi=300)
     
-    phmap = axes[0].imshow(ph200, **kw_ph)
-    axes[0].set_title("Phase sinogram (200 proj.)")
+    axes[0,0].set_title("100% coverage ({} proj.)".format(angleseven.shape[0]))
+    phmap = axes[0,0].imshow(pheven, **kw_ph)
 
-    rimap = axes[1].imshow(nR200nw.real, **kw_ri)
-    axes[1].set_title("RI without angular weights")
+    axes[0,1].set_title("RI without angular weights")
+    rimap = axes[0,1].imshow(nRevennw.real, **kw_ri)
 
-    axes[2].imshow(nR200.real, **kw_ri)
-    axes[2].set_title("RI with angular weights")
+    axes[0,2].set_title("RI with angular weights")
+    rimap = axes[0,2].imshow(nReven.real, **kw_ri)
     
-    axes[3].imshow(ph50, **kw_ph)
-    axes[3].set_title("Phase sinogram (50 proj.)")
+    axes[1,0].set_title("60% coverage ({} proj.)".format(anglesmiss.shape[0]))
+    axes[1,0].imshow(phmiss, **kw_ph)
+    
+    axes[1,1].set_title("RI without angular weights")
+    axes[1,1].imshow(nRmissnw.real, **kw_ri)
+    
+    axes[1,2].set_title("RI with angular weights")    
+    axes[1,2].imshow(nRmiss.real, **kw_ri)
 
-    axes[4].imshow(nR50nw.real, **kw_ri)
-    axes[4].set_title("RI without angular weights")
-
-    axes[5].imshow(nR50.real, **kw_ri)
-    axes[5].set_title("RI with angular weights")    
-
+    axes[2,0].set_title("40% coverage ({} proj.)".format(anglesbad.shape[0]))
+    axes[2,0].imshow(phbad, **kw_ph)
+    
+    axes[2,1].set_title("RI without angular weights")
+    axes[2,1].imshow(nRbadnw.real, **kw_ri)
+    
+    axes[2,2].set_title("RI with angular weights")
+    axes[2,2].imshow(nRbad.real, **kw_ri)
+    
+    
     # color bars
     cbkwargs = {"fraction": 0.045,
                 "format":"%.3f"}
-    plt.colorbar(phmap, ax=axes[0], **cbkwargs)
-    plt.colorbar(phmap, ax=axes[3], **cbkwargs)
-    plt.colorbar(rimap, ax=axes[1], **cbkwargs)
-    plt.colorbar(rimap, ax=axes[2], **cbkwargs)
-    plt.colorbar(rimap, ax=axes[5], **cbkwargs)
-    plt.colorbar(rimap, ax=axes[4], **cbkwargs)
+    plt.colorbar(phmap, ax=axes[0,0], **cbkwargs)
+    plt.colorbar(phmap, ax=axes[1,0], **cbkwargs)
+    plt.colorbar(phmap, ax=axes[2,0], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[0,1], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[1,1], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[2,1], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[0,2], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[1,2], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[2,2], **cbkwargs)
+
 
     
     plt.tight_layout()
     
-    outname = join(DIR, "backprop_2d_weights_angles.png")
+    outname = join(DIR, "backprop_2d_incomplete_coverage.png")
     print("Creating output file:", outname)
     plt.savefig(outname)
