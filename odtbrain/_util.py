@@ -22,9 +22,15 @@ def compute_angle_weights_1d(angles):
     -------
     weights : 1d ndarray of length A
         The weights for each angle
+    
+    Notes
+    -----
+    To compute the weights, the angles are set modulo PI, not modulo 2PI.
+    This reduces artifacts when the angular coverage is between PI and 2PI
+    but does not affect the result when the angles cover the full 2PI interval.
     """
-    # copy and modulo 2*np.pi
-    # This is an array with values in [0, 2*np.pi)
+    # copy and modulo np.pi
+    # This is an array with values in [0, np.pi)
     angles = angles.flatten() % (np.pi) 
     # sort the array
     sortargs = np.argsort(angles)
