@@ -13,7 +13,8 @@ before_install:
 - sudo apt-get install -qq libfftw3-3 libfftw3-dev
 - wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
 - chmod +x miniconda.sh
-- ./miniconda.sh -b
+- INSTALL_DIR=${HOME}
+- ./miniconda.sh -b -p ${INSTALL_DIR}/miniconda
 - export PATH=/home/travis/miniconda/bin:$PATH
 - conda update --yes conda
 - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy cffi
