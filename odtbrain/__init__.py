@@ -83,22 +83,6 @@ If you use ODTbrain in a scientific publication, please cite at least
 [2]_. 
 
 
-References
-----------
-.. [1] P. Müller, M. Schürmann, and J. Guck, *The Theory of Diffraction
-       Tomography*. `arXiv:1507.00466 <http://arxiv.org/abs/1507.00466>`
-       [q-bio.QM] (2015)
-       
-.. [2] P. Müller, M. Schürmann, and J. Guck, *ODTbrain: a Python library
-       for full-view, dense diffraction tomography*. BMC Bioinformatics
-       2015, **16**:367, `doi:10.1186/s12859-015-0764-0 
-       <http://dx.doi.org/10.1186/s12859-015-0764-0>`
-
-.. [3] P. Müller, M. Schürmann, C. J. Chan, and J. Guck, *Single-cell  
-       diffraction tomography with optofluidic rotation about a tilted axis*.
-        Proc. of SPIE (2015) `doi:10.117/12.2191501 
-       <http://dx.doi.org/10.117/12.2191501>`
-
 """
 from ._Back_2D import backpropagate_2d, fourier_map_2d, sum_2d
 from ._Back_3D import backpropagate_3d

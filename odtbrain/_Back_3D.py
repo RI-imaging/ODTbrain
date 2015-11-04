@@ -263,7 +263,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     odt_to_ri : conversion of the object function :math:`f(\mathbf{r})` 
         to refractive index :math:`n(\mathbf{r})`.
 
-
     """
     A = angles.shape[0]
     # jobmanager

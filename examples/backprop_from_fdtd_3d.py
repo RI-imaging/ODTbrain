@@ -10,7 +10,7 @@ of the refractive index with the Rytov approximation is in good agreement
 with the phantom that was used in the simulation. The data is downsampled
 by a factor of two. The rotational axis is the `y`-axis. A total of 180
 projections are used for the reconstruction. A detailed description of
-this phantom is given in [1]_.
+this phantom is given in [2]_.
 
 .. figure::  ../examples/backprop_from_fdtd_3d_repo.png
    :align:   center

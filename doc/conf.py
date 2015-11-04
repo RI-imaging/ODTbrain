@@ -311,6 +311,7 @@ intersphinx_mapping = {
     'http://docs.scipy.org/doc/numpy': None,
     'http://docs.scipy.org/doc/scipy/reference': None,
     'http://paulmueller.github.io/radontea': None,
+    'http://paulmueller.github.io/nrefocus': None,
     'http://cimatosa.github.io/jobmanager': None,
 }
 
