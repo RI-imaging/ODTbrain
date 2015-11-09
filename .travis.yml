@@ -16,7 +16,7 @@ before_install:
 - chmod +x miniconda.sh
 - INSTALL_DIR=${HOME}
 - ./miniconda.sh -b -p ${INSTALL_DIR}/miniconda
-- export PATH=/home/travis/miniconda/bin:$PATH
+- export PATH=${INSTALL_DIR}/miniconda/bin:$PATH
 - conda update --yes conda
 - travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy cffi
 - travis_retry pip install .
@@ -31,6 +31,6 @@ after_success:
 - coveralls --verbose
 - git config credential.helper "store --file=.git/credentials"
 - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
-- if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then travis_retry conda install --yes sphinx; fi
-- if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install numpydoc; fi
-- if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python doc/deploy_ghpages.py; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then travis_retry conda install --yes sphinx; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then pip install numpydoc; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then python doc/deploy_ghpages.py; fi
