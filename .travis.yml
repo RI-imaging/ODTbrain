@@ -6,10 +6,10 @@ env:
   - GH_REF: github.com/paulmueller/ODTbrain.git
   - secure: WmWLBSd2SnFKGWK+aL9jbaKf3GUSMEWrDS2xyraQJ58/h76ltI15JFmkQdlSt54PdaZLP7/tXhQQAC6sbCSjKPidnr9+dfJ6bIxM6VYRvAzQ4dMG+/xB6YdNmiczop5oM+m9wIDQ6006W1V7zjemplgOXYLZ31NXRV9oXH9JA7x6dXRxuVurOpFqtlQO0LHnSeA93RbSOZqPgNPvY5+TyOv5Tn6Ywz+kBpLZr0kbAfS7kEPM9H9kIwPwuUwOyt9fgStU8KcTwNEv9sHIGjhLSLb/HTjqMTbIkbR2U4j/waMVVIPZrPy998HqSTfKpQhdU/zkoe+/t4tG0D8Znja+SvoECmjp96oZYzWrjnXD9HAxbx8sb282XMiN2tvIGZLzemZP+K613JAOek/HiXx4B1AvzdZwAzmsfYB9IvxYinv3k1e7Tjx9VeDroGcFkyM/QE2RmFjA/XxPJT+Y2weY7HJ0836LxX+Og6UgxCW5ElHfif6rIMOxdD1Si5fWj2URdLs5FgNpfdgdgMZ/5QZBOL63f6BgmhwC3Q4n+XaUq+yC0v5LWYsttgkWOgH5YOeVsr/aQWqC87w8ZSkXJ1uC0FVVfPFCn8+neV7ZFzSSG78bDpFofbIlwVy7C87W2uvWhxyzQJMOwNXskuf17/PRFv10hW0stJH7acN3QUlNhbs=
   matrix:
-  - NUMPY_VERSION="1.7.2"
-  - NUMPY_VERSION="1.8.2"
-  - NUMPY_VERSION="1.9.3"
-  - NUMPY_VERSION="1.10"
+  - NUMPY_VERSION_MAX="1.7.9"
+  - NUMPY_VERSION_MAX="1.8.9"
+  - NUMPY_VERSION_MAX="1.9.9"
+  - NUMPY_VERSION_MAX="1.10.9"
 python:
 - '2.7'
 - '3.4'
@@ -23,7 +23,7 @@ before_install:
 - ./miniconda.sh -b -p ${INSTALL_DIR}/miniconda
 - export PATH=${INSTALL_DIR}/miniconda/bin:$PATH
 - conda update --yes conda
-- travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy=$NUMPY_VERSION scipy cffi
+- travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip "numpy<=$NUMPY_VERSION_MAX" scipy cffi
 - travis_retry pip install .
 install:
 - travis_retry pip install coverage
