@@ -18,10 +18,9 @@ matrix:
   exclude:
     # These things won't install with anaconda:
     - python: "3.5"
-      NUMPY_VERSION_MAX: "1.8.9"
-      NUMPY_VERSION_MAX: "1.7.9"
+      env: NUMPY_VERSION_MAX="1.8.9" NUMPY_VERSION_MAX="1.7.9"
     - python: "3.4"
-      NUMPY_VERSION_MAX: "1.7.9"
+      env: NUMPY_VERSION_MAX="1.7.9"
     
 before_install:
 - sudo apt-get update -qq
