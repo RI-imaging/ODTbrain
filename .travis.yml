@@ -23,7 +23,7 @@ before_install:
 - ./miniconda.sh -b -p ${INSTALL_DIR}/miniconda
 - export PATH=${INSTALL_DIR}/miniconda/bin:$PATH
 - conda update --yes conda
-- travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy==$NUMPY_VERSION scipy cffi
+- travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy=$NUMPY_VERSION scipy cffi
 - travis_retry pip install .
 install:
 - travis_retry pip install coverage
