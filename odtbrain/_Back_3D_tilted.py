@@ -71,18 +71,40 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     The reference axis is always [0,1,0].
     """
     ## Normalize tilted axis.
-    tilted_axis /= np.sqrt(np.sum(tilted_axis**2))
+    tilted_axis /= np.sqrt(np.sum(np.array(tilted_axis)**2))
     [u, v, w] = tilted_axis
     ## Initial distribution of points about great circle (x-z).
     newang = np.zeros((angles.shape[0], 3), dtype=float)
+    # We subtract angles[0], because in step (a) we want that
+    # newang[0]==[0,0,1]. This only works if we actually start
+    # at that point.
+    newang[:,0] = np.sin(angles-angles[0])
+    newang[:,2] = np.cos(angles-angles[0])
     
     ## Compute rotational angles w.r.t. [0,1,0].
     # - Draw a unit sphere with the y-axis pointing up and the
     #   z-axis pointing right
     # - The rotation of `tilted_axis` can be described by two
-    #   separate rotations
-    #   (a) from y=1 within the x-y plane
-    #   (b) from there about the y-axis to the correct z-position.
+    #   separate rotations. We will use these two angles:
+    #   (a) Rotation from y=1 within the y-z plane:
+    #       This is the rotation that is critical for data
+    #       reconstruction. If this angle is zero, then we
+    #       have a rotational axis in the imaging plane. If
+    #       this angle is PI/2, then our sinogram consists
+    #       of a rotating image and 3D reconstruction is
+    #       impossible. This angle is counted from the y-axis
+    #       onto the x-z plane.
+    #   (b) Rotation in the x-z plane:
+    #       This angle is responsible for matching up the angles
+    #       with the correct sinogram images. If this angle is zero,
+    #       then the projection of the rotational axis onto the
+    #       x-y plane is aligned with the y-axis. If this angle is
+    #       PI/2, then the axis and its projection onto the x-y
+    #       plane are identical. This angle is counted from the
+    #       positive z-axis towards the positive x-axis. By default,
+    #       angles[0] is the point that touches the great circle
+    #       that lies in the x-z plane. angles[1] is the next point
+    #       towards the x-axis if phi==0.
     
     # (a) This angle is the polar angle theta measured from the
     #     y-axis.
@@ -90,15 +112,42 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     
     # (b) This is the angle measured in the x-z plane starting
     #     at the x-axis and measured towards the positive z-axis.
-    phi = np.arctan2(w, u)
+    phi = np.arctan2(u, w)
     
-    ## Rotation of the initial points to the correct great circle
-    # (b) Rotation in the x-z plane means that there is a simple
-    #     offset in the angle values.
-    newang[0] = np.cos(angles-phi)
-    newang[1] = np.sin(angles-phi)
+    ## Determine the projection points on the unit sphere.
+    # The resulting circle meets the x-z-plane at phi, and
+    # is tilted by theta w.r.t. the y-axis.
     
+    # (a) Create a tilted data set. This is achieved in 3 steps.
 
+    # a1) Determine radius of tilted circle and get the centered
+    #     circle with a smaller radius.
+    rtilt = np.cos(theta)
+    newang *= rtilt
+
+    # a2) Rotate this circle about the x-axis by theta
+    Rx = np.array([  
+               [1,          0,           0],
+               [0, cos(theta), -sin(theta)],
+               [0, sin(theta),  cos(theta)]
+               ])
+    for ii in range(newang.shape[0]):
+        newang[ii] = np.dot(Rx, newang[ii])
+
+    # a3) Shift newang such that newang[0] is located at (0,0,1)
+    newang = newang - (newang[0] - np.array([0,0,1])).reshape(1,3)
+
+    # (b) Rotate the entire thing with phi about the y-axis
+    Ry = np.array([  
+                   [ cos(phi), 0, -sin(phi)],
+                   [        0, 1,        0],
+                   [sin(phi), 0, cos(phi)]
+                   ])
+    
+    for jj in range(newang.shape[0]):
+        newang[jj] = np.dot(Ry, newang[jj])
+
+    return newang
     
     
 
@@ -219,6 +268,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
         jmm.value = A + 2
     
     # normalize titled axis
+    tilted_axis = np.array(tilted_axis)
     tilted_axis /= np.sqrt(np.sum(tilted_axis**2))
     
     if len(angles.shape) != 2:
