@@ -139,9 +139,9 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
 
     # (b) Rotate the entire thing with phi about the y-axis
     Ry = np.array([  
-                   [ cos(phi), 0, -sin(phi)],
+                   [ cos(phi), 0, sin(phi)],
                    [        0, 1,        0],
-                   [sin(phi), 0, cos(phi)]
+                   [-sin(phi), 0, cos(phi)]
                    ])
     
     for jj in range(newang.shape[0]):

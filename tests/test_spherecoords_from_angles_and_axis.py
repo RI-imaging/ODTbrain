@@ -20,8 +20,37 @@ import odtbrain
 import odtbrain._Back_3D_tilted
 
 
+def test_simple_sphere():
+    """
+    simple geometrical tests
+    """
+    angles = np.array([0, np.pi/2, np.pi])
+    axes = [[1,0,0], [0,1,0], [0,0,1], [0,1,1], [1,0,1], [1,1,1]]
 
+    results = []
+    
+    for tilted_axis in axes:
+        angle_coords = odtbrain._Back_3D_tilted.sphere_points_from_angles_and_tilt(angles, tilted_axis)
+        results.append(angle_coords)
+    
+    s2 = 1/np.sqrt(2)
+    correct = np.array([ [[1,0,0], [1,0,0], [1,0,0]],
+                         [[0,0,1], [1,0,0], [0,0,-1]],
+                         [[0,0,1], [0,0,1], [0,0,1]],
+                         [[0,0,1], [s2, .5, .5], [0,1,0]],
+                         [[s2,0,s2], [s2,0,s2], [s2,0,s2]],
+                         [[s2,0,s2], [0.87965281125489458,s2/3*2,0.063156230327168605], [s2/3,s2/3*4,s2/3]],
+                        ])
+    
+    assert np.allclose(correct.flatten(), np.array(results).flatten())
+    
 if __name__ == "__main__":
+    # Run all tests
+    loc = locals()
+    for key in list(loc.keys()):
+        if key.startswith("test_") and hasattr(loc[key], "__call__"):
+            loc[key]()
+    
     import matplotlib.pylab as plt
     from mpl_toolkits.mplot3d import Axes3D
     from matplotlib.patches import FancyArrowPatch
@@ -38,8 +67,8 @@ if __name__ == "__main__":
             self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
             FancyArrowPatch.draw(self, renderer)
 
-    axes = [[0,1,0], [0,1,0.1], [0,1,-1]]
-    colors = ["k", "blue", "red"]
+    axes = [[0,1,0], [0,1,0.1], [0,1,-1], [1,0.1,0]]
+    colors = ["k", "blue", "red", "green"]
     angles = np.linspace(0, 2*np.pi, 100)
 
     fig = plt.figure(figsize=(10,10))
