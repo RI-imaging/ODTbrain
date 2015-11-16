@@ -126,6 +126,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     newang *= rtilt
 
     # a2) Rotate this circle about the x-axis by theta
+    #     (left-handed rotation)
     Rx = np.array([  
                [1,          0,           0],
                [0, cos(theta), -sin(theta)],
@@ -138,6 +139,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     newang = newang - (newang[0] - np.array([0,0,1])).reshape(1,3)
 
     # (b) Rotate the entire thing with phi about the y-axis
+    #     (right-handed rotation)
     Ry = np.array([  
                    [ cos(phi), 0, sin(phi)],
                    [        0, 1,        0],
