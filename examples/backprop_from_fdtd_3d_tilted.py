@@ -1,24 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ 
-3D cell phantom (FDTD simulation)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3D cell phantom with tilted axis of rotation (FDTD simulation)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *in silico* data set was created with the 
 :abbr:`FDTD (Finite Difference Time Domain)` software `meep`_. The data
-are 2D projections of a 3D refractive index phantom. The reconstruction 
-of the refractive index with the Rytov approximation is in good agreement
-with the phantom that was used in the simulation. The data are downsampled
+are 2D projections of a 3D refractive index phantom that is rotated about
+an axis which is tilted by 0.2 rad (11.5 degrees) with respect to the imaging
+plane. The example showcases the method `odtbrain.backproject3d_tilted` which
+takes into account such a tilted axis of rotation. The data are downsampled
 by a factor of two. The rotational axis is the `y`-axis. A total of 180
-projections are used for the reconstruction. A detailed description of
-this phantom is given in [2]_.
+projections are used for the reconstruction. A brief description of this
+algorithm is given in [3]_.
 
-.. figure::  ../examples/backprop_from_fdtd_3d_repo.png
+.. figure::  ../examples/backprop_from_fdtd_3d_tilted_repo.png
    :align:   center
 
    3D reconstruction from :abbr:`FDTD (Finite Difference Time Domain)`
    data created by `meep`_ simulations.
 
-Download the :download:`full example <../examples/backprop_from_fdtd_3d.py>`.
+Download the :download:`full example <../examples/backprop_from_fdtd_3d_tilted.py>`.
 If you are not running the example from the git repository, make sure the
 file :download:`example_helper.py <../examples/example_helper.py>` is present
 in the current directory.
@@ -28,6 +29,7 @@ in the current directory.
 This example requires Python3 because the data is lzma-compressed.
 """
 from __future__ import division, print_function
+
 
 def load_tar_lzma_data(afile):
     """
@@ -84,6 +86,7 @@ if __name__ == "__main__":
     import tarfile
     import matplotlib.pylab as plt
     import numpy as np
+    import os
     from os.path import abspath, dirname, split, join
     import sys
     
@@ -93,8 +96,8 @@ if __name__ == "__main__":
     
     import odtbrain as odt
     
-    # use jobmanager if available
     try:
+        # use jobmanager if available
         import jobmanager as jm
         jm.decorators.decorate_module_ProgressBar(odt, 
                             decorator=jm.decorators.ProgressBarOverrideCount,
@@ -103,7 +106,7 @@ if __name__ == "__main__":
         pass
 
 
-    lzmafile = get_file("fdtd_3d_sino_A180_R6.500.tar.lzma")
+    lzmafile = get_file("fdtd_3d_sino_A220_R6.500_tilt10rad.tar.lzma")
     sino, angles, phantom, cfg = load_tar_lzma_data(lzmafile)
 
     A = angles.shape[0]
@@ -120,17 +123,36 @@ if __name__ == "__main__":
 
 
     ## perform backpropagation to obtain object function f
-    f = odt.backpropagate_3d( uSin=sinoRytov,
-                              angles=angles,
-                              res=cfg["res"],
-                              nm=cfg["nm"],
-                              lD=cfg["lD"]
-                              )
+    f_name_naiv = "f_naiv.npy"
+    if not os.path.exists(f_name_naiv):
+        f_naiv = odt.backpropagate_3d( uSin=sinoRytov,
+                                       angles=angles,
+                                       res=cfg["res"],
+                                       nm=cfg["nm"],
+                                       lD=cfg["lD"]
+                                       )
+        np.save(f_name_naiv, f_naiv)
+    else:
+        f_naiv = np.load(f_name_naiv)
+
+    f_name_tilt = "f_tilt.npy"
+    if not os.path.exists(f_name_tilt):
+
+        f_tilt = odt.backpropagate_3d_tilted( uSin=sinoRytov,
+                                              angles=angles,
+                                              res=cfg["res"],
+                                              nm=cfg["nm"],
+                                              lD=cfg["lD"]
+                                              )
+        np.save(f_name_tilt, f_naiv)
+    else:
+        f_naiv = np.load(f_name_tilt)
 
     ## compute refractive index n from object function
-    n = odt.odt_to_ri(f, res=cfg["res"], nm=cfg["nm"])
+    n_naiv = odt.odt_to_ri(f_naiv, res=cfg["res"], nm=cfg["nm"])
+    n_tilt = odt.odt_to_ri(f_tilt, res=cfg["res"], nm=cfg["nm"])
 
-    sx, sy, sz = n.shape
+    sx, sy, sz = n_tilt.shape
     px, py, pz = phantom.shape
 
 
@@ -138,7 +160,7 @@ if __name__ == "__main__":
     
     ## compare phantom and reconstruction in plot
     fig, axes = plt.subplots(2, 3, figsize=(12,7), dpi=300)
-    kwri = {"vmin": n.real.min(), "vmax": n.real.max()}
+    kwri = {"vmin": n_tilt.real.min(), "vmax": n_tilt.real.max()}
     kwph = {"vmin": sino_phase.min(), "vmax": sino_phase.max(), "cmap":plt.cm.coolwarm}  # @UndefinedVariable
     
     
@@ -170,12 +192,12 @@ if __name__ == "__main__":
     axes[1,1].set_yticklabels(labels)
 
     axes[0,2].set_title("reconstruction center")
-    axes[0,2].imshow(n[int(sx/2)].real, **kwri)
+    axes[0,2].imshow(n_tilt[int(sx/2)].real, **kwri)
     axes[0,2].set_xlabel("x")    
     axes[0,2].set_ylabel("y")
 
     axes[1,2].set_title("reconstruction nucleolus")
-    axes[1,2].imshow(n[int(sx/2)+2*cfg["res"]].real, **kwri)
+    axes[1,2].imshow(n_tilt[int(sx/2)+2*cfg["res"]].real, **kwri)
     axes[1,2].set_xlabel("x")    
     axes[1,2].set_ylabel("y")
 
@@ -191,6 +213,8 @@ if __name__ == "__main__":
 
     plt.tight_layout()
    
+   
+    
     outname = join(DIR, "backprop_from_fdtd_3d.png")
     print("Creating output file:", outname)
     plt.savefig(outname)
