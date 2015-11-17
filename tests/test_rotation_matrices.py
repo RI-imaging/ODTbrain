@@ -22,6 +22,15 @@ import odtbrain._Back_3D_tilted
 from common_methods import create_test_sino_2d, get_test_parameter_set, write_results, get_results
 
 
+def test_rotate_points_to_axis():
+    axis = [0,1,1]
+    points = [[1,0,0], [0,1,0], [0,0,1]]
+    rot = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=axis)
+
+    #TODO:
+    # - perform actual test
+    # - uncommentable visualization
+
 if __name__ == "__main__":
     # Run all tests
     loc = locals()
@@ -59,7 +68,7 @@ if __name__ == "__main__":
     
     # By default, the rotational axis in _Back_3D_tilted is the y-axis.
     # Define a rotational axis with a slight offset in x and in z.
-    axis = np.array([.0,1,.3])
+    axis = np.array([0.0,1,.1])
     axis /= np.sqrt(np.sum(axis**2))
     
     # Now, obtain the 3D angles that are equally distributed on the unit
@@ -86,10 +95,10 @@ if __name__ == "__main__":
     
     # This is the rotation that tilts the projection in the
     # direction of the rotation axis (new y-axis). 
-    R2 = np.array([
+    Rtilt = np.array([
                    [1,             0,              0],
                    [0, np.cos(theta),  np.sin(theta)],
-                   [0, -np.sin(theta),  np.cos(theta)],
+                   [0,-np.sin(theta),  np.cos(theta)],
                    ])
     
     out = np.zeros((N,N,N))
@@ -97,16 +106,16 @@ if __name__ == "__main__":
     vectors = []
     
     for ang, pnt in zip(angles, points):
-        R1 = np.array([
-                       [np.cos(ang),             0,  -np.sin(ang)],
-                       [0, 1, 0],
-                       [np.sin(ang),0,  np.cos(ang)],
+        Rcircle = np.array([
+                       [np.cos(ang),  0, np.sin(ang)],
+                       [0           , 1,           0],
+                       [-np.sin(ang), 0, np.cos(ang)],
                        ])
 
-        DR = np.dot(R2, R1)
+        DR = np.dot(Rtilt, Rcircle)
         
         # pnt are already rotated by R1
-        vectors.append(np.dot(R2, pnt))
+        vectors.append(np.dot(Rtilt, pnt))
         
         # We need to give this rotation the correct offset
         c = 0.5*np.array(proj.shape)
@@ -114,10 +123,13 @@ if __name__ == "__main__":
         rotate = scipy.ndimage.interpolation.affine_transform(
                         proj, DR, offset=offset,
                         mode="constant", cval=0, order=2)
-        proj *= 1.1
+        proj *= 0.98
         out += rotate
     
-   
+    # visualize the axes
+    out[0,0,0] = np.max(out)    #origin
+    out[-1,0,0] = np.max(out)/2 # x
+    out[0,-1,0] = np.max(out)/3 # z
     # show arrows pointing at projection directions (should form cone aligned with y)
     fig = plt.figure(figsize=(10,10))
     ax = fig.add_subplot(111, projection='3d')    
@@ -134,7 +146,7 @@ if __name__ == "__main__":
     ax.set_ylim(-radius*1.5, radius*1.5)
     ax.set_zlim(-radius*1.5, radius*1.5)
     plt.tight_layout()
-    #plt.show()
+    plt.show()
 
     # show backprojection of test volume (should be cone aligned with y)
     spimagine.volshow(out)

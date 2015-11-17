@@ -53,6 +53,64 @@ def estimate_major_rotation_axis(loc):
     raise NotImplementedError("estimation of rotational axis not implemented.") 
 
 
+def norm_vec(vector):
+    """
+    Normalizes a vector to one.
+    """
+    assert len(vector)==3
+
+    v = np.array(vector)
+    return v/np.sqrt(np.sum(v**2))
+
+
+def rotate_points_to_axis(points, axis):
+    """ Rotate all points of a list such that axis=[0,1,0].
+    
+    Parameters
+    ----------
+    points : list-like with elements of length 3
+        The Cartesian points. These should be in the same format as
+        produced by `sphere_points_from_angles_and_tilt`.
+    axis : list-like, length 3
+        The reference axis that will be used to determine the
+        rotation angle of the points. The points will be rotated
+        about the origin such that `axis` matches [0,1,0].
+    
+    Returns
+    -------
+    rotated_points : np.ndarray of shape (N,3)
+        The rotated points.
+    """
+    axis = norm_vec(axis)
+    u, v, w = axis
+    points = np.array(points)
+    # Determine the rotational angle in the x-z plane
+    phi = np.arctan2(u, w)
+    # Determine the tilt angle w.r.t. the y-axis
+    theta = np.arccos(v)
+    
+    # Negative rotation about y-axis
+    Rphi = np.array([
+                     [np.cos(phi),  0, -np.sin(phi)],
+                     [0           , 1,           0],
+                     [np.sin(phi), 0, np.cos(phi)],
+                     ])
+
+    # Negative rotation about x-axis
+    Rtheta = np.array([
+                       [1,             0,              0],
+                       [0, np.cos(theta),  np.sin(theta)],
+                       [0,-np.sin(theta),  np.cos(theta)],
+                       ])
+
+    DR = np.dot(Rtheta, Rphi)
+    rotpoints = np.zeros((len(points), 3))
+    for ii, pnt in enumerate(points):
+        rotpoints[ii] = np.dot(DR, pnt)
+    
+    return rotpoints
+        
+
 def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     """
     For a given tilt of the rotational axis `tilted_axis`, compute
@@ -70,12 +128,10 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     Notes
     -----
     The reference axis is always [0,1,0].
-    
-    
-    .. versionadded:: 0.1.2
+
     """
     ## Normalize tilted axis.
-    tilted_axis /= np.sqrt(np.sum(np.array(tilted_axis)**2))
+    tilted_axis = norm_vec(tilted_axis)
     [u, v, w] = tilted_axis
     ## Initial distribution of points about great circle (x-z).
     newang = np.zeros((angles.shape[0], 3), dtype=float)
@@ -154,7 +210,9 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
         newang[jj] = np.dot(Ry, newang[jj])
 
     return newang
-    
+
+
+
     
 
 def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
@@ -282,8 +340,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         jmm.value = A + 2
     
     # normalize titled axis
-    tilted_axis = np.array(tilted_axis)
-    tilted_axis /= np.sqrt(np.sum(tilted_axis**2))
+    tilted_axis = norm_vec(tilted_axis)
     
     if len(angles.shape) != 2:
         if weight_angles:
