@@ -112,8 +112,9 @@ if __name__ == "__main__":
         c = 0.5*np.array(proj.shape)
         offset=c-c.dot(DR.T)
         rotate = scipy.ndimage.interpolation.affine_transform(
-                        1*proj, DR, offset=offset,
+                        proj, DR, offset=offset,
                         mode="constant", cval=0, order=2)
+        proj *= 1.1
         out += rotate
     
    
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     ax.set_ylim(-radius*1.5, radius*1.5)
     ax.set_zlim(-radius*1.5, radius*1.5)
     plt.tight_layout()
-    plt.show()
+    #plt.show()
 
     # show backprojection of test volume (should be cone aligned with y)
     spimagine.volshow(out)
