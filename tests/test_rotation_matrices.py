@@ -23,25 +23,69 @@ from common_methods import create_test_sino_2d, get_test_parameter_set, write_re
 
 
 def test_rotate_points_to_axis():
-    axis = [0,1,1]
-    points = [[1,0,0], [0,1,0], [0,0,1]]
-    rot = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=axis)
+    # rotation of axis itself always goes to y-axis
+    rot1 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=[[1,2,3]], axis=[1,2,3])   
+    assert rot1[0][0] < 1e-14
+    assert rot1[0][2] < 1e-14
+    rot2 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=[[-3,.6,.1]], axis=[-3,.6,.1])   
+    assert rot2[0][0] < 1e-14
+    assert rot2[0][2] < 1e-14
+    
+    sq2 = np.sqrt(2)
+    # rotation to 45deg about x
+    points=[[0,0,1], [1,0,0], [1,1,0]]
+    rot3 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[0,1,1])
+    assert np.allclose(rot3[0], [0,1/sq2,1/sq2])
+    assert np.allclose(rot3[1], [1,0,0])
+    assert np.allclose(rot3[2], [1,1/sq2,-1/sq2])
 
-    #TODO:
-    # - perform actual test
-    # - uncommentable visualization
+    # rotation to 45deg about y
+    points=[[0,0,1], [1,0,0], [0,-1,0]]
+    rot4 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[1,0,1])
+    assert np.allclose(rot4[0], [-.5,1/sq2,.5])
+    assert np.allclose(rot4[1], [.5,1/sq2,-.5])
+    assert np.allclose(rot4[2], [1/sq2,0,1/sq2])
+    
+    # Visualization
+    #plt, Arrow3D = setup_mpl()
+    #fig = plt.figure(figsize=(10,10))
+    #ax = fig.add_subplot(111, projection='3d')    
+    #for vec in points:
+    #    u,v,w = vec
+    #    a = Arrow3D([0,u],[0,v],[0,w], mutation_scale=20, lw=1, arrowstyle="-|>", color="k")
+    #    ax.add_artist(a)
+    #for vec in rot4:
+    #    u,v,w = vec
+    #    a = Arrow3D([0,u],[0,v],[0,w], mutation_scale=20, lw=1, arrowstyle="-|>", color="b")
+    #    ax.add_artist(a)
+    #radius=1
+    #ax.set_xlabel('X')
+    #ax.set_ylabel('Y')
+    #ax.set_zlabel('Z')
+    #ax.set_xlim(-radius*1.5, radius*1.5)
+    #ax.set_ylim(-radius*1.5, radius*1.5)
+    #ax.set_zlim(-radius*1.5, radius*1.5)
+    #plt.tight_layout()
+    #plt.show()
 
-if __name__ == "__main__":
-    # Run all tests
-    loc = locals()
-    for key in list(loc.keys()):
-        if key.startswith("test_") and hasattr(loc[key], "__call__"):
-            loc[key]()
+    # rotation to -90deg about z
+    points=[[0,0,1], [1,0,1], [1,-1,0]]
+    rot4 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[1,0,0])
+    assert np.allclose(rot4[0], [0,0,1])
+    assert np.allclose(rot4[1], [0,1,1])
+    assert np.allclose(rot4[2], [1,1,0])
 
+    # negative axes
+    # In this case, everything is rotated in the y-z plane
+    # (this case is not physical for tomogrpahy)
+    points=[[0,0,1], [1,0,0], [1,-1,0]]
+    rot4 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[0,-1,0])
+    assert np.allclose(rot4[0], [0,0,-1])
+    assert np.allclose(rot4[1], [1,0,0])
+    assert np.allclose(rot4[2], [1,1,0])
+    
 
-    import scipy
-    import scipy.ndimage
-    import spimagine
+def setup_mpl():
     import matplotlib.pylab as plt
     from mpl_toolkits.mplot3d import Axes3D
     from matplotlib.patches import FancyArrowPatch
@@ -58,6 +102,21 @@ if __name__ == "__main__":
             self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
             FancyArrowPatch.draw(self, renderer)
 
+    return plt, Arrow3D
+
+
+if __name__ == "__main__":
+    # Run all tests
+    loc = locals()
+    for key in list(loc.keys()):
+        if key.startswith("test_") and hasattr(loc[key], "__call__"):
+            loc[key]()
+    
+
+    import scipy
+    import scipy.ndimage
+    import spimagine
+    plt, Arrow3D = setup_mpl()
 
     # Testarray
     N=50

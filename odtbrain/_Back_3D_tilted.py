@@ -91,9 +91,9 @@ def rotate_points_to_axis(points, axis):
     
     # Negative rotation about y-axis
     Rphi = np.array([
-                     [np.cos(phi),  0, -np.sin(phi)],
-                     [0           , 1,           0],
-                     [np.sin(phi), 0, np.cos(phi)],
+                     [np.cos(phi), 0, -np.sin(phi)],
+                     [0          , 1,            0],
+                     [np.sin(phi), 0,  np.cos(phi)],
                      ])
 
     # Negative rotation about x-axis
@@ -103,7 +103,10 @@ def rotate_points_to_axis(points, axis):
                        [0,-np.sin(theta),  np.cos(theta)],
                        ])
 
-    DR = np.dot(Rtheta, Rphi)
+    DR1 = np.dot(Rtheta, Rphi)
+    # Rotate back by -phi such that effective rotation was only
+    # towards [0,1,0].
+    DR = np.dot(Rphi.T, DR1)
     rotpoints = np.zeros((len(points), 3))
     for ii, pnt in enumerate(points):
         rotpoints[ii] = np.dot(DR, pnt)
