@@ -12,9 +12,10 @@ import pyfftw
 import scipy.ndimage
 import warnings
 
+from ._Back_3D import _ncores, _np_float64, _verbose, _filter2_func
+from . import util
 import odtbrain
 
-from ._Back_3D import _ncores, _np_float64, _verbose, _filter2_func
 
 
 def compute_trafo_jacobian(loc, km, kDx, kDy, M):
@@ -69,6 +70,9 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     Notes
     -----
     The reference axis is always [0,1,0].
+    
+    
+    .. versionadded:: 0.1.2
     """
     ## Normalize tilted axis.
     tilted_axis /= np.sqrt(np.sum(np.array(tilted_axis)**2))
@@ -126,7 +130,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     newang *= rtilt
 
     # a2) Rotate this circle about the x-axis by theta
-    #     (left-handed rotation)
+    #     (right-handed/counter-clockwise/basic/elemental rotation)
     Rx = np.array([  
                [1,          0,           0],
                [0, cos(theta), -sin(theta)],
@@ -139,7 +143,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     newang = newang - (newang[0] - np.array([0,0,1])).reshape(1,3)
 
     # (b) Rotate the entire thing with phi about the y-axis
-    #     (right-handed rotation)
+    #     (right-handed/counter-clockwise/basic/elemental rotation)
     Ry = np.array([  
                    [ cos(phi), 0, sin(phi)],
                    [        0, 1,        0],
@@ -153,8 +157,9 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     
     
 
-def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
-                     onlyreal=False, tilted_axis=[0, 1, 0],
+def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
+                     tilted_axis=[0, 1, 0],
+                     coords=None, weight_angles=True, onlyreal=False,
                      offset_alpha=0, offset_beta=0,
                      padding=(True, True), padfac=1.75, padval=None,
                      intp_order=2, dtype=_np_float64,
@@ -181,11 +186,13 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
         normalized by the amplitude of the unscattered wave :math:`a_0`
         measured at the detector.
     angles : ndarray of shape (A,3) or 1D array of length A
-        Vectors on the unit sphere that correspond to the direction
-        of illumination and acquisition (s₀) or a one-dimensional
-        array that only determines the rotational position.
+        If the shape is (A,3), then `angles` consists of vectors
+        on the unit sphere that correspond to the direction
+        of illumination and acquisition (s₀). If the shape is (A,),
+        then `angles` is  a one-dimensional array of angles [rad]
+        that determines the rotational position in a plane.
         In both cases, `tilted_axis` must be set according to the
-        tilt of the rotation axis.
+        tilt of the rotational axis.
     res : float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
     nm : float
@@ -193,19 +200,23 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
     lD : float
         Distance from center of rotation to detector plane 
         :math:`l_\mathrm{D}` in pixels.
-    coords : None [(3, M) ndarray]
-        Only compute the output image at these coordinates. This
-        keyword is reserved for future versions and is not
-        implemented yet.
-    onlyreal : bool
-        If `True`, only the real part of the reconstructed image
-        will be returned. This saves computation time.
     tilted_axis : list of floats
         The coordinates [u, v, w] on a unit sphere representing the
         tilted axis of rotation. The w-component is used to check
         if the vector is normalized to 1. The default is (0,1,0),
         which corresponds to a rotation about the y-axis and
         follows the behavior of `odtbrain.backrpoject_3d`.
+    coords : None [(3, M) ndarray]
+        Only compute the output image at these coordinates. This
+        keyword is reserved for future versions and is not
+        implemented yet.
+    weight_angles : bool, optional
+        If `True` weight each backpropagated projection with a factor
+        proportional to the angular distance between the neighboring
+        projections.
+    onlyreal : bool
+        If `True`, only the real part of the reconstructed image
+        will be returned. This saves computation time.
     padding : tuple of bool
         Pad the input data to the second next power of 2 before
         Fourier transforming. This reduces artifacts and speeds up
@@ -262,6 +273,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
         to refractive index :math:`n(\mathbf{r})`.
 
 
+    .. versionadded:: 0.1.2
     """
     A = angles.shape[0]
     assert angles.shape in [(A,), (A,3)], "`angles` must have shape (A,) or (A,3)!"
@@ -274,9 +286,17 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
     tilted_axis /= np.sqrt(np.sum(tilted_axis**2))
     
     if len(angles.shape) != 2:
+        if weight_angles:
+            weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
+        else:
+            weights = 1
         # compute the 3D points from tilted_axis
         angles = sphere_points_from_angles_and_tilt(angles, tilted_axis)
-        
+    else:
+        if weight_angles:
+            warnings.warn("Angular weighting not yet supported!")
+        weights = 1
+    
     # check for dtype
     dtype = np.dtype(dtype)
     if not dtype.name in ["float32", "float64"]:
@@ -327,7 +347,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
     # part of the scattered wave by -1.
 
     # save memory
-    sinogram = uSin
+    sinogram = uSin*weights
 
     # lengths of the input data
     (la, lny, lnx) = sinogram.shape
@@ -351,39 +371,14 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
     else:
         pady = 0
 
-    ## Disabled: Compute how much ram we will be using
-    #
-    # max_ram_gb = _max_ram_gb
-    #
-    # max_ram_gb : float
-    #    Try only to use this many GB of memory.
-    #
-    #try:
-    #    dt_fact = float(str(dtype_complex).strip("complex"))
-    #except:
-    #    dt_fact = 128
-    #    
-    #used_ram_gb_fast = 2*(2*orderx*ordery*ln + 4*lny*lnx*ln + 2*la*lny*lnx ) * dt_fact / 8 / (1024)**3 
-    #used_ram_gb_slow = (orderx*ordery*2 + 4*lny*lnx*ln + 2*la*lny*lnx ) * dt_fact / 8 / (1024)**3
-    #
-    #if max_ram_gb < used_ram_gb_slow:
-    #    raise MemoryError("Please increase parameter `max_ram_gb`.")
-    #if max_ram_gb < used_ram_gb_fast:
-    #    fast_mode = False
-    #    print("...Will use NOT use fast implementation ({:.1f} of {:.1f}GB)!".
-    #                                    format(max_ram_gb, used_ram_gb_fast))
-    #else:
-    #    fast_mode = True
-    #    print("...Will use FAST implementation with {:.1f}GB of RAM!".format(used_ram_gb_fast))
-
     # Apply a Fourier filter before projecting the sinogram slices.
     # Resize image to next power of two for fourier analysis
     # Reduces artifacts
 
-    padyl = int(np.ceil(pady / 2))
-    padyr = pady - padyl
-    padxl = int(np.ceil(padx / 2))
-    padxr = padx - padyl
+    padyl = np.int(np.ceil(pady / 2))
+    padyr = np.int(pady - padyl)
+    padxl = np.int(np.ceil(padx / 2))
+    padxr = np.int(padx - padyl)
 
 
     #TODO: This padding takes up a lot of memory. Move it to a separate
@@ -395,11 +390,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
             print("......Padding with edge values.")
     else:
         sino = np.pad(sinogram, ((0, 0), (padyl, padyr), (padxl, padxr)),
-                      # mode="constant", constant_values=((padval,padval),
-                      #(padval,padval),(padval,padval)))
                       mode="linear_ramp",
-                      end_values=((padval, padval), (padval, padval),
-                                  (padval, padval)))
+                      end_values=(padval,))
         if verbose > 0:
             print("......Verifying padding value: {}".format(padval))
 
@@ -483,25 +475,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
     # We want to estimate the rotational axis for every frame. We 
     # do that by computing the cross-product of the vectors in
     # angles from the current and previous image.
-    
-    crossang = np.cross(np.roll(angles, -1, axis=0), angles)
-    # we change the first element to match the second
-    crossang[0] = crossang[1]
-    
-    
-    #crossang /= np.sum(crossang**2, axis=1).reshape(-1,1)
-    #u = crossang[:,2].reshape(-1,1,1)
-    #v = crossang[:,1].reshape(-1,1,1)
-    #u=angles[:,0].reshape(-1,1,1)
-    #v=angles[:,1].reshape(-1,1,1)
-    #cc = np.roll(angles, -1, axis=0) - angles
-    #cc[-1] = cc[-2]
-    #cc /= np.sqrt(np.sum(cc**2, axis=1)).reshape(-1,1)
-    #u = cc[:,0].reshape(-1,1,1)
-    #v = cc[:,1].reshape(-1,1,1)
-    
-    #v= 1
-    #u= 0
     
     #filterabs = np.abs(kx*v-ky*u) * filter_klp
     u, v, w = tilted_axis
@@ -640,8 +613,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
     # filtered projections in loop
     filtered_proj = np.zeros((ln, lny, lnx), dtype=dtype_complex)
 
-
-
     angles_yz = np.arctan2(angles[:,1], angles[:,2])
     angles_yz -= angles_yz[0] # start at zero for comparison
     angles_yz = np.unwrap(angles_yz)
@@ -669,24 +640,10 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD, coords=None,
     #import IPython
     #IPython.embed()
 
-    # compute weights
-    weights = np.sqrt(np.sum((angles - np.roll(angles, +1, axis=0))**2, axis=1)) +\
-              np.sqrt(np.sum((angles - np.roll(angles, -1, axis=0))**2, axis=1))
-    
-    weights = weights / np.sum(weights) * len(weights)
-
-
     for i in np.arange(A):
-        # 14x Speedup with fftw3 compared to numpy fft and
-        # memory reduction by a factor of 2!
-        #sino_filtered = np.fft.ifft2(projection[i]*filter2, axes=(-1,-2))
-        # ifft will be computed in-place
-
-        
         # A == la
         # projection.shape == (A, lNx, lNy)
         # filter2.shape == (ln, lNx, lNy)
-
         
         for p in range(len(zv)):
             inarr[:] = filter2[p] * projection[i]

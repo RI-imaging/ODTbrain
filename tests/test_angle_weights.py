@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Tests backpropagation algorithm
+""" Tests 1D angular weights.
 """
 from __future__ import division, print_function
 
@@ -18,12 +18,14 @@ sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain
 import odtbrain._Back_2D
-import odtbrain._util
 
 from common_methods import create_test_sino_2d, get_test_parameter_set, write_results, get_results
 
 
 def test_angle_offset():
+    """
+    Tests if things are still correct when there is a 2PI offset in the angles.
+    """
     myframe = sys._getframe()
     myname = myframe.f_code.co_name
     print("running ", myname)
@@ -52,6 +54,9 @@ def test_angle_offset():
 
 
 def test_angle_swap():
+    """
+    Test if everything still works, when angles are swapped.
+    """
     myframe = sys._getframe()
     myname = myframe.f_code.co_name
     print("running ", myname)

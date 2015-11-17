@@ -72,7 +72,7 @@ import scipy.ndimage
 
 import odtbrain
 
-from . import _util as util
+from . import util
 
 __all__ = ["backpropagate_3d", "fourier_map_3d", "sum_3d",
            "backpropagate_3d_4pi"]
