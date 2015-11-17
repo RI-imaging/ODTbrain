@@ -64,7 +64,11 @@ def norm_vec(vector):
 
 
 def rotate_points_to_axis(points, axis):
-    """ Rotate all points of a list such that axis=[0,1,0].
+    """ Rotate all points of a list such that axis=[0,1,0] the shortest way.
+    
+    This is accomplished by rotating in the x-z-plane by phi into the
+    y-z-plane, then rotation in the y-z-plane by theta up to [0,1,0],
+    and finally rotating back in the x-z-plane by -phi.
     
     Parameters
     ----------
@@ -354,7 +358,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         angles = sphere_points_from_angles_and_tilt(angles, tilted_axis)
     else:
         if weight_angles:
-            warnings.warn("Angular weighting not yet supported!")
+            warnings.warn("3D angular weighting not yet supported!")
         weights = 1
     
     # check for dtype
@@ -672,6 +676,16 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
 
     # filtered projections in loop
     filtered_proj = np.zeros((ln, lny, lnx), dtype=dtype_complex)
+
+    # Rotate all points such that we are effectively rotating everything
+    # about the y-axis.
+    angles = rotate_points_to_axis(points=angles, axis=tilted_axis)
+
+    #TODO:
+    # - remove the `angles*`-stuff below
+    # - write method to determine rotation matrix for each point in angles
+    # - apply rotation matrix in the affine transform
+    # - apply same to imaginary part.
 
     angles_yz = np.arctan2(angles[:,1], angles[:,2])
     angles_yz -= angles_yz[0] # start at zero for comparison
