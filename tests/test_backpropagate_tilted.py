@@ -24,9 +24,6 @@ import odtbrain._br
 
 from common_methods import create_test_sino_2d, create_test_sino_3d, cutout, get_test_parameter_set, write_results, get_results
 
-WRITE_RES = False
-
-
 
 def test_3d_backprop_phase_real():
     myframe = sys._getframe()
@@ -40,9 +37,6 @@ def test_3d_backprop_phase_real():
         fref = odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=0,
                                                   dtype=np.float64, onlyreal=True, **p)
         rref.append(cutout(fref))
-    if WRITE_RES:
-        write_results(myframe, rref)
-    
     dataref = np.array(rref).flatten().view(float)
     
     
@@ -51,8 +45,6 @@ def test_3d_backprop_phase_real():
         f = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=0,
                                                dtype=np.float64, onlyreal=True, **p)
         r.append(cutout(f))
-    if WRITE_RES:
-        write_results(myframe, r)
     data = np.array(r).flatten().view(float)
     
     assert np.allclose(data, dataref)
@@ -70,9 +62,6 @@ def test_3d_backprop_pad():
         fref = odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=None,
                                                   dtype=np.float64, onlyreal=False, **p)
         rref.append(cutout(fref))
-    if WRITE_RES:
-        write_results(myframe, rref)
-    
     dataref = np.array(rref).flatten().view(float)
     
     
@@ -81,8 +70,6 @@ def test_3d_backprop_pad():
         f = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=None,
                                                dtype=np.float64, onlyreal=False, **p)
         r.append(cutout(f))
-    if WRITE_RES:
-        write_results(myframe, r)
     data = np.array(r).flatten().view(float)
     
     assert np.allclose(data, dataref)
