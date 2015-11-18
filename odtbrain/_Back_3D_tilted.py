@@ -144,18 +144,18 @@ def rotation_matrix_from_point(point):
     # angle in polar direction
     theta = np.arctan2(y, np.sqrt(x**2+z**2))
     
-    # Rotation in polar direction (negative)
+    # Rotation in polar direction
     Rtheta = np.array([
                        [1,             0,              0],
-                       [0, np.cos(theta),  np.sin(theta)],
-                       [0,-np.sin(theta),  np.cos(theta)],
+                       [0,  np.cos(theta), np.sin(theta)],
+                       [0, -np.sin(theta), np.cos(theta)],
                        ])
 
     # rotation in x-z-plane
     Rphi = np.array([
-                     [np.cos(phi),  0, np.sin(phi)],
-                     [0           , 1,           0],
-                     [-np.sin(phi), 0, np.cos(phi)],
+                     [np.cos(phi), 0, -np.sin(phi)],
+                     [0          , 1,            0],
+                     [np.sin(phi), 0,  np.cos(phi)],
                      ])
 
     D = np.dot(Rphi, Rtheta)
@@ -726,87 +726,38 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     # about the y-axis.
     angles = rotate_points_to_axis(points=angles, axis=tilted_axis)
 
-    #TODO:
-    # - remove the `angles*`-stuff below
-    # - write method to determine rotation matrix for each point in angles
-    # - apply rotation matrix in the affine transform
-    # - apply same to imaginary part.
-
-    angles_yz = np.arctan2(angles[:,1], angles[:,2])
-    angles_yz -= angles_yz[0] # start at zero for comparison
-    angles_yz = np.unwrap(angles_yz)
-    
-    angles_xz = np.arcsin(angles[:,0])
-    #angles_xz -= angles_xz[0]
-
-    # correct for general offset from linear array with multiples of 2PI
-    mmax = ((np.max(angles_yz)+np.pi)//(2*np.pi))*2*np.pi
-    angles_ref = np.linspace(0, mmax, angles_yz.shape[0], endpoint=False)
-    angles_yz += np.average(angles_ref-angles_yz)
-    
-    # offset
-    #offset_yz = np.rad2deg(offset_alpha)
-    #offset_xz = np.rad2deg(offset_beta)
-    #angles_yz += offset_yz
-    #angles_xz += offset_xz
-    
-    #angles_xz -= np.median(angles_xz[0])
-    #angles_xz -= np.average(angles_xz)
-
-    #import matplotlib.pylab as plt
-    #plt.plot(angles_yz)
-    #plt.show()
-    #import IPython
-    #IPython.embed()
-
-    for i in np.arange(A):
+    for aa in np.arange(A):
         # A == la
         # projection.shape == (A, lNx, lNy)
         # filter2.shape == (ln, lNx, lNy)
         
         for p in range(len(zv)):
-            inarr[:] = filter2[p] * projection[i]
+            inarr[:] = filter2[p] * projection[aa]
             myifftw_plan.execute()
             filtered_proj[p, :, :] = inarr[
                                            padyl:padyl + lny,
                                            padxl:padxl + lnx
                                           ] / (lNx * lNy)
         
-        #phi_xz = np.rad2deg(angles_xz[i])
-        #phi_yz = np.rad2deg(angles_yz[i])
-
-        warnings.warn("Only real backpropagation implemented")
-
-        # perform an affine transform
-        #print(angles_yz[i])
-        a = angles_xz[i]
-        b = angles_yz[i]
-        g = 0
         
-        Rx = np.array([  
-                       [1, 0,      0      ],
-                       [0, cos(a), -sin(a)],
-                       [0, sin(a),  cos(a)]
-                       ])
+        # get rotation matrix for this point
+        drot = rotation_matrix_from_point(angles[aa])
         
-        Ry = np.array([  
-                       [cos(b),  0, sin(b)],
-                       [0,       1, 0     ],
-                       [-sin(b), 0, cos(b)]
-                       ])
-
-        
-        DR = np.dot(Rx, Ry)
-        
+        # apply offset required by affine_transform
         c = 0.5*np.array(filtered_proj.shape)
-        offset=c-c.dot(DR.T)
+        offset=c-c.dot(drot.T)
         
+        # perform rotation
         rotxzr = scipy.ndimage.interpolation.affine_transform(
-            filtered_proj.real, DR,
-            offset=offset,
-            mode="constant", cval=0, order=intp_order)
-        
+                                filtered_proj.real, drot,
+                                offset=offset, mode="constant",
+                                cval=0, order=intp_order)
+
         outarr += rotxzr
+
+        #TODO:
+        # - apply same to imaginary part.
+        warnings.warn("Only real backpropagation implemented")
 
         #if False:
         #    print("PETER")

@@ -104,11 +104,11 @@ def test_rotation_matrix_from_point():
     
     # negative
     m3 = odtbrain._Back_3D_tilted.rotation_matrix_from_point([-1,1,0])
-    assert np.allclose(np.dot(m3, [1,0,0]), [0,0,1])
+    assert np.allclose(np.dot(m3, [1,0,0]), [0,0,-1])
     assert np.allclose(np.dot(m3, [0,1,1]), [0,sq2,0])
     assert np.allclose(np.dot(m3, [0,-1/sq2,-1/sq2]), [0,-1,0])    
-    assert np.allclose(np.dot(m3, [0,1/sq2,-1/sq2]), [1,0,0])
-    assert np.allclose(np.dot(m3, [0,-1/sq2,1/sq2]), [-1,0,0])    
+    assert np.allclose(np.dot(m3, [0,1/sq2,-1/sq2]), [-1,0,0])
+    assert np.allclose(np.dot(m3, [0,-1/sq2,1/sq2]), [1,0,0])    
 
 
 
