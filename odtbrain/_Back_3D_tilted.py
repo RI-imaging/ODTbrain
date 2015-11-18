@@ -58,7 +58,6 @@ def norm_vec(vector):
     Normalizes a vector to one.
     """
     assert len(vector)==3
-
     v = np.array(vector)
     return v/np.sqrt(np.sum(v**2))
 
@@ -116,7 +115,53 @@ def rotate_points_to_axis(points, axis):
         rotpoints[ii] = np.dot(DR, pnt)
     
     return rotpoints
-        
+
+
+def rotation_matrix_from_point(point):
+    """ Compute rotation matrix to go from [0,0,1] to `point`.
+    
+    First, the matrix rotates to in the polar direction. Then,
+    a rotation about the y-axis is performed to match the
+    azimuthal angle in the x-z-plane.
+    
+    This rotation matrix is required for the correct 3D orientation
+    of the backpropagated projections.
+
+    Parameters
+    ----------
+    points : list-like, length 3
+        The coordinates of the point in 3D.
+    
+    
+    Returns
+    -------
+    Rmat : 3x3 ndarray
+        The rotation matrix that rotates [0,0,1] to `point`.
+    """
+    x, y, z = point
+    # azimuthal angle
+    phi = np.arctan2(x, z)
+    # angle in polar direction
+    theta = np.arctan2(y, np.sqrt(x**2+z**2))
+    
+    # Rotation in polar direction (negative)
+    Rtheta = np.array([
+                       [1,             0,              0],
+                       [0, np.cos(theta),  np.sin(theta)],
+                       [0,-np.sin(theta),  np.cos(theta)],
+                       ])
+
+    # rotation in x-z-plane
+    Rphi = np.array([
+                     [np.cos(phi),  0, np.sin(phi)],
+                     [0           , 1,           0],
+                     [-np.sin(phi), 0, np.cos(phi)],
+                     ])
+
+    D = np.dot(Rphi, Rtheta)
+    return D
+
+
 
 def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     """

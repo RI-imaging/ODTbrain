@@ -85,6 +85,33 @@ def test_rotate_points_to_axis():
     assert np.allclose(rot4[2], [1,1,0])
     
 
+def test_rotation_matrix_from_point():
+    """
+    `rotation_matrix_from_point` generates a matrix that rotates a point at
+    [0,0,1] to the position of the argument of the method.
+    """
+    sq2 = np.sqrt(2)
+    # identity
+    m1 = odtbrain._Back_3D_tilted.rotation_matrix_from_point([0,0,1])
+    assert np.allclose(np.dot(m1, [1,2,3]), [1,2,3])
+    assert np.allclose(np.dot(m1, [-3,.5,-.6]), [-3,.5,-.6])
+
+    # simple
+    m2 = odtbrain._Back_3D_tilted.rotation_matrix_from_point([0,1,1])
+    assert np.allclose(np.dot(m2, [0,0,1]), [0,1/sq2,1/sq2])
+    assert np.allclose(np.dot(m2, [0,1,1]), [0,sq2,0])
+    assert np.allclose(np.dot(m2, [1,0,0]), [1,0,0])
+    
+    # negative
+    m3 = odtbrain._Back_3D_tilted.rotation_matrix_from_point([-1,1,0])
+    assert np.allclose(np.dot(m3, [1,0,0]), [0,0,1])
+    assert np.allclose(np.dot(m3, [0,1,1]), [0,sq2,0])
+    assert np.allclose(np.dot(m3, [0,-1/sq2,-1/sq2]), [0,-1,0])    
+    assert np.allclose(np.dot(m3, [0,1/sq2,-1/sq2]), [1,0,0])
+    assert np.allclose(np.dot(m3, [0,-1/sq2,1/sq2]), [-1,0,0])    
+
+
+
 def setup_mpl():
     import matplotlib.pylab as plt
     from mpl_toolkits.mplot3d import Axes3D
