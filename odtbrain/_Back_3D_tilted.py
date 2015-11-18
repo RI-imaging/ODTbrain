@@ -743,8 +743,14 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         # get rotation matrix for this point
         drot = rotation_matrix_from_point(angles[aa])
         
-        # apply offset required by affine_transform
-        c = 0.5*np.array(filtered_proj.shape)
+        ## apply offset required by affine_transform
+        ## This could be achieved like so:
+        ##c = 0.5*np.array(filtered_proj.shape)
+        ##offset=c-c.dot(drot.T)
+        ## However, we will be using the same offset as
+        ## scipy.ndimage.rotate uses to keep equivalence
+        ## with odtbrain.backproject_3d.
+        c = 0.5*np.array(filtered_proj.shape) -.5
         offset=c-c.dot(drot.T)
         
         # perform rotation
