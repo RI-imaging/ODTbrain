@@ -17,7 +17,12 @@ algorithm is given in [3]_.
    :align:   center
 
    3D reconstruction from :abbr:`FDTD (Finite Difference Time Domain)`
-   data created by `meep`_ simulations.
+   data created by `meep`_ simulations. The first column shows the
+   measured phase, visualizing the tilt (compare to other exampls). The
+   second column shows a reconstruction that does not take into account
+   the tilted axis of rotation; the result is a blurry reconstruction.
+   The third column shows the improved reconstruction; the known tilted
+   axis of rotation is used in the reconstruction process.
 
 Download the :download:`full example <../examples/backprop_from_fdtd_3d_tilted.py>`.
 If you are not running the example from the git repository, make sure the
@@ -106,7 +111,7 @@ if __name__ == "__main__":
         pass
 
 
-    lzmafile = get_file("fdtd_3d_sino_A220_R6.500_tilt10rad.tar.lzma")
+    lzmafile = get_file("fdtd_3d_sino_A220_R6.500_tiltyz0.2.tar.lzma")
     sino, angles, phantom, cfg = load_tar_lzma_data(lzmafile)
 
     A = angles.shape[0]
@@ -115,14 +120,13 @@ if __name__ == "__main__":
     print("Refractive index of medium:", cfg["nm"])
     print("Measurement position from object center:", cfg["lD"])
     print("Wavelength sampling:", cfg["res"])
-    print("Performing backpropagation.")
-
+    print("Axis tilt in y-z direction:", cfg["tilt_yz"])
+    print("Performing naive backpropagation.")
 
     ## Apply the Rytov approximation
     sinoRytov = odt.sinogram_as_rytov(sino)
 
-
-    ## perform backpropagation to obtain object function f
+    ## Perform naive backpropagation
     f_name_naiv = "f_naiv.npy"
     if not os.path.exists(f_name_naiv):
         f_naiv = odt.backpropagate_3d( uSin=sinoRytov,
@@ -135,18 +139,23 @@ if __name__ == "__main__":
     else:
         f_naiv = np.load(f_name_naiv)
 
+
+    ## Determine tilted axis
+    tilted_axis = [-np.sin(cfg["tilt_yz"]), np.cos(cfg["tilt_yz"]), 0]
+    
+    ## Perform tilted backpropagation
     f_name_tilt = "f_tilt.npy"
     if not os.path.exists(f_name_tilt):
-
         f_tilt = odt.backpropagate_3d_tilted( uSin=sinoRytov,
                                               angles=angles,
                                               res=cfg["res"],
                                               nm=cfg["nm"],
-                                              lD=cfg["lD"]
+                                              lD=cfg["lD"],
+                                              tilted_axis=tilted_axis,
                                               )
-        np.save(f_name_tilt, f_naiv)
+        np.save(f_name_tilt, f_tilt)
     else:
-        f_naiv = np.load(f_name_tilt)
+        f_tilt = np.load(f_name_tilt)
 
     ## compute refractive index n from object function
     n_naiv = odt.odt_to_ri(f_naiv, res=cfg["res"], nm=cfg["nm"])
@@ -164,39 +173,38 @@ if __name__ == "__main__":
     kwph = {"vmin": sino_phase.min(), "vmax": sino_phase.max(), "cmap":plt.cm.coolwarm}  # @UndefinedVariable
     
     
-    # Phantom
-    axes[0,0].set_title("FDTD phantom center")
-    rimap=axes[0,0].imshow(phantom[int(px/2)], **kwri)
-    axes[0,0].set_xlabel("x")
-    axes[0,0].set_ylabel("y")
-
-    axes[1,0].set_title("FDTD phantom nucleolus")
-    axes[1,0].imshow(phantom[int(px/2)+2*cfg["res"]], **kwri)
-    axes[1,0].set_xlabel("x")
-    axes[1,0].set_ylabel("y")    
-    
     # Sinorgam
-    axes[0,1].set_title("phase projection")    
-    phmap=axes[0,1].imshow(sino_phase[int(A/2)], aspect=sino.shape[1]/sino.shape[0], **kwph)
-    axes[0,1].set_xlabel("detector x")
-    axes[0,1].set_ylabel("detector y")
+    axes[0,0].set_title("phase projection")    
+    phmap=axes[0,0].imshow(sino_phase[int(A/2),:,:], **kwph)
+    axes[0,0].set_xlabel("detector x")
+    axes[0,0].set_ylabel("detector y")
 
-    axes[1,1].set_title("sinogram slice")    
-    axes[1,1].imshow(sino_phase[:,:,int(A/2)], aspect=sino.shape[1]/sino.shape[0], **kwph)
-    axes[1,1].set_xlabel("detector y")
-    axes[1,1].set_ylabel("angle [rad]")
+    axes[1,0].set_title("sinogram slice")    
+    axes[1,0].imshow(sino_phase[:,:,int(A/2)], **kwph)
+    axes[1,0].set_xlabel("detector y")
+    axes[1,0].set_ylabel("angle [rad]")
     # set y ticks for sinogram
     labels = np.linspace(0, 2*np.pi, len(axes[1,1].get_yticks()))
     labels = [ "{:.2f}".format(i) for i in labels ]
-    axes[1,1].set_yticks(np.linspace(0, len(angles), len(labels)))
-    axes[1,1].set_yticklabels(labels)
+    axes[1,0].set_yticks(np.linspace(0, len(angles), len(labels)))
+    axes[1,0].set_yticklabels(labels)
 
-    axes[0,2].set_title("reconstruction center")
+    axes[0,1].set_title("reconstruction center")
+    rimap = axes[0,1].imshow(n_naiv[int(sx/2)].real, **kwri)
+    axes[0,1].set_xlabel("x") 
+    axes[0,1].set_ylabel("y")
+
+    axes[1,1].set_title("reconstruction nucleolus")
+    axes[1,1].imshow(n_naiv[int(sx/2)+2*cfg["res"]].real, **kwri)
+    axes[1,1].set_xlabel("x")    
+    axes[1,1].set_ylabel("y")
+
+    axes[0,2].set_title("reconstruction center (tilt correction)")
     axes[0,2].imshow(n_tilt[int(sx/2)].real, **kwri)
     axes[0,2].set_xlabel("x")    
     axes[0,2].set_ylabel("y")
 
-    axes[1,2].set_title("reconstruction nucleolus")
+    axes[1,2].set_title("reconstruction nucleolus (tilt correction)")
     axes[1,2].imshow(n_tilt[int(sx/2)+2*cfg["res"]].real, **kwri)
     axes[1,2].set_xlabel("x")    
     axes[1,2].set_ylabel("y")
@@ -204,17 +212,15 @@ if __name__ == "__main__":
     # color bars
     cbkwargs = {"fraction": 0.045,
                 "format":"%.3f"}
-    plt.colorbar(phmap, ax=axes[0,1], **cbkwargs)
-    plt.colorbar(phmap, ax=axes[1,1], **cbkwargs)
-    plt.colorbar(rimap, ax=axes[0,0], **cbkwargs)
-    plt.colorbar(rimap, ax=axes[1,0], **cbkwargs)
+    plt.colorbar(phmap, ax=axes[0,0], **cbkwargs)
+    plt.colorbar(phmap, ax=axes[1,0], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[0,1], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[1,1], **cbkwargs)
     plt.colorbar(rimap, ax=axes[0,2], **cbkwargs)
     plt.colorbar(rimap, ax=axes[1,2], **cbkwargs)
 
     plt.tight_layout()
-   
-   
     
-    outname = join(DIR, "backprop_from_fdtd_3d.png")
+    outname = join(DIR, "backprop_from_fdtd_3d_tilted.png")
     print("Creating output file:", outname)
     plt.savefig(outname)
