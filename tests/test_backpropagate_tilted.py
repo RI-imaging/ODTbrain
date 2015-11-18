@@ -57,6 +57,36 @@ def test_3d_backprop_phase_real():
     
     assert np.allclose(data, dataref)
 
+
+def test_3d_backprop_pad():
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
+    print("running ", myname)
+    sino, angles = create_test_sino_3d()
+    parameters = get_test_parameter_set(2)
+    # reference
+    rref = list()
+    for p in parameters:
+        fref = odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=None,
+                                                  dtype=np.float64, onlyreal=False, **p)
+        rref.append(cutout(fref))
+    if WRITE_RES:
+        write_results(myframe, rref)
+    
+    dataref = np.array(rref).flatten().view(float)
+    
+    
+    r = list()
+    for p in parameters:
+        f = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=None,
+                                               dtype=np.float64, onlyreal=False, **p)
+        r.append(cutout(f))
+    if WRITE_RES:
+        write_results(myframe, r)
+    data = np.array(r).flatten().view(float)
+    
+    assert np.allclose(data, dataref)
+
     
 
 if __name__ == "__main__":

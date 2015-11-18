@@ -693,7 +693,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
 
     # Create plan for fftw:
     inarr = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
-
     #inarr[:] = (projection[0]*filter2)[0,:,:]
     # plan is "patient":
     #    FFTW_PATIENT is like FFTW_MEASURE, but considers a wider range
@@ -759,123 +758,14 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
                                 offset=offset, mode="constant",
                                 cval=0, order=intp_order)
 
-        outarr += rotxzr
+        outarr.real += rotxzr
 
-        #TODO:
-        # - apply same to imaginary part.
-        warnings.warn("Only real backpropagation implemented")
-
-        #if False:
-        #    print("PETER")
-        #    rotxzr = scipy.ndimage.interpolation.rotate(
-        #        filtered_proj.real, phi_yz+offset_yz, reshape=False,
-        #        #                                                 x,z
-        #        mode="constant", cval=0, axes=(0, 2), order=intp_order,
-        #        prefilter=False)
-
-        
-        #outarr += weights[i]*scipy.ndimage.interpolation.rotate(
-        #    rotxzr, phi_xz+offset_xz, reshape=False,
-        #    #                                                 x,y
-        #    mode="constant", cval=0, axes=(1, 0), order=0,
-        #    prefilter=False)
-
-
-        #sino_filtered = projection[i] * filter2
-        #for p in range(len(sino_filtered)):
-        #    inarr[:] = sino_filtered[p, :, :]
-        #    myifftw_plan.execute()
-        #    sino_filtered[p, :, :] = inarr[:]
-
-
-        # resize image to original size
-        # The copy is necessary to prevent memory leakage.
-        # The fftw did not normalize the data.
-        #_shared_array[:] = sino_filtered.real[:ln, :lny, :lnx] / (lNx * lNy)
-        # By performing the "/" operation here, we magically use less
-        # memory and we gain speed...
-#        _shared_array[:] = filtered_proj.real[:]
-#        #_shared_array[:] = sino_filtered.real[ :ln, padyl:padyl + lny, padxl:padxl + lnx] / (lNx * lNy)
-#
-#        phi0 = np.rad2deg(angles[i])
-#
-#        if not onlyreal:
-#            filtered_proj_imag = filtered_proj.imag
-#        else:
-#            filtered_proj_imag = None
-#            # Free memory
-#            del filtered_proj
-#
-#        _mprotate(phi0, lny, pool4loop, intp_order)
-#
-#        outarr.real += _shared_array
-#
-#        if not onlyreal:
-#            _shared_array[:] = filtered_proj_imag
-#            #_shared_array[:] = sino_filtered_imag[
-#            #    :ln, :lny, :lnx] / (lNx * lNy)
-#            del filtered_proj_imag
-#            _mprotate(phi0, lny, pool4loop, intp_order)
-#            outarr.imag += _shared_array
-
-        # if False:
-        #    # ~(0.9^num_cores)x speedup
-        #    ang = np.rad2deg(angles[i])
-        #
-        #    N = int(ln)
-        #
-        #    slsize = int(np.floor(ln/N))
-        #
-        #    targ_args=list()
-        #    for t in range(N):
-        #        ymin = t*slsize
-        #        ymax = (t+1)*slsize
-        #        if t == N - 1:
-        #            ymax = ln
-        #        #print(ymin,ymax,sino_fin.shape)
-        #        targ_args.append((sino_fin[:,ymin:ymax,:],ang))
-        #
-        #        if t%num_cores == num_cores-1:
-        #            out = pool4loop.map(_rotate2, targ_args)
-        #            um = len(out)
-        #
-        #            for u in range(1,um+1):
-        #                #print(slsize, um, u, t)
-        #                sino_fin[:,(t-um+u)*slsize:(t-um+u+1)*slsize,:] = out[u-1]
-        #            targ_args=list()
-        #            del out
-        #
-        #    #print(len(targ_args))
-        #    #targ_args=sino_fin.real.reshape(2,ln,-1,ln)
-        #
-        #
-        #    #for t in range(N):
-        #    #    ymin = t*slsize
-        #    #    ymax = (t+1)*slsize
-        #    #    if t == N - 1:
-        #    #        ymax = ln
-        #    #    #print(ymin,ymax,sino_fin.shape)
-        #    #    sino_fin.real[:,ymin:ymax,:] = out[t]
-        #
-        # if False:
-        #    # This is very time-consuming
-        #    rot_data = scipy.ndimage.interpolation.rotate(
-        #                  sino_fin.real[:],
-        #                  np.rad2deg(angles[i]),
-        #                  (0,2),
-        #                  False,
-        #                  sino_fin.real[:],
-        #                  3,
-        #                  "constant",
-        #                  0)
-
-        #outarr += np.array(results).reshape(ln,ln,ln)
-
-        # if not onlyreal:
-        #    outarr += 1j*scipy.ndimage.interpolation.rotate(
-        #              sino_fin.imag, angles[i]*180/np.pi, reshape=False,
-        # z,x
-        #              mode="constant", cval=0, axes=(0,2))
+        if not onlyreal:
+            rotxzi = scipy.ndimage.interpolation.affine_transform(
+                                    filtered_proj.imag, drot,
+                                    offset=offset, mode="constant",
+                                    cval=0, order=intp_order)
+            outarr.imag += rotxzi
 
         if jmc is not None:
             jmc.value += 1
@@ -883,8 +773,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     pool4loop.terminate()
     pool4loop.join()
 
-    #del _shared_array, inarr, odtbrain._shared_array
-    #del shared_array_base
+    del _shared_array, inarr, odtbrain._shared_array
+    del shared_array_base
 
     gc.collect()
 
