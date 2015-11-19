@@ -7,21 +7,21 @@ The *in silico* data set was created with the
 :abbr:`FDTD (Finite Difference Time Domain)` software `meep`_. The data
 are 2D projections of a 3D refractive index phantom that is rotated about
 an axis which is tilted by 0.2 rad (11.5 degrees) with respect to the imaging
-plane. The example showcases the method `odtbrain.backproject3d_tilted` which
-takes into account such a tilted axis of rotation. The data are downsampled
-by a factor of two. The rotational axis is the `y`-axis. A total of 220
-projections are used for the reconstruction. Note that the information required
-for reconstruction decreases as the tilt angle increases. If the tilt angle is
-90 degrees w.r.t. the imaging plane, then we get a rotating image of a cell
-(not images of a rotating cell) and tomographic reconstruction is impossible.
-A brief description of this algorithm is given in [3]_.
+plane. The example showcases the method :func:`odtbrain.backproject3d_tilted`
+which takes into account such a tilted axis of rotation. The data are
+downsampled by a factor of two. The rotational axis is the `y`-axis. A total of
+220 projections are used for the reconstruction. Note that the information
+required for reconstruction decreases as the tilt angle increases. If the tilt
+angle is 90 degrees w.r.t. the imaging plane, then we get a rotating image of a
+cell (not images of a rotating cell) and tomographic reconstruction is
+impossible. A brief description of this algorithm is given in [3]_.
 
 .. figure::  ../examples/backprop_from_fdtd_3d_tilted_repo.png
    :align:   center
 
    3D reconstruction from :abbr:`FDTD (Finite Difference Time Domain)`
    data created by `meep`_ simulations. The first column shows the
-   measured phase, visualizing the tilt (compare to other exampls). The
+   measured phase, visualizing the tilt (compare to other examples). The
    second column shows a reconstruction that does not take into account
    the tilted axis of rotation; the result is a blurry reconstruction.
    The third column shows the improved reconstruction; the known tilted

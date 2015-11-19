@@ -167,7 +167,7 @@ def rotation_matrix_from_point(point, ret_inv=False):
         The coordinates of the point in 3D.
     ret_inv : bool
         Also return the inverse of the rotation matrix. The inverse
-        is required for `scipy.ndimage.interpolation.affine_transform`
+        is required for :func:`scipy.ndimage.interpolation.affine_transform`
         which maps the output coordinates to the input coordinates.
         
     Returns
@@ -356,10 +356,9 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         :math:`l_\mathrm{D}` in pixels.
     tilted_axis : list of floats
         The coordinates [x, y, z] on a unit sphere representing the
-        tilted axis of rotation. The w-component is used to check
-        if the vector is normalized to 1. The default is (0,1,0),
+        tilted axis of rotation. The default is (0,1,0),
         which corresponds to a rotation about the y-axis and
-        follows the behavior of `odtbrain.backrpoject_3d`.
+        follows the behavior of :func:`odtbrain.backproject_3d`.
     coords : None [(3, M) ndarray]
         Only compute the output image at these coordinates. This
         keyword is reserved for future versions and is not
@@ -396,7 +395,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         padding (see documentation of `numpy.pad`).
     order : int between 0 and 5
         Order of the interpolation for rotation.
-        See `scipy.ndimage.interpolation.rotate` for details.
+        See :func:`scipy.ndimage.interpolation.rotate` for details.
     dtype : dtype object or argument for np.dtype
         The data type that is used for calculations (float or double).
         Defaults to np.float.

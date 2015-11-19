@@ -233,7 +233,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
         padding (see documentation of `numpy.pad`).
     order : int between 0 and 5
         Order of the interpolation for rotation.
-        See `scipy.ndimage.interpolation.rotate` for details.
+        See :func:`scipy.ndimage.interpolation.rotate` for details.
     dtype : dtype object or argument for np.dtype
         The data type that is used for calculations (float or double).
         Defaults to np.float.
