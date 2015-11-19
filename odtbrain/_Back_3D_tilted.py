@@ -113,11 +113,45 @@ def rotate_points_to_axis(points, axis):
     rotpoints = np.zeros((len(points), 3))
     for ii, pnt in enumerate(points):
         rotpoints[ii] = np.dot(DR, pnt)
-    
+
+    # For visualiztaion:
+    #import matplotlib.pylab as plt
+    #from mpl_toolkits.mplot3d import Axes3D
+    #from matplotlib.patches import FancyArrowPatch
+    #from mpl_toolkits.mplot3d import proj3d
+    #
+    #class Arrow3D(FancyArrowPatch):
+    #    def __init__(self, xs, ys, zs, *args, **kwargs):
+    #        FancyArrowPatch.__init__(self, (0,0), (0,0), *args, **kwargs)
+    #        self._verts3d = xs, ys, zs
+    #
+    #    def draw(self, renderer):
+    #        xs3d, ys3d, zs3d = self._verts3d
+    #        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+    #        self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
+    #        FancyArrowPatch.draw(self, renderer)
+    #
+    #fig = plt.figure(figsize=(10,10))
+    #ax = fig.add_subplot(111, projection='3d')    
+    #for vec in rotpoints:
+    #    u,v,w = vec
+    #    a = Arrow3D([0,u],[0,v],[0,w], mutation_scale=20, lw=1, arrowstyle="-|>")
+    #    ax.add_artist(a)
+    #
+    #radius=1
+    #ax.set_xlabel('X')
+    #ax.set_ylabel('Y')
+    #ax.set_zlabel('Z')
+    #ax.set_xlim(-radius*1.5, radius*1.5)
+    #ax.set_ylim(-radius*1.5, radius*1.5)
+    #ax.set_zlim(-radius*1.5, radius*1.5)
+    #plt.tight_layout()
+    #plt.show()
+
     return rotpoints
 
 
-def rotation_matrix_from_point(point):
+def rotation_matrix_from_point(point, ret_inv=False):
     """ Compute rotation matrix to go from [0,0,1] to `point`.
     
     First, the matrix rotates to in the polar direction. Then,
@@ -131,36 +165,46 @@ def rotation_matrix_from_point(point):
     ----------
     points : list-like, length 3
         The coordinates of the point in 3D.
-    
-    
+    ret_inv : bool
+        Also return the inverse of the rotation matrix. The inverse
+        is required for `scipy.ndimage.interpolation.affine_transform`
+        which maps the output coordinates to the input coordinates.
+        
     Returns
     -------
-    Rmat : 3x3 ndarray
-        The rotation matrix that rotates [0,0,1] to `point`.
+    Rmat [, Rmat_inv] : 3x3 ndarrays
+        The rotation matrix that rotates [0,0,1] to `point` and
+        optionally its inverse.
     """
     x, y, z = point
     # azimuthal angle
     phi = np.arctan2(x, z)
-    # angle in polar direction
-    theta = np.arctan2(y, np.sqrt(x**2+z**2))
+    # angle in polar direction (negative)
+    theta = -np.arctan2(y, np.sqrt(x**2+z**2))
     
     # Rotation in polar direction
     Rtheta = np.array([
                        [1,             0,              0],
-                       [0,  np.cos(theta), np.sin(theta)],
-                       [0, -np.sin(theta), np.cos(theta)],
+                       [0, np.cos(theta), -np.sin(theta)],
+                       [0, np.sin(theta),  np.cos(theta)],
                        ])
 
     # rotation in x-z-plane
     Rphi = np.array([
                      [np.cos(phi), 0, -np.sin(phi)],
                      [0          , 1,            0],
-                     [np.sin(phi), 0,  np.cos(phi)],
+                     [np.sin(phi), 0, np.cos(phi)],
                      ])
 
+    
     D = np.dot(Rphi, Rtheta)
-    return D
+    # The inverse of D
+    Dinv = np.dot(Rtheta.T, Rphi.T)
 
+    if ret_inv:
+        return D, Dinv
+    else:
+        return D
 
 
 def sphere_points_from_angles_and_tilt(angles, tilted_axis):
@@ -311,7 +355,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         Distance from center of rotation to detector plane 
         :math:`l_\mathrm{D}` in pixels.
     tilted_axis : list of floats
-        The coordinates [u, v, w] on a unit sphere representing the
+        The coordinates [x, y, z] on a unit sphere representing the
         tilted axis of rotation. The w-component is used to check
         if the vector is normalized to 1. The default is (0,1,0),
         which corresponds to a rotation about the y-axis and
@@ -739,30 +783,40 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
                                           ] / (lNx * lNy)
         
         
+        # The Cartesian axes in our array are ordered like this: [z,y,x]
+        # However, the rotation matrix requires [x,y,z]. Therefore, we
+        # need to np.transpose the first and last axis and also invert the
+        # y-axis (by setting angles[aa][1] *= -1)
+        filtered_proj = filtered_proj.transpose(2,1,0)
+        angles[aa][1] *= -1
+        
         # get rotation matrix for this point
-        drot = rotation_matrix_from_point(angles[aa])
+        _drot, drotinv = rotation_matrix_from_point(angles[aa], ret_inv=True)
         
         ## apply offset required by affine_transform
+        ## The offset is only required for the rotation in
+        ## the x-z-plane.
         ## This could be achieved like so:
         ##c = 0.5*np.array(filtered_proj.shape)
-        ##offset=c-c.dot(drot.T)
+        ##offset=c-c.dot(rphi.T)
         ## However, we will be using the same offset as
         ## scipy.ndimage.rotate uses to keep equivalence
         ## with odtbrain.backproject_3d.
         c = 0.5*np.array(filtered_proj.shape) -.5
-        offset=c-c.dot(drot.T)
+        offset=c-np.dot(drotinv, c)
         
         # perform rotation
         rotxzr = scipy.ndimage.interpolation.affine_transform(
-                                filtered_proj.real, drot,
+                                filtered_proj.real, drotinv,
                                 offset=offset, mode="constant",
                                 cval=0, order=intp_order)
 
+        
         outarr.real += rotxzr
 
         if not onlyreal:
             rotxzi = scipy.ndimage.interpolation.affine_transform(
-                                    filtered_proj.imag, drot,
+                                    filtered_proj.imag, drotinv,
                                     offset=offset, mode="constant",
                                     cval=0, order=intp_order)
             outarr.imag += rotxzi
@@ -777,5 +831,9 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     del shared_array_base
 
     gc.collect()
+
+    # Undo the axis transposition that we performed previously.
+    outarr = outarr.transpose(2,1,0)
+
 
     return outarr

@@ -9,9 +9,12 @@ are 2D projections of a 3D refractive index phantom that is rotated about
 an axis which is tilted by 0.2 rad (11.5 degrees) with respect to the imaging
 plane. The example showcases the method `odtbrain.backproject3d_tilted` which
 takes into account such a tilted axis of rotation. The data are downsampled
-by a factor of two. The rotational axis is the `y`-axis. A total of 180
-projections are used for the reconstruction. A brief description of this
-algorithm is given in [3]_.
+by a factor of two. The rotational axis is the `y`-axis. A total of 220
+projections are used for the reconstruction. Note that the information required
+for reconstruction decreases as the tilt angle increases. If the tilt angle is
+90 degrees w.r.t. the imaging plane, then we get a rotating image of a cell
+(not images of a rotating cell) and tomographic reconstruction is impossible.
+A brief description of this algorithm is given in [3]_.
 
 .. figure::  ../examples/backprop_from_fdtd_3d_tilted_repo.png
    :align:   center
@@ -121,8 +124,9 @@ if __name__ == "__main__":
     print("Measurement position from object center:", cfg["lD"])
     print("Wavelength sampling:", cfg["res"])
     print("Axis tilt in y-z direction:", cfg["tilt_yz"])
-    print("Performing naive backpropagation.")
-
+    print("Number of projections:", A)
+    
+    print("Performing normal backpropagation.")
     ## Apply the Rytov approximation
     sinoRytov = odt.sinogram_as_rytov(sino)
 
@@ -140,8 +144,9 @@ if __name__ == "__main__":
         f_naiv = np.load(f_name_naiv)
 
 
+    print("Performing tilted backpropagation.")
     ## Determine tilted axis
-    tilted_axis = [-np.sin(cfg["tilt_yz"]), np.cos(cfg["tilt_yz"]), 0]
+    tilted_axis = [0, np.cos(cfg["tilt_yz"]), np.sin(cfg["tilt_yz"])]
     
     ## Perform tilted backpropagation
     f_name_tilt = "f_tilt.npy"
@@ -180,7 +185,7 @@ if __name__ == "__main__":
     axes[0,0].set_ylabel("detector y")
 
     axes[1,0].set_title("sinogram slice")    
-    axes[1,0].imshow(sino_phase[:,:,int(A/2)], **kwph)
+    axes[1,0].imshow(np.roll(sino_phase[:,:,int(A/2)], 50, 0), aspect=sino.shape[1]/sino.shape[0], **kwph)
     axes[1,0].set_xlabel("detector y")
     axes[1,0].set_ylabel("angle [rad]")
     # set y ticks for sinogram
@@ -189,22 +194,22 @@ if __name__ == "__main__":
     axes[1,0].set_yticks(np.linspace(0, len(angles), len(labels)))
     axes[1,0].set_yticklabels(labels)
 
-    axes[0,1].set_title("reconstruction center")
+    axes[0,1].set_title("normal (center)")
     rimap = axes[0,1].imshow(n_naiv[int(sx/2)].real, **kwri)
     axes[0,1].set_xlabel("x") 
     axes[0,1].set_ylabel("y")
 
-    axes[1,1].set_title("reconstruction nucleolus")
+    axes[1,1].set_title("normal (nucleolus)")
     axes[1,1].imshow(n_naiv[int(sx/2)+2*cfg["res"]].real, **kwri)
     axes[1,1].set_xlabel("x")    
     axes[1,1].set_ylabel("y")
 
-    axes[0,2].set_title("reconstruction center (tilt correction)")
+    axes[0,2].set_title("tilt correction (center)")
     axes[0,2].imshow(n_tilt[int(sx/2)].real, **kwri)
     axes[0,2].set_xlabel("x")    
     axes[0,2].set_ylabel("y")
 
-    axes[1,2].set_title("reconstruction nucleolus (tilt correction)")
+    axes[1,2].set_title("tilt correction (nucleolus)")
     axes[1,2].imshow(n_tilt[int(sx/2)+2*cfg["res"]].real, **kwri)
     axes[1,2].set_xlabel("x")    
     axes[1,2].set_ylabel("y")

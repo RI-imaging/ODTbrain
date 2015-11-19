@@ -112,8 +112,8 @@ if __name__ == "__main__":
     print("Refractive index of medium:", cfg["nm"])
     print("Measurement position from object center:", cfg["lD"])
     print("Wavelength sampling:", cfg["res"])
+    print("Number of projections:", A)
     print("Performing backpropagation.")
-
 
     ## Apply the Rytov approximation
     sinoRytov = odt.sinogram_as_rytov(sino)
