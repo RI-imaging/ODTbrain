@@ -7,7 +7,7 @@ The *in silico* data set was created with the
 :abbr:`FDTD (Finite Difference Time Domain)` software `meep`_. The data
 are 2D projections of a 3D refractive index phantom that is rotated about
 an axis which is tilted by 0.2 rad (11.5 degrees) with respect to the imaging
-plane. The example showcases the method :func:`odtbrain.backproject3d_tilted`
+plane. The example showcases the method :func:`odtbrain.backpropagate_3d_tilted`
 which takes into account such a tilted axis of rotation. The data are
 downsampled by a factor of two. The rotational axis is the `y`-axis. A total of
 220 projections are used for the reconstruction. Note that the information

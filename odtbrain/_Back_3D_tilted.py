@@ -321,15 +321,16 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
                      jmc=None, jmm=None,
                      verbose=_verbose):
     u""" 3D backpropagation with the Fourier diffraction theorem
-
     Three-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
     :math:`u_0(\mathbf{r}) = u_0(x,y,z)` 
     by a dielectric object with refractive index
     :math:`n(x,y,z)`.
-
+    
     This method implements the 3D backpropagation algorithm with
     a rotational axis that is tilted w.r.t. the imaging plane.
+
+    .. versionadded:: 0.1.2
     
     Parameters
     ----------
@@ -358,7 +359,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         The coordinates [x, y, z] on a unit sphere representing the
         tilted axis of rotation. The default is (0,1,0),
         which corresponds to a rotation about the y-axis and
-        follows the behavior of :func:`odtbrain.backproject_3d`.
+        follows the behavior of :func:`odtbrain.backpropagate_3d`.
     coords : None [(3, M) ndarray]
         Only compute the output image at these coordinates. This
         keyword is reserved for future versions and is not
@@ -395,7 +396,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         padding (see documentation of `numpy.pad`).
     order : int between 0 and 5
         Order of the interpolation for rotation.
-        See :func:`scipy.ndimage.interpolation.rotate` for details.
+        See :func:`scipy.ndimage.interpolation.affine_transform` for details.
     dtype : dtype object or argument for np.dtype
         The data type that is used for calculations (float or double).
         Defaults to np.float.
@@ -426,7 +427,22 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         to refractive index :math:`n(\mathbf{r})`.
 
 
-    .. versionadded:: 0.1.2
+    Notes
+    -----
+    This implementation can deal with projection angles that are not
+    distributed along a circle  about the rotation axisal. If there are
+    slight deviations from this circle, simply pass the 3D rotational
+    positions instead of the 1D angles to the `angles` argument. In
+    principle, this should improve the reconstruction. The general
+    problem here is that the backpropagation algorithm requires a
+    ramp filter in Fourier space that is oriented perpendicular to the
+    rotational axis. If the sample does not rotate about a single axis,
+    then a 1D parametric representation of this rotation must be found
+    to correctly determine the filter in Fourier space. Such a
+    parametric representation could e.g. be a spiral between the poles
+    of the unit sphere (but this kind of rotation is probably difficult
+    to implement experimentally).
+    
     """
     A = angles.shape[0]
     assert angles.shape in [(A,), (A,3)], "`angles` must have shape (A,) or (A,3)!"
