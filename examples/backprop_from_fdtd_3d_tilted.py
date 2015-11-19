@@ -206,12 +206,12 @@ if __name__ == "__main__":
 
     axes[0,2].set_title("tilt correction (center)")
     axes[0,2].imshow(n_tilt[int(sx/2)].real, **kwri)
-    axes[0,2].set_xlabel("x")    
+    axes[0,2].set_xlabel("x")
     axes[0,2].set_ylabel("y")
 
     axes[1,2].set_title("tilt correction (nucleolus)")
     axes[1,2].imshow(n_tilt[int(sx/2)+2*cfg["res"]].real, **kwri)
-    axes[1,2].set_xlabel("x")    
+    axes[1,2].set_xlabel("x")
     axes[1,2].set_ylabel("y")
 
     # color bars

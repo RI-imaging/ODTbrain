@@ -41,6 +41,7 @@ Examples
 
 .. automodule:: backprop_from_fdtd_3d
 
+.. automodule:: backprop_from_fdtd_3d_tilted
 
 References
 ==========
