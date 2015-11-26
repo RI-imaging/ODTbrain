@@ -5,7 +5,7 @@
     :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 
-    Edited by Paul Müller to support imports from submodules. Uses the
+    Edited by Paul Mueller to support imports from submodules. Uses the
     importlib library. Changes marked with "## EDIT". 2015-02-22
 """
 
