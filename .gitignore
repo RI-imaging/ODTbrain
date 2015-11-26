@@ -64,5 +64,7 @@ target/
 *.yml~
 *.rst~
 
+_version_save.py
+
 # extracted test files
 tests/data/*__*.txt
