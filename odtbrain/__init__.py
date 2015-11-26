@@ -89,6 +89,7 @@ from ._Back_3D import backpropagate_3d
 from ._Back_3D_tilted import backpropagate_3d_tilted
 from ._br import odt_to_ri, opt_to_ri, sinogram_as_radon, sinogram_as_rytov
 from ._version import version as __version__
+from ._version import longversion as __version_full__
 
 __author__ = u"Paul Müller"
 __license__ = "BSD (3 clause)"

@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.viewcode
     ~~~~~~~~~~~~~~~~~~~
-
     Add links to module code in Python object descriptions.
-
     :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 
-    Edited by Paul Müller to support imports from submodules. Uses the
+    Edited by Paul Mueller to support imports from submodules. Uses the
     importlib library. Changes marked with "## EDIT". 2015-02-22
-
 """
+
+## EDIT
 import importlib
+##
 
 import traceback
 
@@ -83,16 +82,17 @@ def doctree_read(app, doctree):
                 continue
             modname = signode.get('module')
             fullname = signode.get('fullname')
-            ## EDIT
-            fullname, modname = find_modname(fullname, modname)
-            ##
-
             refname = modname
             if env.config.viewcode_import:
                 modname = _get_full_modname(app, modname, fullname)
             if not modname:
                 continue
             fullname = signode.get('fullname')
+            
+            ## EDIT
+            fullname, modname = find_modname(fullname, modname)
+            ##
+            
             if not has_tag(modname, fullname, env.docname, refname):
                 continue
             if fullname in names:
@@ -109,16 +109,6 @@ def doctree_read(app, doctree):
                                         classes=['viewcode-link'])
             signode += onlynode
 
-## EDIT
-def find_modname(fullname, modname):
-    mod = importlib.import_module(modname)
-    if hasattr(mod, fullname):
-        func = getattr(mod, fullname)
-        modname = func.__module__
-        fullname = func.__name__
-    return fullname, modname
-##
-
 
 def env_merge_info(app, env, docnames, other):
     if not hasattr(other, '_viewcode_modules'):
@@ -128,6 +118,17 @@ def env_merge_info(app, env, docnames, other):
         env._viewcode_modules = {}
     # now merge in the information from the subprocess
     env._viewcode_modules.update(other._viewcode_modules)
+
+
+## EDIT
+def find_modname(fullname, modname):
+    mod = importlib.import_module(modname)
+    if hasattr(mod, fullname):
+        func = getattr(mod, fullname)
+        modname = func.__module__
+        fullname = func.__name__
+    return fullname, modname
+##
 
 
 def missing_reference(app, env, node, contnode):

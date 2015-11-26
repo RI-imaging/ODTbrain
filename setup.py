@@ -19,10 +19,7 @@ for diffraction tomogrpahy. Visit the home page for more information.
 
 
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
-try:
-    from _version import version
-except:
-    version = "unknown"
+from _version import version
 
 
 class PyTest(Command):
