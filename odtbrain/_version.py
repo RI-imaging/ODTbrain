@@ -62,9 +62,8 @@ except:
     print("Could not determine version. Reason:")
     print(traceback.format_exc())
     ctime = os.stat(__file__)[8]
-    tstr = time.strftime("%Y.%m.%d-%H-%M-%S", time.gmtime(ctime))
-    version = "unknown_{}".format(tstr)
-    print("Using creation time to determine version: {}".format(version))
+    longversion = time.strftime("%Y.%m.%d-%H-%M-%S", time.gmtime(ctime))
+    print("Using creation time to determine version: {}".format(longversion))
 
 # Save the version to `_version_save.py` to allow distribution using
 # `python setup.py sdist`.
