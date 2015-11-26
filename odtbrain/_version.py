@@ -10,7 +10,7 @@ along with e.g. pypi.
 """
 from __future__ import print_function
 import os
-from os.path import join, abspath, dirname, exists, getctime
+from os.path import join, abspath, dirname, exists
 import subprocess
 import time
 import traceback
@@ -70,5 +70,5 @@ except:
 # `python setup.py sdist`.
 save_version(longversion)
 
-# PEP 440-conform version:
-version = "-".join(longversion.split("-")[:2])
+# PEP 440-conform development version:
+version = ".dev".join(longversion.split("-")[:2])
