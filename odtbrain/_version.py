@@ -10,9 +10,9 @@ along with e.g. pypi.
 """
 from __future__ import print_function
 import os
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, dirname, exists, getctime
 import subprocess
-import sys
+import time
 import traceback
 
 def git_describe():
@@ -46,6 +46,7 @@ version="{VERSION}"
     with open(join(dirname(abspath(__file__)), "_version_save.py"), "w") as fd:
         fd.write(data.format(VERSION=version))
 
+
 try:
     if exists(join(dirname(dirname(abspath(__file__))), ".git")):
         # Get the version using `git describe`
@@ -61,4 +62,7 @@ try:
 except:
     print("Could not determine version. Reason:")
     print(traceback.format_exc())
-    version = "unknown"
+    ctime = os.stat(__file__)[8]
+    tstr = time.strftime("%Y-%m-%d_%H.%M.%S", time.gmtime(ctime))
+    version = "unknown_{}".format(tstr)
+    print("Using creation time to determine version: {}".format(version))
