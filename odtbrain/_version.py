@@ -38,31 +38,37 @@ def git_describe():
 
     return GIT_REVISION
 
+
 def save_version(version):
     data="""#!/usr/bin/env python
 # This file was created automatically.
-version="{VERSION}"
+longversion="{VERSION}"
 """
     with open(join(dirname(abspath(__file__)), "_version_save.py"), "w") as fd:
         fd.write(data.format(VERSION=version))
 
-
+# Determine the accurate version
 try:
     if exists(join(dirname(dirname(abspath(__file__))), ".git")):
         # Get the version using `git describe`
-        version = git_describe()
-        # Save the version to `_version_save.py` to allow distribution using
-        # `python setup.py sdist` in case 
-        save_version(version)
+        longversion = git_describe()
     else:
         # If this is not a git repository, then we should be able to
         # get the version from the previously generated `_version_save.py`
         from . import _version_save  # @UnresolvedImport
-        version = _version_save.version
+        longversion = _version_save.longversion
+        
 except:
     print("Could not determine version. Reason:")
     print(traceback.format_exc())
     ctime = os.stat(__file__)[8]
-    tstr = time.strftime("%Y-%m-%d_%H.%M.%S", time.gmtime(ctime))
+    tstr = time.strftime("%Y.%m.%d-%H-%M-%S", time.gmtime(ctime))
     version = "unknown_{}".format(tstr)
     print("Using creation time to determine version: {}".format(version))
+
+# Save the version to `_version_save.py` to allow distribution using
+# `python setup.py sdist`.
+save_version(longversion)
+
+# PEP 440-conform version:
+version = "-".join(longversion.split("-")[:2])
