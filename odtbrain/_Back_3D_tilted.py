@@ -928,7 +928,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         # The Cartesian axes in our array are ordered like this: [z,y,x]
         # However, the rotation matrix requires [x,y,z]. Therefore, we
         # need to np.transpose the first and last axis and also invert the
-        # y-axis (by setting angles[aa][1] *= -1)
+        # y-axis.
         filtered_proj = filtered_proj.transpose(2,1,0)
         filtered_proj[:,:,:] = filtered_proj[:,::-1,:] 
         
