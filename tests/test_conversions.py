@@ -18,7 +18,7 @@ import odtbrain._br
 from common_methods import write_results, get_results
 
 
-WRITE_RES = True
+WRITE_RES = False
 
 
 def get_test_data_set():
