@@ -186,7 +186,7 @@ if __name__ == "__main__":
     axes[0,0].set_ylabel("detector y")
 
     axes[1,0].set_title("sinogram slice")    
-    axes[1,0].imshow(np.roll(sino_phase[:,:,int(A/2)], 50, 0), aspect=sino.shape[1]/sino.shape[0], **kwph)
+    axes[1,0].imshow(sino_phase[:,:,int(sino.shape[2]/2)], aspect=sino.shape[1]/sino.shape[0], **kwph)
     axes[1,0].set_xlabel("detector y")
     axes[1,0].set_ylabel("angle [rad]")
     # set y ticks for sinogram
