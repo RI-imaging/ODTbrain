@@ -19,17 +19,14 @@ def dl_file(url, dest, chunk_size=6553):
     """
     import urllib3
     http = urllib3.PoolManager()
-    r = http.request('GET', url)
-    
+    r = http.request('GET', url, preload_content=False)
     with open(dest, 'wb') as out:
         while True:
             data = r.read(chunk_size)
-            if data is None:
+            if data is None or len(data)==0:
                 break
             out.write(data)
-    
     r.release_conn()
-
 
 
 def get_file(fname):
