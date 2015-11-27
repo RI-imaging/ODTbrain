@@ -645,7 +645,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     # angles from the current and previous image.
     
     #filterabs = np.abs(kx*v-ky*u) * filter_klp
-    u, v, w = tilted_axis
+    u, v, _w = tilted_axis
     filterabs = np.abs(kx*v+ky*u) * filter_klp
     #prefactor *= np.sqrt(((kx**2+ky**2)) * filter_klp )
     prefactor *= np.exp(-1j * km * M * lD)
@@ -809,14 +809,12 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         _drot, drotinv = rotation_matrix_from_point(angles[aa], ret_inv=True)
         
         ## apply offset required by affine_transform
-        ## The offset is only required for the rotation in
-        ## the x-z-plane.
-        ## This could be achieved like so:
-        ##c = 0.5*np.array(filtered_proj.shape)
-        ##offset=c-c.dot(rphi.T)
-        ## However, we will be using the same offset as
-        ## scipy.ndimage.rotate uses to keep equivalence
-        ## with odtbrain.backproject_3d.
+        # The offset is only required for the rotation in
+        # the x-z-plane.
+        # This could be achieved like so:
+        # The offset "-.5" assures that we are rotating about
+        # the center of the image and not the value at the center
+        # of the array (this is also what `scipy.ndimage.rotate` does.
         c = 0.5*np.array(filtered_proj.shape) -.5
         offset=c-np.dot(drotinv, c)
         
