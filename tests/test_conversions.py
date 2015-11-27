@@ -17,7 +17,6 @@ import odtbrain._br
 
 from common_methods import write_results, get_results
 
-
 WRITE_RES = False
 
 
