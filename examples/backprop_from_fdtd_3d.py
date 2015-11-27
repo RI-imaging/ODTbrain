@@ -53,7 +53,8 @@ def load_tar_lzma_data(afile):
             n = m.name
             f = t.extractfile(m)
             if n.startswith("fdtd_info"):
-                for l in f.read().decode('ascii').split("\n"):
+                for l in f.read():
+                    l = l.decode()
                     if l.count("=") == 1:
                         key, val = l.split("=")
                         parms[key.strip()] = float(val.strip())

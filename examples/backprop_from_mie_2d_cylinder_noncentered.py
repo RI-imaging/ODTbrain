@@ -94,7 +94,9 @@ if __name__ == "__main__":
     with arc.open("mie_info.txt") as info:
         cfg = {}
         for l in info.readlines():
+            l=l.decode()
             if l.count("=") == 1:
+                l = l.decode()
                 key, val = l.split("=")
                 cfg[key.strip()] = float(val.strip())
 
