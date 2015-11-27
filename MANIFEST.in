@@ -3,5 +3,4 @@ include doc/*
 include doc/doc_include/*.txt
 include doc/extensions/*.py
 include README.md
-include tests/*
 include tests/data/*.zip

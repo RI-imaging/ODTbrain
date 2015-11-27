@@ -190,7 +190,7 @@ def get_results(frame):
         with zipfile.ZipFile(zipf) as arc:
             arc.extract(basename(text), wdir)
     else:
-        raise ValueError("No results found for: {}".format(text))
+        raise ValueError("No reference found for test: {}".format(text))
     
     data = np.loadtxt(text)
     return data
