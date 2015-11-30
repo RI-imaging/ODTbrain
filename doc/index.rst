@@ -63,10 +63,14 @@ References
        <http://dx.doi.org/10.1117/12.2191501>`_ (2015)
 
 .. [4] A. C. Kak and M. Slaney, *Principles of Computerized Tomographic Imaging*.
-       Philadelphia, USA: SIAM, 2001. `doi:10.1137/1.9780898719277 
-       <http://dx.doi.org/10.1137/1.9780898719277>`_
+       Philadelphia, USA: SIAM, `doi:10.1137/1.9780898719277 
+       <http://dx.doi.org/10.1137/1.9780898719277>`_ (2001)
 
 .. [5] E. Wolf, *Three-dimensional structure determination of semi-transparent
        objects from holographic data*. Opt. Commun., vol. 1, no. 4, pp. 153–156,
-       Sep. 1969. `doi:10.1016/0030-4018(69)90052-2 
-       <http://dx.doi.org/10.1016/0030-4018(69)90052-2>`_
+       `doi:10.1016/0030-4018(69)90052-2  
+       <http://dx.doi.org/10.1016/0030-4018(69)90052-2>`_ (1969)
+
+.. [6] K. C. Tam and V. Perez-Mendez, *Tomographical imaging with limited-angle input*,
+       J. Opt. Soc. Am., vol. 71, no. 5, pp. 582–592, `doi:10.1364/JOSA.71.000582  
+       <http://dx.doi.org/10.1016/10.1364/JOSA.71.000582>`_(1981)

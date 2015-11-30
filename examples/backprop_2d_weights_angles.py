@@ -3,7 +3,9 @@
 """ 
 Unevenly spaced angles (2D)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The *in silico* data set was created with the 
+Angular weighting can significantly improve reconstruction quality
+when the angular projections are sampled at non-equidistant
+intervals [6]_. The *in silico* data set was created with the 
 softare `miefield  <https://github.com/paulmueller/miefield>`_.
 The data are 1D projections of a non-centered cylinder of constant
 refractive index 1.339 embedded in water with refractive index 1.333. 
