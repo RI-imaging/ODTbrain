@@ -15,6 +15,10 @@ sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain._br
 
+from common_methods import write_results, get_results
+
+WRITE_RES = False
+
 
 def get_test_data_set():
     """returns 3D array and parameters"""
@@ -54,33 +58,42 @@ def negative_modulo_rest_imag(x,b):
     
 
 def test_odt_to_ri():
-    myname = sys._getframe().f_code.co_name
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
     f, res, nm = get_test_data_set()
     ri = odtbrain._br.odt_to_ri(f=f, res=res, nm=nm)
-    assert np.allclose(np.array(ri).flatten().view(float), results[myname])
+    if WRITE_RES:
+        write_results(myframe, ri)
+    assert np.allclose(np.array(ri).flatten().view(float), get_results(myframe))
     # Also test 2D version
     ri2d = odtbrain._br.odt_to_ri(f=f[0], res=res, nm=nm)
     assert np.allclose(ri2d, ri[0])
 
 
 def test_opt_to_ri():
-    myname = sys._getframe().f_code.co_name
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
     f, res, nm = get_test_data_set()
     ri = odtbrain._br.opt_to_ri(f=f, res=res, nm=nm)
-    assert np.allclose(np.array(ri).flatten().view(float), results[myname])
+    if WRITE_RES:
+        write_results(myframe, ri)
+    assert np.allclose(np.array(ri).flatten().view(float), get_results(myframe))
     # Also test 2D version
     ri2d = odtbrain._br.opt_to_ri(f=f[0], res=res, nm=nm)
     assert np.allclose(ri2d, ri[0])
 
 
 def test_sino_radon():
-    myname = sys._getframe().f_code.co_name
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
     sino = get_test_data_set_sino()
     rad = odtbrain._br.sinogram_as_radon(sino)
-    assert np.allclose(np.array(rad).flatten().view(float), results[myname])
+    if WRITE_RES:
+        write_results(myframe, rad)
+    assert np.allclose(np.array(rad).flatten().view(float), get_results(myframe))
     # Check the 3D result with the 2D result. They should be the same except
     # for a multiple of 2PI offset, because odtbrain._br._align_unwrapped
     # subtracts the background such that the minimum phase change is closest
@@ -95,12 +108,14 @@ def test_sino_radon():
 
 
 def test_sino_rytov():
-    myname = sys._getframe().f_code.co_name
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
     print("running ", myname)
     sino = get_test_data_set_sino(rytov=True)
     ryt = odtbrain._br.sinogram_as_rytov(sino)
-    #np.savetxt('outfile.txt', np.array(ryt).flatten().view(float), fmt="%.19e")
-    assert np.allclose(np.array(ryt).flatten().view(float), results[myname])
+    if WRITE_RES:
+        write_results(myframe, ryt)
+    assert np.allclose(np.array(ryt).flatten().view(float), get_results(myframe))
     # Check the 3D result with the 2D result. They should be the same except
     # for a multiple of 2PI offset, because odtbrain._br._align_unwrapped
     # subtracts the background such that the minimum phase change is closest
@@ -113,16 +128,6 @@ def test_sino_rytov():
     ryt2d2 = odtbrain._br.sinogram_as_rytov(sino[:,0,:])
     assert np.allclose(0, negative_modulo_rest_imag(ryt2d2 - ryt[:,0,:], twopi).view(float), atol=1e-6)
 
-
-# Get results
-results = dict()
-datadir = join(DIR, "data")
-for f in os.listdir(datadir):
-    #np.savetxt('outfile.txt', np.array(r).flatten().view(float))
-    #np.savetxt('outfile.txt', np.array(r).flatten().view(float), fmt="%.10f")
-    glob = globals()
-    if f.endswith(".txt") and f[:-4] in list(glob.keys()):
-        results[f[:-4]] = np.loadtxt(join(datadir, f))
 
 
 if __name__ == "__main__":

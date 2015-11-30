@@ -57,7 +57,7 @@ import numpy as np
 import scipy.interpolate as intp
 import scipy.ndimage
 
-from . import _util as util
+from . import util
 
 __all__ = ["backpropagate_2d", "fourier_map_2d", "sum_2d"]
 _verbose = 1

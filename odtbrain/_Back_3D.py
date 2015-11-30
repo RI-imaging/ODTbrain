@@ -72,7 +72,7 @@ import scipy.ndimage
 
 import odtbrain
 
-from . import _util as util
+from . import util
 
 __all__ = ["backpropagate_3d", "fourier_map_3d", "sum_3d",
            "backpropagate_3d_4pi"]
@@ -233,7 +233,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
         padding (see documentation of `numpy.pad`).
     order : int between 0 and 5
         Order of the interpolation for rotation.
-        See `scipy.ndimage.interpolation.rotate` for details.
+        See :func:`scipy.ndimage.interpolation.rotate` for details.
     dtype : dtype object or argument for np.dtype
         The data type that is used for calculations (float or double).
         Defaults to np.float.
@@ -288,18 +288,11 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
                  np.dtype(np.float64): ctypes.c_double
                  }
 
-    if len(uSin.shape) != 3:
-        raise ValueError("Input data `uSin` must have shape (A,Ny,Nx).")
-    if len(uSin) != A:
-        raise ValueError("`len(angles)` must be  equal to `len(uSin)`.")
-    if len(list(padding)) != 2:
-        raise ValueError("Parameter `padding` must be boolean tuple of" +
-                         " length 2!")
-    if np.array(padding).dtype is not np.dtype(bool):
-        raise ValueError("Parameter `padding` must be boolean tuple.")
-    if coords is not None:
-        raise NotImplementedError("Output coordinates cannot yet" +
-                                  " be set for the 2D backrpopagation algorithm.")
+    assert len(uSin.shape) == 3, "Input data `uSin` must have shape (A,Ny,Nx)."
+    assert len(uSin) == A, "`len(angles)` must be  equal to `len(uSin)`."
+    assert len(list(padding)) == 2, "Parameter `padding` must be boolean tuple of length 2!"
+    assert np.array(padding).dtype is np.dtype(bool), "Parameter `padding` must be boolean tuple."
+    assert coords is None, "Setting coordinates is not yet supported."
 
     # Cut-Off frequency
     # km [1/px]

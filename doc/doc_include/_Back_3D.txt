@@ -14,3 +14,4 @@ Backpropagation
 ~~~~~~~~~~~~~~~
 .. autofunction:: backpropagate_3d
     
+.. autofunction:: backpropagate_3d_tilted

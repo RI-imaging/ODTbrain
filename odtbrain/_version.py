@@ -9,6 +9,8 @@ present and if so, obtains the version from the git history using
 along with e.g. pypi.
 """
 from __future__ import print_function
+
+import imp
 import os
 from os.path import join, abspath, dirname, exists
 import subprocess
@@ -39,14 +41,15 @@ def git_describe():
     return GIT_REVISION
 
 
-def save_version(version):
+def save_version(version, versionfile):
     data="""#!/usr/bin/env python
 # This file was created automatically.
 longversion="{VERSION}"
 """
-    with open(join(dirname(abspath(__file__)), "_version_save.py"), "w") as fd:
+    with open(versionfile, "w") as fd:
         fd.write(data.format(VERSION=version))
 
+versionfile = join(dirname(abspath(__file__)), "_version_save.py")
 # Determine the accurate version
 try:
     if exists(join(dirname(dirname(abspath(__file__))), ".git")):
@@ -55,20 +58,19 @@ try:
     else:
         # If this is not a git repository, then we should be able to
         # get the version from the previously generated `_version_save.py`
-        from . import _version_save  # @UnresolvedImport
+        _version_save = imp.load_source("_version_save", versionfile)
         longversion = _version_save.longversion
         
 except:
     print("Could not determine version. Reason:")
     print(traceback.format_exc())
     ctime = os.stat(__file__)[8]
-    tstr = time.strftime("%Y.%m.%d-%H-%M-%S", time.gmtime(ctime))
-    version = "unknown_{}".format(tstr)
-    print("Using creation time to determine version: {}".format(version))
+    longversion = time.strftime("%Y.%m.%d-%H-%M-%S", time.gmtime(ctime))
+    print("Using creation time to determine version: {}".format(longversion))
 
 # Save the version to `_version_save.py` to allow distribution using
 # `python setup.py sdist`.
-save_version(longversion)
+save_version(longversion, versionfile)
 
 # PEP 440-conform development version:
 version = ".dev".join(longversion.split("-")[:2])

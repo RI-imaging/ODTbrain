@@ -35,7 +35,7 @@ a certain angle :math:`\phi_0`, is distributed along a circular arc
 (2D) or along a semi-spherical surface (3D) in Fourier space,
 synthesizing the Fourier transform 
 :math:`\widehat{F}(\mathbf{k})` of the object function 
-:math:`f(\mathbf{r})`.
+:math:`f(\mathbf{r})` ([4]_, [5]_).
 
 .. math::
 
@@ -86,10 +86,10 @@ If you use ODTbrain in a scientific publication, please cite at least
 """
 from ._Back_2D import backpropagate_2d, fourier_map_2d, sum_2d
 from ._Back_3D import backpropagate_3d
+from ._Back_3D_tilted import backpropagate_3d_tilted
 from ._br import odt_to_ri, opt_to_ri, sinogram_as_radon, sinogram_as_rytov
 from ._version import version as __version__
 from ._version import longversion as __version_full__
-
 
 __author__ = u"Paul Müller"
 __license__ = "BSD (3 clause)"

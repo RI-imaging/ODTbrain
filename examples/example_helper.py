@@ -13,6 +13,21 @@ import warnings
 datadir = "data"
 webloc = "https://github.com/paulmueller/ODTbrain/raw/master/examples/data"
 
+def dl_file(url, dest, chunk_size=6553):
+    """
+    Download `url` to `dest`.
+    """
+    import urllib3
+    http = urllib3.PoolManager()
+    r = http.request('GET', url, preload_content=False)
+    with open(dest, 'wb') as out:
+        while True:
+            data = r.read(chunk_size)
+            if data is None or len(data)==0:
+                break
+            out.write(data)
+    r.release_conn()
+
 
 def get_file(fname):
     """
@@ -43,15 +58,12 @@ def get_file(fname):
             break
                 
     if foundloc is None:
-        from urllib2 import urlopen
         # Download file with urllib2.urlopen
         print("Attempting to download file {} from {} to {}.".
               format(fname, webloc, dlloc))
         try:
-            f = urlopen(join(webloc, fname))
-            # Open our local file for writing
-            with open(join(dlloc, fname), "wb") as local_file:
-                local_file.write(f.read())
+            dl_file(url=join(webloc, fname),
+                    dest=join(dlloc, fname))
         except:
             warnings.warn("Download failed: "+fname)
             raise

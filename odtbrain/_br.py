@@ -251,9 +251,9 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         background-corrected (
         ``uSin`` :math:`= \\frac{u_\mathrm{R}(\mathbf{r})}{
         u_\mathrm{0}(\mathbf{r})} + 1`
-        ). Note that this might lead to a wrong 
-        reconstruction if the reconstruction distance
-        :math:`l_\mathrm{D}` is non-zero, i.e. the field is not focused
+        ). Note that if the reconstruction distance :math:`l_\mathrm{D}`
+        of the original experiment is non-zero and `u0` is set to 1,
+        then the reconstruction will be wrong; the field is not focused
         to the center of the reconstruction volume.
 
 
