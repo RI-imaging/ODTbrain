@@ -17,30 +17,6 @@ from . import util
 import odtbrain
 
 
-
-def compute_trafo_jacobian(loc, km, kDx, kDy, M):
-    """ jacobian/filter in Fourier space for backpropagation along arbitrary axis
-    
-    Parameters
-    ----------
-    loc : list/array of length 3
-        The vector (x,y,z) on the unit sphere describing the 
-        direction of the rotational axis.
-    km : float
-        Wave number in surrounding medium.
-    kDx, kDy : 2d ndarrays
-        kx/ky values of the detector in Fourier space.
-    """
-    # numpy definitions
-    #sqrt = np.sqrt
-    # substitutions
-    #M = sqrt(km**2-kDx**2-kDy**2)
-    #M1sq = 1+kDx**2+kDy**2
-    u, v, _w = loc
-    # return abs
-    return np.abs((kDx*v-kDy*u)/M)
-
-
 def estimate_major_rotation_axis(loc):
     """ 
     For a list of points on the unit sphere, estimate the main
@@ -207,7 +183,7 @@ def rotation_matrix_from_point(point, ret_inv=False):
         return D
 
 
-def rotation_matrix_from_point_and_axis(point, axis, ret_inv=False):
+def rotation_matrix_from_point_planerot(point, plane_angle, ret_inv=False):
     """ Compute rotation matrix to go from [0,0,1] to `point`,
     while taking into account the tilted axis of rotation.
     
@@ -235,15 +211,13 @@ def rotation_matrix_from_point_and_axis(point, axis, ret_inv=False):
         The rotation matrix that rotates [0,0,1] to `point` and
         optionally its inverse.
     """
-    axis = norm_vec(axis)
-    
     # These matrices are correct if there is no tilt of the
     # rotational axis within the detector plane (x-y).
     D, Dinv = rotation_matrix_from_point(point, ret_inv=True)
     
     # We need an additional rotation about the z-axis to correct
     # for the tilt for all the the other cases.
-    angz = np.arctan2(axis[0], axis[1])
+    angz = plane_angle
     
     Rz =  np.array([
                     [np.cos(angz), -np.sin(angz), 0],
@@ -253,8 +227,6 @@ def rotation_matrix_from_point_and_axis(point, axis, ret_inv=False):
     
     DR = np.dot(D, Rz)
     DRinv = np.dot(Rz.T, Dinv)
-    
-    
     
     if ret_inv:
         return DR, DRinv
@@ -534,55 +506,47 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     to implement experimentally).
     
     """
-    ####TODO:
-    #### - implement in rotation matrix 
-    ####   `rotation_matrix_from_point_and_axis`
-    ####   - determine `angz` at beginning and give as argument
-    #### - rotate `tilted_axis` at beginning with `angz`
-    #### - probabliy best to do everything in one method
-    # We need an additional rotation about the z-axis to correct
-    # for the tilt for all the the other cases.
-    axis=norm_vec(tilted_axis)
+    # `tilted_axis` is required for several things:
+    # 1. the filter |kDx*v + kDy*u| with (u,v,w)==tilted_axis
+    # 2. the alignment of the rotational axis with the y-axis
+    # 3. the determination of the point coordinates if only
+    #    angles in radians are given.
     
-    angz = np.arctan2(axis[0], axis[1])
+    # For (1) we need the exact axis that corresponds to our input data.
+    # For (2) and (3) we need `tilted_axis_yz` (see below) which is the
+    # axis `tilted_axis` rotated in the detector plane such that its
+    # projection onto the detector coincides with the y-axis.
     
-    warnings.warn("Do not use with Born approximation: Fill value is 0!")
-    rotkwargs= {"mode":"constant",
-                "order":2,
-                "reshape":False,
-                }
-    for ii in range(len(uSin)):
-        uSin[ii].real = scipy.ndimage.rotate(uSin[ii].real, np.rad2deg(angz), cval=0, **rotkwargs)
-        uSin[ii].imag = scipy.ndimage.rotate(uSin[ii].imag, np.rad2deg(angz), cval=0, **rotkwargs)
-    
-    rotmat = np.array([ 
-                       [np.cos(angz), -np.sin(angz),0],
-                       [np.sin(angz), np.cos(angz),0],
-                       [0,0,1],
-                       ])
-    
-    tilted_axis = np.dot(rotmat, axis)
-    #import matplotlib.pylab as plt
-    #plt.imshow(np.angle(sinogram[0]))
-    ####
-    ####
+    # Normalize input axis
+    tilted_axis=norm_vec(tilted_axis)
 
+    # `tilted_axis_yz` is computed by performing the inverse rotation in
+    # the x-y plane with `angz`. We will again use `angz` in the transform
+    # within the for-loop to rotate each projection according to its 
+    # acquisition angle.
+    angz = np.arctan2(tilted_axis[0], tilted_axis[1])
+    rotmat = np.array([ 
+                       [np.cos(angz), -np.sin(angz), 0],
+                       [np.sin(angz),  np.cos(angz), 0],
+                       [0           ,             0, 1],
+                       ])
+    # rotate `tilted_axis` onto the y-z plane.
+    tilted_axis_yz = norm_vec(np.dot(rotmat, tilted_axis))
+    
     A = angles.shape[0]
     assert angles.shape in [(A,), (A,3)], "`angles` must have shape (A,) or (A,3)!"
     # jobmanager
     if jmm is not None:
         jmm.value = A + 2
-    
-    # normalize titled axis
-    tilted_axis = norm_vec(tilted_axis)
+
     
     if len(angles.shape) != 2:
         if weight_angles:
             weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
         else:
             weights = 1
-        # compute the 3D points from tilted_axis
-        angles = sphere_points_from_angles_and_tilt(angles, tilted_axis)
+        # compute the 3D points from tilted axis
+        angles = sphere_points_from_angles_and_tilt(angles, tilted_axis_yz)
     else:
         if weight_angles:
             warnings.warn("3D angular weighting not yet supported!")
@@ -638,10 +602,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     # part of the scattered wave by -1.
 
     # save memory
-
-
-
-
     sinogram = uSin*weights
 
     # lengths of the input data
@@ -668,8 +628,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
 
     # Apply a Fourier filter before projecting the sinogram slices.
     # Resize image to next power of two for fourier analysis
-    # Reduces artifacts
-
+    # (reduces artifacts).
     padyl = np.int(np.ceil(pady / 2))
     padyr = np.int(pady - padyl)
     padxl = np.int(np.ceil(padx / 2))
@@ -771,10 +730,9 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     # do that by computing the cross-product of the vectors in
     # angles from the current and previous image.
     
-    #filterabs = np.abs(kx*v-ky*u) * filter_klp
     u, v, _w = tilted_axis
-    filterabs = np.abs(kx*v-ky*u) * filter_klp
-    #prefactor *= np.sqrt(((kx**2+ky**2)) * filter_klp )
+    filterabs = np.abs(kx*v+ky*u) * filter_klp
+
     prefactor *= np.exp(-1j * km * M * lD)
     # Perform filtering of the sinogram,
     # save memory by in-place operations
@@ -909,7 +867,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
 
     # Rotate all points such that we are effectively rotating everything
     # about the y-axis.
-    angles = rotate_points_to_axis(points=angles, axis=tilted_axis)
+    angles = rotate_points_to_axis(points=angles, axis=tilted_axis_yz)
 
     for aa in np.arange(A):
         # A == la
@@ -924,20 +882,17 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
                                            padxl:padxl + lnx
                                           ] / (lNx * lNy)
         
-        
         # The Cartesian axes in our array are ordered like this: [z,y,x]
         # However, the rotation matrix requires [x,y,z]. Therefore, we
         # need to np.transpose the first and last axis and also invert the
         # y-axis.
         filtered_proj = filtered_proj.transpose(2,1,0)
         filtered_proj[:,:,:] = filtered_proj[:,::-1,:] 
-        
-        #axis = [tilted_axis[2], tilted_axis[1], tilted_axis[0]]
-        axis = tilted_axis
-       
-        # get rotation matrix for this point
-        #_drot, drotinv = rotation_matrix_from_point_and_axis(angles[aa], axis=axis, ret_inv=True)
-        _drot, drotinv = rotation_matrix_from_point(angles[aa], ret_inv=True)
+
+        # get rotation matrix for this point and also rotate in plane
+        _drot, drotinv = rotation_matrix_from_point_planerot(angles[aa],
+                                                             plane_angle=angz,
+                                                             ret_inv=True)
         
         ## apply offset required by affine_transform
         # The offset is only required for the rotation in
@@ -946,8 +901,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         # The offset "-.5" assures that we are rotating about
         # the center of the image and not the value at the center
         # of the array (this is also what `scipy.ndimage.rotate` does.
-        c = 0.5*np.array(filtered_proj.shape) -.5
-        offset=c-np.dot(drotinv, c)
+        c = 0.5 * np.array(filtered_proj.shape) - .5
+        offset = c - np.dot(drotinv, c)
         
         # perform rotation
         rotxzr = scipy.ndimage.interpolation.affine_transform(
