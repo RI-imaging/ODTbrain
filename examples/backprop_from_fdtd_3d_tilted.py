@@ -34,7 +34,7 @@ in the current directory.
 
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 
-This example requires Python3 because the data is lzma-compressed.
+This example requires Python3 because the data are lzma-compressed.
 """
 from __future__ import division, print_function
 
