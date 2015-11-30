@@ -492,7 +492,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     Notes
     -----
     This implementation can deal with projection angles that are not
-    distributed along a circle  about the rotation axisal. If there are
+    distributed along a circle  about the rotational axis. If there are
     slight deviations from this circle, simply pass the 3D rotational
     positions instead of the 1D angles to the `angles` argument. In
     principle, this should improve the reconstruction. The general
