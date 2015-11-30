@@ -43,6 +43,9 @@ Examples
 
 .. automodule:: backprop_from_fdtd_3d_tilted
 
+.. automodule:: backprop_from_fdtd_3d_tilted2
+
+
 References
 ==========
 .. [1] P. Müller, M. Schürmann, and J. Guck, *The Theory of Diffraction
@@ -58,3 +61,10 @@ References
        diffraction tomography with optofluidic rotation about a tilted axis*.
        Proc. of SPIE, `doi:10.1117/12.2191501 
        <http://dx.doi.org/10.1117/12.2191501>`_ (2015)
+
+.. [4] A. C. Kak and M. Slaney, *Principles of Computerized Tomographic Imaging*.
+       Philadelphia, USA: SIAM, 2001.
+
+.. [5] E. Wolf, *Three-dimensional structure determination of semi-transparent
+       objects from holographic data*. Opt. Commun., vol. 1, no. 4, pp. 153–156,
+       Sep. 1969.
