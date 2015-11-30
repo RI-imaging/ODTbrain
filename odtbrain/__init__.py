@@ -28,14 +28,14 @@ Theoretical background
 ----------------------
 A detailed summary of the underlying theory is available in [1]_.
 
-The Fourier diffraction theorem ([4]_, [5]_) [states, that the Fourier transform
+The Fourier diffraction theorem states, that the Fourier transform
 :math:`\widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}})` of 
 the scattered field :math:`u_\mathrm{B}(\mathbf{r_D})`, measured at 
 a certain angle :math:`\phi_0`, is distributed along a circular arc 
 (2D) or along a semi-spherical surface (3D) in Fourier space,
 synthesizing the Fourier transform 
 :math:`\widehat{F}(\mathbf{k})` of the object function 
-:math:`f(\mathbf{r})`.
+:math:`f(\mathbf{r})` ([4]_, [5]_).
 
 .. math::
 

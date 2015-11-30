@@ -63,8 +63,10 @@ References
        <http://dx.doi.org/10.1117/12.2191501>`_ (2015)
 
 .. [4] A. C. Kak and M. Slaney, *Principles of Computerized Tomographic Imaging*.
-       Philadelphia, USA: SIAM, 2001.
+       Philadelphia, USA: SIAM, 2001. `doi:10.1137/1.9780898719277 
+       <http://dx.doi.org/10.1137/1.9780898719277>`_
 
 .. [5] E. Wolf, *Three-dimensional structure determination of semi-transparent
        objects from holographic data*. Opt. Commun., vol. 1, no. 4, pp. 153–156,
-       Sep. 1969.
+       Sep. 1969. `doi:10.1016/0030-4018(69)90052-2 
+       <http://dx.doi.org/10.1016/0030-4018(69)90052-2>`_

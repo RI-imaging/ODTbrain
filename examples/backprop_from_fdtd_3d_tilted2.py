@@ -8,7 +8,7 @@ The *in silico* data set was created with the
 are 2D projections of a 3D refractive index phantom that is rotated about
 an axis which is tilted by 0.2 rad (11.5 degrees) with respect to the imaging
 plane and by -.42 rad (-24.1 degrees) within the imaging plane. The data
-is the same as was used in the previous example. A brief description of this
+are the same as were used in the previous example. A brief description of this
 algorithm is given in [3]_.
 
 .. figure::  ../examples/backprop_from_fdtd_3d_tilted2_repo.png
