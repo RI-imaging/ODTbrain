@@ -73,4 +73,4 @@ References
 
 .. [6] K. C. Tam and V. Perez-Mendez, *Tomographical imaging with limited-angle input*,
        J. Opt. Soc. Am., vol. 71, no. 5, pp. 582–592, `doi:10.1364/JOSA.71.000582  
-       <http://dx.doi.org/10.1016/10.1364/JOSA.71.000582>` _(1981)
+       <http://dx.doi.org/10.1016/10.1364/JOSA.71.000582>`_ (1981)
