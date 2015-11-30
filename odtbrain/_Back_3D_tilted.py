@@ -550,6 +550,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     else:
         if weight_angles:
             warnings.warn("3D angular weighting not yet supported!")
+        #TODO:
+        # - make sure angles are normalized
         weights = 1
     
     # check for dtype
@@ -575,13 +577,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     assert len(list(padding)) == 2, "Parameter `padding` must be boolean tuple of length 2!"
     assert np.array(padding).dtype is np.dtype(bool), "Parameter `padding` must be boolean tuple."
     assert coords is None, "Setting coordinates is not yet supported."
-
-    # Make sure that angles are normalized
-    angles = np.array(angles)
-    shouldbeone = np.sum(angles**2, axis=1)
-    if not np.allclose(shouldbeone, np.ones_like(shouldbeone)):
-        print("...Angles are not normalized; Normalizing.")
-        angles /= np.sqrt(shouldbeone).reshape(-1,1)
 
     # Cut-Off frequency
     # km [1/px]
