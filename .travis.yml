@@ -38,9 +38,10 @@ before_install:
 install:
 - travis_retry pip install coverage
 - travis_retry pip install coveralls
+- python setup.py develop
 - pip freeze
 script:
-- coverage run --source=odtbrain tests/runtests.py
+- coverage run --source=odtbrain ./setup.py test
 - coverage report -m
 after_success:
 - coveralls --verbose
