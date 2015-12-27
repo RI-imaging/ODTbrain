@@ -34,7 +34,7 @@ if __name__ == "__main__":
         install_requires=["unwrap>=0.1.1", "NumPy>=1.7.0", "SciPy>=0.10.0",
                           "PyFFTW>=0.9.2"],
         setup_requires=['pytest-runner'],
-        tests_require=["pytest", "urllib3"],
+        tests_require=["pytest"],
         keywords=["odt", "opt", "diffraction", "born", "rytov", "radon",
                   "backprojection", "backpropagation", "inverse problem",
                   "Fourier diffraction theorem", "Fourier slice theorem"],
