@@ -254,6 +254,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     The reference axis is always [0,1,0].
 
     """
+    assert len(angles.shape) == 1 
     ## Normalize tilted axis.
     tilted_axis = norm_vec(tilted_axis)
     [u, v, w] = tilted_axis
@@ -550,9 +551,13 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     else:
         if weight_angles:
             warnings.warn("3D angular weighting not yet supported!")
-        #TODO:
-        # - make sure angles are normalized
         weights = 1
+        # normalize angles
+        angles = 1*angles
+        for ii in range(angles.shape[0]):
+            #angles[ii] = norm_vec(angles[ii]) #-> not correct
+            # instead rotate like `tilted_axis` onto the y-z plane.
+            angles[ii] = norm_vec(np.dot(rotmat, angles[ii]))
     
     # check for dtype
     dtype = np.dtype(dtype)

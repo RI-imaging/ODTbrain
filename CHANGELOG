@@ -1,3 +1,8 @@
+0.1.3
+- Fixes for `backpropagate_3d_tilted` when `angles` are
+  points on the unit sphere:
+  - Make sure each point is normalized
+  - Correctly rotate each point w.r.t. `tilted_axis`
 0.1.2
 - Added reconstruction algorithm for tilted axis of rotation.
 0.1.1
