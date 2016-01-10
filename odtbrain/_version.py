@@ -14,6 +14,7 @@ import imp
 import os
 from os.path import join, abspath, dirname
 import subprocess
+import sys
 import time
 import traceback
 
@@ -87,7 +88,13 @@ if len(longversion) == "":
         _version_save = imp.load_source("_version_save", versionfile)
         longversion = _version_save.longversion
     except:
-        pass
+        try:
+            from ._version_save import longversion
+        except:
+            try:
+                from _version_save import longversion
+            except:
+                pass
 
 # 3. last resort: date
 if len(longversion) == "":
@@ -97,9 +104,12 @@ if len(longversion) == "":
     longversion = time.strftime("%Y.%m.%d-%H-%M-%S", time.gmtime(ctime))
     print("Using creation time to determine version: {}".format(longversion))
 
-# Save the version to `_version_save.py` to allow distribution using
-# `python setup.py sdist`.
-save_version(longversion, versionfile)
+if not hasattr(sys, 'frozen'):
+    # Save the version to `_version_save.py` to allow distribution using
+    # `python setup.py sdist`.
+    # This is only done if the program is not frozen (with e.g. pyinstaller),
+    # because in that case we assume that we
+    save_version(longversion, versionfile)
 
 # PEP 440-conform development version:
 version = ".dev".join(longversion.split("-")[:2])
