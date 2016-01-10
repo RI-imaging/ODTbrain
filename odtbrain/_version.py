@@ -12,12 +12,22 @@ from __future__ import print_function
 
 import imp
 import os
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, dirname
 import subprocess
 import time
 import traceback
 
 def git_describe():
+    """
+    Returns a string describing the version returned by the
+    command `git describe --tags HEAD`.
+    If it is not possible to determine the correct version,
+    then an empty string is returned.
+    """
+    # make sure we are in a directory that belongs to the correct
+    # repository.
+    ourdir  = dirname(abspath(__file__))
+    
     def _minimal_ext_cmd(cmd):
         # construct minimal environment
         env = {}
@@ -32,12 +42,19 @@ def git_describe():
         out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=env).communicate()[0]
         return out
 
+    # change directory
+    olddir = abspath(os.curdir)
+    os.chdir(ourdir)
+    
     try:
-        out = _minimal_ext_cmd(['git', 'describe', 'HEAD'])
+        out = _minimal_ext_cmd(['git', 'describe', '--tags', 'HEAD'])
         GIT_REVISION = out.strip().decode('ascii')
     except OSError:
-        GIT_REVISION = "Unknown"
-
+        GIT_REVISION = ""
+        
+    # go back to original directory
+    os.chdir(olddir)
+    
     return GIT_REVISION
 
 
@@ -50,18 +67,30 @@ longversion="{VERSION}"
         fd.write(data.format(VERSION=version))
 
 versionfile = join(dirname(abspath(__file__)), "_version_save.py")
-# Determine the accurate version
+
+## Determine the accurate version
+longversion = ""
+
+# git describe
 try:
-    if exists(join(dirname(dirname(abspath(__file__))), ".git")):
-        # Get the version using `git describe`
-        longversion = git_describe()
-    else:
-        # If this is not a git repository, then we should be able to
-        # get the version from the previously generated `_version_save.py`
+    # Get the version using `git describe`
+    longversion = git_describe()
+except:
+    pass
+
+# previously created version file
+if len(longversion) == "":
+    # Either this is this is not a git repository or we are in the
+    # wrong git repository.
+    # Get the version from the previously generated `_version_save.py`
+    try:
         _version_save = imp.load_source("_version_save", versionfile)
         longversion = _version_save.longversion
-        
-except:
+    except:
+        pass
+
+# last resort: date
+if len(longversion) == "":
     print("Could not determine version. Reason:")
     print(traceback.format_exc())
     ctime = os.stat(__file__)[8]
