@@ -71,14 +71,14 @@ versionfile = join(dirname(abspath(__file__)), "_version_save.py")
 ## Determine the accurate version
 longversion = ""
 
-# git describe
+# 1. git describe
 try:
     # Get the version using `git describe`
     longversion = git_describe()
 except:
     pass
 
-# previously created version file
+# 2. previously created version file
 if len(longversion) == "":
     # Either this is this is not a git repository or we are in the
     # wrong git repository.
@@ -89,7 +89,7 @@ if len(longversion) == "":
     except:
         pass
 
-# last resort: date
+# 3. last resort: date
 if len(longversion) == "":
     print("Could not determine version. Reason:")
     print(traceback.format_exc())
