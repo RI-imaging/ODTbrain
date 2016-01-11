@@ -80,7 +80,7 @@ except:
     pass
 
 # 2. previously created version file
-if len(longversion) == "":
+if longversion == "":
     # Either this is this is not a git repository or we are in the
     # wrong git repository.
     # Get the version from the previously generated `_version_save.py`
@@ -97,7 +97,7 @@ if len(longversion) == "":
                 pass
 
 # 3. last resort: date
-if len(longversion) == "":
+if longversion == "":
     print("Could not determine version. Reason:")
     print(traceback.format_exc())
     ctime = os.stat(__file__)[8]
