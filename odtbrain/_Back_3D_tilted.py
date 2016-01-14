@@ -234,7 +234,6 @@ def rotation_matrix_from_point_planerot(point, plane_angle, ret_inv=False):
         return DR
 
 
-
 def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     """
     For a given tilt of the rotational axis `tilted_axis`, compute
@@ -252,6 +251,8 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     Notes
     -----
     The reference axis is always [0,1,0].
+    `theta` is the azimuthal angle measured down from the y-axis.
+    `phi` is the polar angle in the x-z plane measured from z towards x.
 
     """
     assert len(angles.shape) == 1 
@@ -271,7 +272,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     #   z-axis pointing right
     # - The rotation of `tilted_axis` can be described by two
     #   separate rotations. We will use these two angles:
-    #   (a) Rotation from y=1 within the y-z plane:
+    #   (a) Rotation from y=1 within the y-z plane: theta
     #       This is the rotation that is critical for data
     #       reconstruction. If this angle is zero, then we
     #       have a rotational axis in the imaging plane. If
@@ -279,7 +280,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     #       of a rotating image and 3D reconstruction is
     #       impossible. This angle is counted from the y-axis
     #       onto the x-z plane.
-    #   (b) Rotation in the x-z plane:
+    #   (b) Rotation in the x-z plane: phi
     #       This angle is responsible for matching up the angles
     #       with the correct sinogram images. If this angle is zero,
     #       then the projection of the rotational axis onto the
@@ -291,11 +292,11 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     #       that lies in the x-z plane. angles[1] is the next point
     #       towards the x-axis if phi==0.
     
-    # (a) This angle is the polar angle theta measured from the
+    # (a) This angle is the azimuthal angle theta measured from the
     #     y-axis.
     theta = np.arccos(v)
     
-    # (b) This is the angle measured in the x-z plane starting
+    # (b) This is the polar angle measured in the x-z plane starting
     #     at the x-axis and measured towards the positive z-axis.
     phi = np.arctan2(u, w)
     
@@ -370,9 +371,6 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
 
     return newang
 
-
-
-    
 
 def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
                      tilted_axis=[0, 1, 0],
@@ -552,7 +550,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         if weight_angles:
             warnings.warn("3D angular weighting not yet supported!")
         weights = 1
-        # normalize angles
+
+        # normalize and rotate angles
         angles = 1*angles
         for ii in range(angles.shape[0]):
             #angles[ii] = norm_vec(angles[ii]) #-> not correct
