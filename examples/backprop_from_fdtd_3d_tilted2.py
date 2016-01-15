@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ 
-3D cell phantom with souble-tilted axis of rotation (FDTD simulation)
+3D cell phantom with double-tilted axis of rotation (FDTD simulation)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *in silico* data set was created with the 
 :abbr:`FDTD (Finite Difference Time Domain)` software `meep`_. The data
