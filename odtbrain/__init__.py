@@ -20,7 +20,7 @@ If the above command does not work, please refer to the
 installation instructions at the `GitHub repository`_.
 
 .. _`FFTW3 library`: http://fftw.org
-.. _`GitHub repository`: https://github.com/paulmueller/ODTbrain
+.. _`GitHub repository`: https://github.com/RI-imaging/ODTbrain
 .. _`Python package manager (PyPi)`: https://pypi.python.org/pypi/odtbrain/
 
 

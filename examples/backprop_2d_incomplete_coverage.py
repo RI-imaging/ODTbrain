@@ -8,7 +8,7 @@ handles incomplete angular coverage. All examples use 100 projections
 at 100%, 60%, and 40% total angular coverage. The keyword argument
 `weight_angles` that invokes angular weighting is set to `True` by default.
 The *in silico* data set was created with the 
-softare `miefield  <https://github.com/paulmueller/miefield>`_.
+softare `miefield  <https://github.com/RI-imaging/miefield>`_.
 The data are 1D projections of a non-centered cylinder of constant
 refractive index 1.339 embedded in water with refractive index 1.333. 
 The first column shows the used sinograms (missing angles are displayed

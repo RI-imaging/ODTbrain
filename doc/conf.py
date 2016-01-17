@@ -310,8 +310,8 @@ intersphinx_mapping = {
     _python_doc_base: None,
     'http://docs.scipy.org/doc/numpy': None,
     'http://docs.scipy.org/doc/scipy/reference': None,
-    'http://paulmueller.github.io/radontea': None,
-    'http://paulmueller.github.io/nrefocus': None,
+    'http://RI-imaging.github.io/radontea': None,
+    'http://RI-imaging.github.io/nrefocus': None,
     'http://cimatosa.github.io/jobmanager': None,
 }
 

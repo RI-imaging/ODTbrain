@@ -11,7 +11,7 @@ from os.path import dirname, join, exists, isdir
 import warnings
 
 datadir = "data"
-webloc = "https://github.com/paulmueller/ODTbrain/raw/master/examples/data"
+webloc = "https://github.com/RI-imaging/ODTbrain/raw/master/examples/data"
 
 def dl_file(url, dest, chunk_size=6553):
     """

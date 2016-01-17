@@ -4,7 +4,7 @@
 2D non-centered cylinder (Mie theory)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *in silico* data set was created with the 
-softare `miefield  <https://github.com/paulmueller/miefield>`_.
+softare `miefield  <https://github.com/RI-imaging/miefield>`_.
 The data are 1D projections of a non-centered cylinder of constant
 refractive index. The Born approximation is error-prone due to
 a relatively large radius of the cylinder (30 wavelengths) and
