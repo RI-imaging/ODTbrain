@@ -533,6 +533,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     tilted_axis_yz = norm_vec(np.dot(rotmat, tilted_axis))
     
     A = angles.shape[0]
+    angles = np.squeeze(angles) # Allow shapes (A,1)
     assert angles.shape in [(A,), (A,3)], "`angles` must have shape (A,) or (A,3)!"
     # jobmanager
     if jmm is not None:
