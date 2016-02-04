@@ -93,7 +93,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     uSin : (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D})`
-        normalized by the amplitude of the unscattered wave :math:`a_0`
+        normalized by the incident plane wave :math:`u_0`
         measured at the detector.
     angles : (A,) ndarray
         Angular positions :math:`\phi_0` of ``uSin`` in radians.
@@ -127,7 +127,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi. 
         If `padval` is `None`, then the edge values are used for
-        padding (see documentation of `numpy.pad`).
+        padding (see documentation of :func:`numpy.pad`).
     jmc, jmm : instance of :func:`multiprocessing.Value` or `None`
         The progress of this function can be monitored with the 
         :mod:`jobmanager` package. The current step `jmc.value` is
@@ -153,6 +153,15 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
 
     radontea.backproject : backprojection based on the Fourier slice
         theorem.
+    
+    Notes
+    -----
+    Do not use the parameter `lD` in combination with the Rytov
+    approximation - the propagation is not correctly described.
+    Instead, numerically refocus the sinogram prior to converting
+    it to Rytov data (using e.g. :func:`odtbrain.sinogram_as_rytov`)
+    with a numerical focusing algorithm (available in the Python
+    package :py:mod:`nrefocus`).
     """
     ##
     ##
@@ -290,7 +299,11 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     prefactor = -1j * km / (2 * np.pi)
     prefactor *= dphi0
     prefactor *= np.abs(kx) * filter_klp
-    prefactor *= np.exp(-1j * km * M * lD)
+    # new in version 0.1.4:
+    # We multiply by the factor (M-1) instead of just (M)
+    # to take into account that we have a scattered
+    # wave that is normalized by u0.
+    prefactor *= np.exp(-1j * km * (M-1) * lD)
     # Perform filtering of the sinogram
     projection = np.fft.fft(sino, axis=-1) * prefactor
 
@@ -376,7 +389,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     uSin : (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D})`
-        normalized by the amplitude of the unscattered wave :math:`a_0`
+        normalized by the incident plane wave :math:`u_0`
         measured at the detector.
     angles : (A,) ndarray
         Angular positions :math:`\phi_0` of ``uSin`` in radians.
@@ -422,6 +435,14 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     odt_to_ri : conversion of the object function :math:`f(\mathbf{r})` 
         to refractive index :math:`n(\mathbf{r})`.
 
+    Notes
+    -----
+    Do not use the parameter `lD` in combination with the Rytov
+    approximation - the propagation is not correctly described.
+    Instead, numerically refocus the sinogram prior to converting
+    it to Rytov data (using e.g. :func:`odtbrain.sinogram_as_rytov`)
+    with a numerical focusing algorithm (available in the Python
+    package :py:mod:`nrefocus`).
     """
     ##
     ##
@@ -542,8 +563,11 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     filter_klp = (kx**2 < km**2)
     M = 1. / km * np.sqrt(km**2 - kx**2)
     #Fsin =  -1j * km * np.sqrt(2/np.pi) / a0 * M * np.exp(-1j*km*M*lD)
-    # We divided by a0 before.
-    Fsin = -1j * km * np.sqrt(2 / np.pi) * M * np.exp(-1j * km * M * lD)
+    # new in version 0.1.4:
+    # We multiply by the factor (M-1) instead of just (M)
+    # to take into account that we have a scattered
+    # wave that is normalized by u0.
+    Fsin = -1j * km * np.sqrt(2 / np.pi) * M * np.exp(-1j * km * (M-1) * lD)
 
     # UB has same shape (len(angles), len(kx))
     Fsin = Fsin * UB * filter_klp
@@ -624,7 +648,7 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
     uSin : (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D})`
-        normalized by the amplitude of the unscattered wave :math:`a_0`
+        normalized by the incident plane wave :math:`u_0`
         measured at the detector.
     angles : (A,) ndarray
         Angular positions :math:`\phi_0` of ``uSin`` in radians.
@@ -671,6 +695,12 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
     is included in the package, because of its educational value,
     exemplifying the backpropagation algorithm.
 
+    Do not use the parameter `lD` in combination with the Rytov
+    approximation - the propagation is not correctly described.
+    Instead, numerically refocus the sinogram prior to converting
+    it to Rytov data (using e.g. :func:`odtbrain.sinogram_as_rytov`)
+    with a numerical focusing algorithm (available in the Python
+    package :py:mod:`nrefocus`).
     """
     if coords is None:
         lx = uSin.shape[1]
@@ -770,7 +800,11 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
     # Also filter the prefactor, so nothing outside the required
     # low-pass contributes to the sum.
     prefactor *= np.abs(kx) * filter_klp
-    prefactor *= np.exp(-1j * km * M * lD)
+    # new in version 0.1.4:
+    # We multiply by the factor (M-1) instead of just (M)
+    # to take into account that we have a scattered
+    # wave that is normalized by u0.
+    prefactor *= np.exp(-1j * km * (M-1) * lD)
 
     # Initiate function f
     f = np.zeros(len(coords[0]), dtype=np.complex128)

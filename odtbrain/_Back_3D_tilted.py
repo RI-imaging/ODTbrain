@@ -399,7 +399,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         Three-dimensional sinogram of plane wave recordings
         :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D}, y_\mathrm{D},
         z_\mathrm{D})`
-        normalized by the amplitude of the unscattered wave :math:`a_0`
+        normalized by the incident plane wave :math:`u_0`
         measured at the detector.
     angles : ndarray of shape (A,3) or 1D array of length A
         If the shape is (A,3), then `angles` consists of vectors
@@ -454,7 +454,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi. 
         If `padval` is `None`, then the edge values are used for
-        padding (see documentation of `numpy.pad`).
+        padding (see documentation of :func:`numpy.pad`).
     order : int between 0 and 5
         Order of the interpolation for rotation.
         See :func:`scipy.ndimage.interpolation.affine_transform` for details.
@@ -504,6 +504,12 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     of the unit sphere (but this kind of rotation is probably difficult
     to implement experimentally).
     
+    Do not use the parameter `lD` in combination with the Rytov
+    approximation - the propagation is not correctly described.
+    Instead, numerically refocus the sinogram prior to converting
+    it to Rytov data (using e.g. :func:`odtbrain.sinogram_as_rytov`)
+    with a numerical focusing algorithm (available in the Python
+    package :py:mod:`nrefocus`).
     """
     # `tilted_axis` is required for several things:
     # 1. the filter |kDx*v + kDy*u| with (u,v,w)==tilted_axis
@@ -732,8 +738,11 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     
     u, v, _w = tilted_axis
     filterabs = np.abs(kx*v+ky*u) * filter_klp
-
-    prefactor *= np.exp(-1j * km * M * lD)
+    # new in version 0.1.4:
+    # We multiply by the factor (M-1) instead of just (M)
+    # to take into account that we have a scattered
+    # wave that is normalized by u0.
+    prefactor *= np.exp(-1j * km * (M-1) * lD)
     # Perform filtering of the sinogram,
     # save memory by in-place operations
     #projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor
