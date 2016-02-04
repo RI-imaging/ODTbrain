@@ -4,6 +4,7 @@
   the factor `M-1` instead of `M`. This is necessary,
   because usually the scattered wave is normalized in both
   amplitude and phase (`u_0`) and not only amplitude `a_0`.
+- Allow angles of shape (A,1) in `backpropagate_3d_tilted`. 
 0.1.3
 - Fixes for `backpropagate_3d_tilted` when `angles` are
   points on the unit sphere:
