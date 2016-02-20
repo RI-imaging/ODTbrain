@@ -185,7 +185,7 @@ def sinogram_as_radon(uSin, align=True):
         :math:`u(\mathbf{r})/u_0(\mathbf{r})`. The first axis iterates
         through the angles :math:`\phi_0`.
     align : bool
-        Tries to align the phase offset for each angle.
+        Tries to correct for a phase offset in the phase sinogram.
 
     Returns
     -------
@@ -255,7 +255,8 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         of the original experiment is non-zero and `u0` is set to 1,
         then the reconstruction will be wrong; the field is not focused
         to the center of the reconstruction volume.
-
+    align : bool
+        Tries to correct for a phase offset in the phase sinogram.
 
     Returns
     -------
