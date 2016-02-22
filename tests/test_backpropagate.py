@@ -170,7 +170,7 @@ def test_3d_backprop_phase32():
         r.append(cutout(f))
     data32 = np.array(r).flatten().view(np.float32)
     data64 = test_3d_backprop_phase()
-    assert np.allclose(data32, data64, atol=2e-7)
+    assert np.allclose(data32, data64, atol=6e-7, rtol=0)
 
 
 def test_3d_mprotate():
