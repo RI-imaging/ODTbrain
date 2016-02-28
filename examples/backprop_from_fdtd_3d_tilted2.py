@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ 
-3D cell phantom with double-tilted axis of rotation (FDTD simulation)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3D cell phantom with tilted and rolled axis of rotation (FDTD simulation)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *in silico* data set was created with the 
 :abbr:`FDTD (Finite Difference Time Domain)` software `meep`_. The data
 are 2D projections of a 3D refractive index phantom that is rotated about
 an axis which is tilted by 0.2 rad (11.5 degrees) with respect to the imaging
-plane and by -.42 rad (-24.1 degrees) within the imaging plane. The data
+plane and rolled by -.42 rad (-24.1 degrees) within the imaging plane. The data
 are the same as were used in the previous example. A brief description of this
 algorithm is given in [3]_.
 
