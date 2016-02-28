@@ -63,7 +63,7 @@ __all__ = ["backpropagate_2d", "fourier_map_2d", "sum_2d"]
 _verbose = 1
 
 
-def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
+def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
                      weight_angles=True,
                      onlyreal=False, padding=True, padval=0,
                      jmc=None, jmm=None, verbose=_verbose):
@@ -75,17 +75,20 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     by a dielectric object with refractive index
     :math:`n(x,z)`.
 
-    This method implements the backpropagation formula:
+    This method implements the 2D backpropagation algorithm [1]_:
 
     .. math::
         f(\mathbf{r}) = 
-            - \\frac{i k_\mathrm{m}}{a_0 (2 \pi)^{3/2}}
-            \\int \!\! dk_\mathrm{Dx} \\int_0^{2 \pi} \!\!  d\phi_0 \,
+            -\\frac{i k_\mathrm{m}}{2\pi}
+            \\sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j} \!\!
+            \\left \{
+            \\text{FFT}^{-1}_{\mathrm{1D}}
+            \\left \{
             \\left| k_\mathrm{Dx} \\right|  
-            \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx})
-            \exp( -i k_\mathrm{m} M l_\mathrm{D} )  
-            \exp \! \\left[ i (k_\mathrm{Dx} \, \mathbf{t_\\perp} 
-            + k_\mathrm{m}(M - 1) \, \mathbf{s_0})\mathbf{r} \\right] 
+            \\frac{\widehat{U}_{\mathrm{B},\phi_j}(k_\mathrm{Dx})}{u_0(l_\mathrm{D})}
+            \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot (z_{\phi_j}-l_\mathrm{D}) \\right]
+            \\right \} 
+            \\right \}
 
 
     Parameters
@@ -104,20 +107,23 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     lD : float
         Distance from center of rotation to detector plane 
         :math:`l_\mathrm{D}` in pixels.
-    coords : None [(2,M) ndarray], optional
+    coords : None [(2,M) ndarray]
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
-    weight_angles : bool, optional
-        If `True` weight each backpropagated projection with a factor
+    weight_angles : bool
+        If `True`, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
-        projections.
+        projections. 
+        
+        .. math::
+            \Delta \phi_0 \\longmapsto \Delta \phi_j = \\frac{\phi_{j+1} - \phi_{j-1}}{2}
         
         .. versionadded:: 0.1.1
-    onlyreal : bool, optional
+    onlyreal : bool
         If `True`, only the real part of the reconstructed image
         will be returned. This saves computation time.
-    padding : bool, optional
+    padding : bool
         Pad the input data to the second next power of 2 before
         Fourier transforming. This reduces artifacts and speeds up
         the process for input image sizes that are not powers of 2.
@@ -294,8 +300,6 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     # Filter M so there are no nans from the root
     M = 1. / km * np.sqrt((km**2 - kx**2) * filter_klp)
 
-    # We already divided uB by a0 at the very beginning
-    #prefactor  = -1j * km / ( 2 * np.pi * a0 )
     prefactor = -1j * km / (2 * np.pi)
     prefactor *= dphi0
     prefactor *= np.abs(kx) * filter_klp
@@ -371,7 +375,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD, coords=None,
     return outarr
 
 
-def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
+def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
                    coords=None, jmc=None, jmm=None, verbose=_verbose):
     u""" 2D Fourier mapping with the Fourier diffraction theorem
 
@@ -400,14 +404,14 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     lD : float
         Distance from center of rotation to detector plane 
         :math:`l_\mathrm{D}` in pixels.
-    semi_coverage : bool, optional
+    semi_coverage : bool
         If set to `True`, it is assumed that the sinogram does not 
         necessarily cover the full angular range from 0 to 2π, but an
         equidistant coverage over 2π can be achieved by inferring point
         (anti)symmetry of the (imaginary) real parts of the Fourier 
         transform of f. Valid for any set of angles {X} that result in
         a 2π coverage with the union set {X}U{X+π}.
-    coords : None [(2,M) ndarray], optional
+    coords : None [(2,M) ndarray]
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
@@ -630,7 +634,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD, semi_coverage=False,
     return f[::-1]
 
 
-def sum_2d(uSin, angles, res, nm, lD, coords=None,
+def sum_2d(uSin, angles, res, nm, lD=0, coords=None,
            jmc=None, jmm=None, verbose=_verbose):
     u""" 2D sum-reconstruction with the Fourier diffraction theorem
 
@@ -659,7 +663,7 @@ def sum_2d(uSin, angles, res, nm, lD, coords=None,
     lD : float
         Distance from center of rotation to detector plane 
         :math:`l_\mathrm{D}` in pixels.
-    coords : None or (2,M) ndarray], optional
+    coords : None or (2,M) ndarray]
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.

@@ -372,7 +372,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
     return newang
 
 
-def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
+def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                      tilted_axis=[0, 1, 0],
                      coords=None, weight_angles=True, onlyreal=False,
                      offset_alpha=0, offset_beta=0,
@@ -389,7 +389,22 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
     :math:`n(x,y,z)`.
     
     This method implements the 3D backpropagation algorithm with
-    a rotational axis that is tilted w.r.t. the imaging plane.
+    a rotational axis that is tilted by :math:`\\theta_\mathrm{tilt}`
+    w.r.t. the imaging plane [3]_.
+
+    .. math::
+        f(\mathbf{r}) = 
+            -\\frac{i k_\mathrm{m}}{2\pi}
+            \\sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j}^\mathrm{tilt} \!\!
+            \\left \{
+            \\text{FFT}^{-1}_{\mathrm{2D}}
+            \\left \{
+            \\left| k_\mathrm{Dx} \cdot \cos \\theta_\mathrm{tilt}\\right|  
+            \\frac{\widehat{U}_{\mathrm{B},\phi_j}(k_\mathrm{Dx},k_\mathrm{Dy})}{u_0(l_\mathrm{D})}
+            \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot (z_{\phi_j}-l_\mathrm{D}) \\right]
+            \\right \} 
+            \\right \}
+
 
     .. versionadded:: 0.1.2
     
@@ -426,9 +441,14 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
         keyword is reserved for future versions and is not
         implemented yet.
     weight_angles : bool, optional
-        If `True` weight each backpropagated projection with a factor
+        If `True`, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
-        projections.
+        projections. 
+        
+        .. math::
+            \Delta \phi_0 \\longmapsto \Delta \phi_j = \\frac{\phi_{j+1} - \phi_{j-1}}{2}
+        
+        This currently only works when `angles` has the shape (A,).
     onlyreal : bool
         If `True`, only the real part of the reconstructed image
         will be returned. This saves computation time.
@@ -724,8 +744,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD,
 
     # Filter M so there are no nans from the root
     M = 1. / km * np.sqrt((km**2 - kx**2 - ky**2) * filter_klp)
-    # The input data is already divided by a0
-    #prefactor  = -1j * km / ( 2 * np.pi * a0 )
+
     prefactor = -1j * km / (2 * np.pi)
     prefactor *= dphi0
     # Also filter the prefactor, so nothing outside the required

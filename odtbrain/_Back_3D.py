@@ -150,7 +150,7 @@ def _filter2_func(args):
     return np.exp(1j * zvp * Mpm1)
 
 
-def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
+def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      weight_angles=True, onlyreal=False, 
                      padding=(True, True), padfac=1.75, padval=None,
                      intp_order=2, dtype=_np_float64,
@@ -165,17 +165,21 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
     by a dielectric object with refractive index
     :math:`n(x,y,z)`.
 
-    This method implements the 3D backpropagation formula:
+    This method implements the 3D backpropagation formula [1]_:
+
 
     .. math::
-        f(\mathbf{r}) &= \\frac{-ik_\mathrm{m}}{(2\pi)^{2}a_\mathrm0} 
-            \int_0^{2\pi} \!\! d\phi_0
-            \int_{-k_\mathrm{m}}^{k_\mathrm{m}} \!\! dk_\mathrm{Dx}
-            \int_{-k_\mathrm{m}}^{k_\mathrm{m}} \!\! dk_\mathrm{Dy} \,
-            \\left| k_\mathrm{Dx} \\right| 
-            \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx},k_\mathrm{Dy})
-            \exp(-ik_\mathrm{m}M l_\mathrm{D})
-            \exp[i(k_\mathrm{Dx} \, \mathbf{t_\\perp} + k_\mathrm{m}(M - 1) \, \mathbf{s_0})\mathbf{r}]
+        f(\mathbf{r}) = 
+            -\\frac{i k_\mathrm{m}}{2\pi}
+            \\sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j} \!\!
+            \\left \{
+            \\text{FFT}^{-1}_{\mathrm{2D}}
+            \\left \{
+            \\left| k_\mathrm{Dx} \\right|  
+            \\frac{\widehat{U}_{\mathrm{B},\phi_j}(k_\mathrm{Dx},k_\mathrm{Dy})}{u_0(l_\mathrm{D})}
+            \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot (z_{\phi_j}-l_\mathrm{D}) \\right]
+            \\right \} 
+            \\right \}
 
 
     Parameters
@@ -199,10 +203,13 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
         Only compute the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
-    weight_angles : bool, optional
-        If `True` weight each backpropagated projection with a factor
+    weight_angles : bool
+        If `True`, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
-        projections.
+        projections. 
+        
+        .. math::
+            \Delta \phi_0 \\longmapsto \Delta \phi_j = \\frac{\phi_{j+1} - \phi_{j-1}}{2}
         
         .. versionadded:: 0.1.1
     onlyreal : bool
@@ -439,8 +446,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD, coords=None,
 
     # Filter M so there are no nans from the root
     M = 1. / km * np.sqrt((km**2 - kx**2 - ky**2) * filter_klp)
-    # The input data is already divided by a0
-    #prefactor  = -1j * km / ( 2 * np.pi * a0 )
+
     prefactor = -1j * km / (2 * np.pi)
     prefactor *= dphi0
     # Also filter the prefactor, so nothing outside the required

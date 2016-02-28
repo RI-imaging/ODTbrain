@@ -3,19 +3,21 @@
   of rotation and detector `lD` is now multiplied with
   the factor `M-1` instead of `M`. This is necessary,
   because usually the scattered wave is normalized in both
-  amplitude and phase (`u_0`) and not only amplitude `a_0`.
-- Allow angles of shape (A,1) in `backpropagate_3d_tilted`. 
+  amplitude and phase (`u_0`) and not only amplitude `a_0`
+- Allow angles of shape (A,1) in `backpropagate_3d_tilted` 
+- Set default value lD=0 for all reconstruction algorithms
+- Update backpropagation algorithm formula in documentation
 0.1.3
 - Fixes for `backpropagate_3d_tilted` when `angles` are
   points on the unit sphere:
   - Make sure each point is normalized
   - Correctly rotate each point w.r.t. `tilted_axis`
 0.1.2
-- Added reconstruction algorithm for tilted axis of rotation.
+- Added reconstruction algorithm for tilted axis of rotation
 0.1.1
 - Support NumPy 1.10.
-- Allow to weight backpropagation using keyword `weight_angles`.
-- Bugfix: backpropagate_3d with keyword `onlyreal=True` did not work.
-- Bugfix: sum_2d did not return correctly shaped array.
-- Code coverage is now 90%.
-- Added more examples to the documentation.
+- Allow to weight backpropagation using keyword `weight_angles`
+- Bugfix: backpropagate_3d with keyword `onlyreal=True` did not work
+- Bugfix: sum_2d did not return correctly shaped array
+- Code coverage is now 90%
+- Added more examples to the documentation
