@@ -6,7 +6,7 @@
   amplitude and phase (`u_0`) and not only amplitude `a_0`
 - Allow angles of shape (A,1) in `backpropagate_3d_tilted` 
 - Set default value lD=0 for all reconstruction algorithms
-- Update backpropagation algorithm formula in documentation
+- Improvement of documentation
 0.1.3
 - Fixes for `backpropagate_3d_tilted` when `angles` are
   points on the unit sphere:

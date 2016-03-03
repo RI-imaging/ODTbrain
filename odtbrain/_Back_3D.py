@@ -165,7 +165,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     by a dielectric object with refractive index
     :math:`n(x,y,z)`.
 
-    This method implements the 3D backpropagation formula [1]_:
+    This method implements the 3D backpropagation algorithm [1]_
 
 
     .. math::
@@ -176,22 +176,30 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
             \\text{FFT}^{-1}_{\mathrm{2D}}
             \\left \{
             \\left| k_\mathrm{Dx} \\right|  
-            \\frac{\widehat{U}_{\mathrm{B},\phi_j}(k_\mathrm{Dx},k_\mathrm{Dy})}{u_0(l_\mathrm{D})}
-            \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot (z_{\phi_j}-l_\mathrm{D}) \\right]
+            \\frac{\\text{FFT}_{\mathrm{2D}} \\left \{
+            u_{\mathrm{B},\phi_j}(x_\mathrm{D}, y_\mathrm{D}) \\right \}}
+            {u_0(l_\mathrm{D})}
+            \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot
+            (z_{\phi_j}-l_\mathrm{D}) \\right]
             \\right \} 
             \\right \}
 
+    with the forward :math:`\\text{FFT}_{\mathrm{2D}}` and inverse 
+    :math:`\\text{FFT}^{-1}_{\mathrm{2D}}` 2D fast Fourier transform, the
+    rotational operator :math:`D_{-\phi_j}`, the angular distance between the
+    projections :math:`\Delta \phi_0`, the ramp filter in Fourier space
+    :math:`|k_\mathrm{Dx}|`, and the propagation distance 
+    :math:`(z_{\phi_j}-l_\mathrm{D})`.
 
     Parameters
     ----------
     uSin : (A, Ny, Nx) ndarray
         Three-dimensional sinogram of plane recordings
-        :math:`u_{\mathrm{B}, \phi_0}(x_\mathrm{D}, y_\mathrm{D},
-        z_\mathrm{D})`
-        normalized by the incident plane wave :math:`u_0`
+        :math:`u_{\mathrm{B}, \phi_j}(x_\mathrm{D}, y_\mathrm{D})`
+        divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
     angles : (A,) ndarray
-        Angular positions :math:`\phi_0` of ``uSin`` in radians.
+        Angular positions :math:`\phi_j` of ``uSin`` in radians.
     res : float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
     nm : float
@@ -204,7 +212,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         keyword is reserved for future versions and is not
         implemented yet.
     weight_angles : bool
-        If `True`, weights each backpropagated projection with a factor
+        If ``True``, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
         projections. 
         
@@ -213,16 +221,16 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         
         .. versionadded:: 0.1.1
     onlyreal : bool
-        If `True`, only the real part of the reconstructed image
+        If ``True``, only the real part of the reconstructed image
         will be returned. This saves computation time.
     padding : tuple of bool
         Pad the input data to the second next power of 2 before
         Fourier transforming. This reduces artifacts and speeds up
         the process for input image sizes that are not powers of 2.
-        The default is padding in x and y: `padding=(True, True)`.
+        The default is padding in x and y: ``padding=(True, True)``.
         For padding only in x-direction (e.g. for cylindrical
-        symmetries), set `padding` to `(True, False)`. To turn off
-        padding, set it to `(False, False)`.
+        symmetries), set ``padding`` to ``(True, False)``. To turn off
+        padding, set it to ``(False, False)``.
     padfac : float
         Increase padding size of the input data. A value greater
         than one will trigger padding to the second-next power of
@@ -236,21 +244,21 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         approximation, where an approximat zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi. 
-        If `padval` is `None`, then the edge values are used for
+        If ``padval`` is ``None``, then the edge values are used for
         padding (see documentation of :func:`numpy.pad`).
     order : int between 0 and 5
         Order of the interpolation for rotation.
         See :func:`scipy.ndimage.interpolation.rotate` for details.
-    dtype : dtype object or argument for np.dtype
+    dtype : dtype object or argument for :func:`numpy.dtype`
         The data type that is used for calculations (float or double).
-        Defaults to np.float.
+        Defaults to ``numpy.float``.
     num_cores : int
         The number of cores to use for parallel operations. This value
         defaults to the number of cores on the system.
-    jmc, jmm : instance of :func:`multiprocessing.Value` or `None`
+    jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
         The progress of this function can be monitored with the 
-        :mod:`jobmanager` package. The current step `jmc.value` is
-        incremented `jmm.value` times. `jmm.value` is set at the 
+        :mod:`jobmanager` package. The current step ``jmc.value`` is
+        incremented ``jmm.value`` times. ``jmm.value`` is set at the 
         beginning.
     verbose : int
         Increment to increase verbosity.
