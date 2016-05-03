@@ -17,6 +17,7 @@ import subprocess
 import sys
 import time
 import traceback
+import warnings
 
 def git_describe():
     """
@@ -59,13 +60,37 @@ def git_describe():
     return GIT_REVISION
 
 
+def load_version(versionfile):
+    """ load version from version_save.py
+    """
+    longversion = ""
+    try:
+        _version_save = imp.load_source("_version_save", versionfile)
+        longversion = _version_save.longversion
+    except:
+        try:
+            from ._version_save import longversion
+        except:
+            try:
+                from _version_save import longversion
+            except:
+                pass
+
+    return longversion
+
+
 def save_version(version, versionfile):
+    """ save version to version_save.py
+    """
     data="""#!/usr/bin/env python
 # This file was created automatically.
 longversion="{VERSION}"
 """
-    with open(versionfile, "w") as fd:
-        fd.write(data.format(VERSION=version))
+    try:
+        with open(versionfile, "w") as fd:
+            fd.write(data.format(VERSION=version))
+    except:
+        warnings.warn("Could not write package version to {}.".format(versionfile))
 
 versionfile = join(dirname(abspath(__file__)), "_version_save.py")
 
@@ -84,17 +109,7 @@ if longversion == "":
     # Either this is this is not a git repository or we are in the
     # wrong git repository.
     # Get the version from the previously generated `_version_save.py`
-    try:
-        _version_save = imp.load_source("_version_save", versionfile)
-        longversion = _version_save.longversion
-    except:
-        try:
-            from ._version_save import longversion
-        except:
-            try:
-                from _version_save import longversion
-            except:
-                pass
+    longversion = load_version(versionfile)
 
 # 3. last resort: date
 if longversion == "":
@@ -108,8 +123,8 @@ if not hasattr(sys, 'frozen'):
     # Save the version to `_version_save.py` to allow distribution using
     # `python setup.py sdist`.
     # This is only done if the program is not frozen (with e.g. pyinstaller),
-    # because in that case we assume that we
-    save_version(longversion, versionfile)
+    if longversion != load_version(versionfile):
+        save_version(longversion, versionfile)
 
 # PEP 440-conform development version:
 version = ".dev".join(longversion.split("-")[:2])
