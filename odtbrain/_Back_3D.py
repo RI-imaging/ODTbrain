@@ -65,6 +65,7 @@ from __future__ import division, print_function
 import ctypes
 import gc
 import multiprocessing as mp
+import numexpr as ne
 import numpy as np
 import platform
 import pyfftw
@@ -154,7 +155,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      weight_angles=True, onlyreal=False, 
                      padding=(True, True), padfac=1.75, padval=None,
                      intp_order=2, dtype=_np_float64,
-                     num_cores=_ncores, 
+                     num_cores=_ncores,
+                     use_numexpr=True,
                      jmc=None, jmm=None,
                      verbose=_verbose):
     u""" 3D backpropagation with the Fourier diffraction theorem
@@ -255,6 +257,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     num_cores : int
         The number of cores to use for parallel operations. This value
         defaults to the number of cores on the system.
+    use_numexpr : bool
+        Use numexpr for fast evaulation of expressions.
     jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
         The progress of this function can be monitored with the 
         :mod:`jobmanager` package. The current step ``jmc.value`` is
@@ -528,14 +532,19 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # This saves an enormous amount of memory when compared to
     # simply executing:
     # filter2 = np.exp(1j * zv * km * (Mp - 1))
-    
-    Mpm1 = km * (Mp - 1)
-    args=zip(zv.flatten(), [Mpm1]*zv.shape[0])
-    filter2_pool = mp.Pool(processes=num_cores)
-    filter2 = filter2_pool.map(_filter2_func, args)
-    filter2_pool.terminate()
-    filter2_pool.terminate()
-    del filter2_pool, args, Mpm1
+
+    if use_numexpr:
+        ne.set_num_threads(num_cores)
+        filter2 = ne.evaluate("exp(1j * zv * km * (Mp - 1))")
+    else:
+        Mpm1 = km * (Mp - 1)
+        args=zip(zv.flatten(), [Mpm1]*zv.shape[0])
+        filter2_pool = mp.Pool(processes=num_cores)
+        filter2 = filter2_pool.map(_filter2_func, args)
+        filter2_pool.terminate()
+        filter2_pool.terminate()
+        del filter2_pool, args, Mpm1
+
 
     # occupies some amount of ram
     #filter2[0].size*len(filter2)*128/8/1024**3
