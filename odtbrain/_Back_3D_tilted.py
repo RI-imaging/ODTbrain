@@ -450,7 +450,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         Only compute the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
-    weight_angles : bool, optional
+    weight_angles : bool
         If ``True``, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
         projections. 
