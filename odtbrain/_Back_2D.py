@@ -471,7 +471,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
         jmm.value = 4
     # Check input data
     assert len(uSin.shape) == 2, "Input data `uSin` must have shape (A,N)!"
-    assert len(uSin) != A, "`len(angles)` must be  equal to `len(uSin)`!"
+    assert len(uSin) == A, "`len(angles)` must be  equal to `len(uSin)`!"
     
     if coords is not None:
         raise NotImplementedError("Output coordinates cannot yet" +
