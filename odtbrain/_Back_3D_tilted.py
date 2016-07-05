@@ -553,7 +553,11 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     package :py:mod:`nrefocus`).
     """
     ne.set_num_threads(num_cores)
-    
+
+    if copy:
+        sinogram = uSin.copy()
+        angles = angles.copy()
+
     # `tilted_axis` is required for several things:
     # 1. the filter |kDx*v + kDy*u| with (u,v,w)==tilted_axis
     # 2. the alignment of the rotational axis with the y-axis
@@ -587,9 +591,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # jobmanager
     if jmm is not None:
         jmm.value = A + 2
-
     
-    if len(angles.shape) != 2:
+    if len(angles.shape) == 1:
         if weight_angles:
             weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
         # compute the 3D points from tilted axis
@@ -600,7 +603,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
             weights = 1
 
         # normalize and rotate angles
-        angles = 1*angles
         for ii in range(angles.shape[0]):
             #angles[ii] = norm_vec(angles[ii]) #-> not correct
             # instead rotate like `tilted_axis` onto the y-z plane.
@@ -646,9 +648,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # latter sign convention.
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
-
-    if copy:
-        sinogram = uSin.copy()
 
     if weight_angles:
         sinogram *= weights

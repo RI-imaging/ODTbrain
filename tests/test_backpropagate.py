@@ -119,7 +119,6 @@ def test_3d_backprop_nopadreal():
     data = np.array(r).flatten().view(float)
     assert np.allclose(data, get_results(myframe))
 
-
 def test_3d_backprop_windows():
     """
     We assume that we are not running these tests on windows.
