@@ -27,6 +27,25 @@ import odtbrain._br
 from common_methods import create_test_sino_2d, create_test_sino_3d, create_test_sino_3d_tilted, cutout, get_test_parameter_set, write_results, get_results, normalize
 
 
+def test_sum2d():
+    myframe = sys._getframe()
+    myname = myframe.f_code.co_name
+    print("running ", myname)
+    sino, angles = create_test_sino_2d(N=10)
+    p = get_test_parameter_set(1)[0]
+    # complex
+    jmc = mp.Value("i", 0)
+    jmm = mp.Value("i", 0)
+
+    f = odtbrain._Back_2D.sum_2d(sino, angles,
+                                         jmc=jmc,
+                                         jmm=jmm,
+                                         **p)
+    
+    assert jmc.value == jmm.value
+    assert jmc.value != 0
+
+
 def test_fmap2d():
     myframe = sys._getframe()
     myname = myframe.f_code.co_name

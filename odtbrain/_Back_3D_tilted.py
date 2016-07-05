@@ -381,6 +381,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                      intp_order=2, dtype=_np_float64,
                      num_cores=_ncores,
                      save_memory=False,
+                     copy=True,
                      jmc=None, jmm=None,
                      verbose=_verbose):
     u""" 3D backpropagation with the Fourier diffraction theorem
@@ -498,6 +499,12 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         
         .. versionadded:: 0.1.5
         
+    copy : bool
+        Copy input sinogram ``uSin`` for data processing. If ``copy``
+        is set to ``False``, then ``uSin`` will be overridden.
+        
+        .. versionadded:: 0.1.5
+        
     jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
         The progress of this function can be monitored with the 
         :mod:`jobmanager` package. The current step ``jmc.value`` is
@@ -603,8 +610,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     
     # check for dtype
     dtype = np.dtype(dtype)
-    if not dtype.name in ["float32", "float64"]:
-        raise ValueError("dtype must be float32 or float64.")
+    assert dtype.name in ["float32", "float64"], "dtype must be float32 or float64!"
 
     assert num_cores <= _ncores, "`num_cores` must not exceed number " +\
                                  "of physical cores: {}".format(_ncores)
@@ -643,8 +649,10 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
 
-    # save memory
-    sinogram = uSin*weights
+    if copy:
+        sinogram = uSin.copy()
+
+    sinogram *= weights
 
     # lengths of the input data
     (la, lny, lnx) = sinogram.shape
@@ -693,6 +701,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
 
     # save memory
     del sinogram
+    
     if verbose > 0:
         print("......Image size (x,y): {}x{}, padded: {}x{}".format(
             lnx, lny, sino.shape[2], sino.shape[1]))

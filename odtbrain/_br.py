@@ -13,12 +13,8 @@ also provides post-processing methods
 """
 import numpy as np
 from scipy.stats import mode
-import warnings
 
-try:
-    import unwrap
-except:
-    warnings.warn("Could not import module unwrap!")
+import unwrap
 
 __all__ = ["odt_to_ri", "opt_to_ri",
            "sinogram_as_rytov", "sinogram_as_radon"]

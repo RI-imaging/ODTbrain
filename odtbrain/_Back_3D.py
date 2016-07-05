@@ -149,6 +149,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      intp_order=2, dtype=_np_float64,
                      num_cores=_ncores,
                      save_memory=False,
+                     copy=True,
                      jmc=None, jmm=None,
                      verbose=_verbose):
     u""" 3D backpropagation with the Fourier diffraction theorem
@@ -254,6 +255,12 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         
         .. versionadded:: 0.1.5
         
+    copy : bool
+        Copy input sinogram ``uSin`` for data processing. If ``copy``
+        is set to ``False``, then ``uSin`` will be overridden.
+        
+        .. versionadded:: 0.1.5
+        
     jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
         The progress of this function can be monitored with the 
         :mod:`jobmanager` package. The current step ``jmc.value`` is
@@ -334,13 +341,13 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
 
+    if copy:
+        sinogram = uSin.copy()
+
     # Perform weighting
     if weight_angles:
         weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
-        sinogram = weights * uSin
-    else:
-        # save memory
-        sinogram = uSin
+        sinogram *= weights
 
     # lengths of the input data
     (la, lny, lnx) = sinogram.shape
@@ -389,6 +396,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     # save memory
     del sinogram
+
     if verbose > 0:
         print("......Image size (x,y): {}x{}, padded: {}x{}".format(
             lnx, lny, sino.shape[2], sino.shape[1]))
