@@ -555,7 +555,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     ne.set_num_threads(num_cores)
 
     if copy:
-        sinogram = uSin.copy()
+        uSin = uSin.copy()
         angles = angles.copy()
 
     # `tilted_axis` is required for several things:
@@ -648,6 +648,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # latter sign convention.
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
+    sinogram = uSin
 
     if weight_angles:
         sinogram *= weights

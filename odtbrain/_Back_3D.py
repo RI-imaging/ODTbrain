@@ -294,7 +294,10 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     package :py:mod:`nrefocus`).
     """
     ne.set_num_threads(num_cores)
-    
+
+    if copy:
+        uSin = uSin.copy()
+
     A = angles.shape[0]
     # jobmanager
     if jmm is not None:
@@ -341,9 +344,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
 
-    if copy:
-        sinogram = uSin.copy()
-
+    sinogram = uSin
     # Perform weighting
     if weight_angles:
         weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
