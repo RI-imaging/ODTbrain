@@ -1,3 +1,7 @@
+0.1.5
+- Code optimization (speed, memory) with numexpr
+- New keyword argument `save_memory` for 3D reconstruction
+  on machines with limited memory
 0.1.4
 - The exponential term containing the distance between center
   of rotation and detector `lD` is now multiplied with

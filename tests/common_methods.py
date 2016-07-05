@@ -7,6 +7,7 @@ from __future__ import division, print_function
 import numpy as np
 import os
 from os.path import abspath, basename, dirname, join, split, exists
+from scipy.ndimage import rotate
 import sys
 import warnings
 import zipfile
@@ -123,6 +124,72 @@ def create_test_sino_3d(A=9, Nx=22, Ny=22, max_phase=5.0,
             ampl = ampl1+ampl2
             ampl = normalize(ampl, vmin=ampl_range[0], vmax=ampl_range[1])
         resar[ii] = ampl*np.exp(1j*phase)
+    return resar, angles
+
+
+def create_test_sino_3d_tilted(A=9, Nx=22, Ny=22, max_phase=5.0,
+                               ampl_range=(1.0,1.0),
+                               tilt_plane=0.0):
+    """
+    Creates 3D test sinogram for optical diffraction tomography.
+    The sinogram is generated from a Gaussian that is shifted
+    according to the rotational position of a non-centered
+    object. The simulated rotation is about the second (y)/[1]
+    axis.
+    
+    Parameters
+    ----------
+    A : int
+        Number of angles of the sinogram.
+    Nx : int
+        Size of the first axis.
+    Ny : int
+        Size of the second axis.
+    max_phase : float
+        Phase normalization. If this is greater than
+        2PI, then it also tests the unwrapping
+        capabilities of the reconstruction algorithm.
+    ampl_range : tuple of floats
+        Determines the min/max range of the amplitude values.
+        Equal values means constant amplitude.
+    tilt_plane : float
+        Rotation tilt offset [rad].
+    
+    Returns
+    """
+    # initiate array
+    resar = np.zeros((A, Ny, Nx), dtype=np.complex128)
+    # 2pi coverage
+    angles = np.linspace(0, 2*np.pi, A, endpoint=False)
+    # x-values of Gaussain
+    x = np.linspace(-Nx/2, Nx/2, Nx, endpoint=True).reshape(1,-1)
+    y = np.linspace(-Ny/2, Ny/2, Ny, endpoint=True).reshape(-1,1)
+    # SD of Gaussian
+    dev = min(np.sqrt(Nx/2), np.sqrt(Ny/2))
+    # Off-centered rotation  about second axis:
+    off = Nx/7
+    for ii in range(A):
+        # Gaussian distribution sinogram
+        x0 = np.cos(angles[ii])*off
+        phase = np.exp(-(x-x0)**2/dev**2) * np.exp(-(y)**2/dev**2)
+        phase = normalize(phase, vmax=max_phase)
+        if ampl_range[0] == ampl_range[1]:
+            # constant amplitude
+            ampl = np.ones((Nx, Ny))*ampl_range[0]
+        else:
+            # ring
+            ampldev = dev/5
+            amploff = off*.3
+            ampl1 = np.exp(-(x-x0-amploff)**2/ampldev**2)
+            ampl2 = np.exp(-(x-x0+amploff)**2/ampldev**2)
+            ampl = ampl1+ampl2
+            ampl = normalize(ampl, vmin=ampl_range[0], vmax=ampl_range[1])
+
+        # perform in-plane rotation
+        ampl = rotate(ampl, np.rad2deg(tilt_plane), reshape=False, cval=1)
+        phase = rotate(phase, np.rad2deg(tilt_plane), reshape=False, cval=0)
+        resar[ii] = ampl*np.exp(1j*phase)
+
     return resar, angles
 
 

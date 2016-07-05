@@ -380,7 +380,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                      padding=(True, True), padfac=1.75, padval=None,
                      intp_order=2, dtype=_np_float64,
                      num_cores=_ncores,
-                     use_numexpr=True, 
+                     save_memory=False,
                      jmc=None, jmm=None,
                      verbose=_verbose):
     u""" 3D backpropagation with the Fourier diffraction theorem
@@ -493,8 +493,11 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     num_cores : int
         The number of cores to use for parallel operations. This value
         defaults to the number of cores on the system.
-    use_numexpr : bool
-        Use numexpr for fast evaulation of expressions.
+    save_memory : bool
+        Saves memory at the cost of longer computation time.
+        
+        .. versionadded:: 0.1.5
+        
     jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
         The progress of this function can be monitored with the 
         :mod:`jobmanager` package. The current step ``jmc.value`` is
@@ -542,6 +545,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     with a numerical focusing algorithm (available in the Python
     package :py:mod:`nrefocus`).
     """
+    ne.set_num_threads(num_cores)
+    
     # `tilted_axis` is required for several things:
     # 1. the filter |kDx*v + kDy*u| with (u,v,w)==tilted_axis
     # 2. the alignment of the rotational axis with the y-axis
@@ -801,7 +806,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     temp_array, myfftw_plan
 
     projection = sino
-    projection[:] *= prefactor
+    projection[:] *= prefactor / (lNx * lNy)
     projection[:] *= filterabs
 
     # save memory
@@ -839,26 +844,19 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     #              z, y, x
     Mp = M.reshape(lNy, lNx)
 
-
-    # Compute the filter in Fourier space in parallel on-by one
-    # This saves an enormous amount of memory when compared to
-    # simply executing:
     # filter2 = np.exp(1j * zv * km * (Mp - 1))
-    
-    if use_numexpr:
-        ne.set_num_threads(num_cores)
-        filter2 = ne.evaluate("exp(1j * zv * km * (Mp - 1))")
+    f2_exp_fac = 1j* km * (Mp - 1)
+    if save_memory:
+        # compute filter2 later
+        pass
     else:
-        Mpm1 = km * (Mp - 1)
-        args=zip(zv.flatten(), [Mpm1]*zv.shape[0])
-        filter2_pool = mp.Pool(processes=num_cores)
-        filter2 = filter2_pool.map(_filter2_func, args)
-        filter2_pool.terminate()
-        filter2_pool.terminate()
-        del filter2_pool, args, Mpm1
-
-    # occupies some amount of ram
-    #filter2[0].size*len(filter2)*128/8/1024**3
+        # compute filter2 now
+        filter2 = ne.evaluate("exp(factor * zv)",
+                              local_dict={"factor": f2_exp_fac,
+                                          "zv":zv})
+        # occupies some amount of ram, but yields faster
+        # computation later
+        #filter2[0].size*len(filter2)*128/8/1024**3
 
     if jmc is not None:
         jmc.value += 1
@@ -917,12 +915,22 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         # filter2.shape == (ln, lNx, lNy)
         
         for p in range(len(zv)):
-            inarr[:] = filter2[p] * projection[aa]
+            if save_memory:
+                # compute filter2 here;
+                # this is comparatively slower than the other case
+                ne.evaluate("exp(factor * zvp) * projectioni",
+                            local_dict={"zvp":zv[p],
+                                        "projectioni":projection[aa],
+                                        "factor":f2_exp_fac},
+                            out=inarr)
+            else:
+                # use universal functions
+                np.multiply(filter2[p], projection[aa], out=inarr)
             myifftw_plan.execute()
             filtered_proj[p, :, :] = inarr[
                                            padyl:padyl + lny,
                                            padxl:padxl + lnx
-                                          ] / (lNx * lNy)
+                                          ]
         
         # The Cartesian axes in our array are ordered like this: [z,y,x]
         # However, the rotation matrix requires [x,y,z]. Therefore, we

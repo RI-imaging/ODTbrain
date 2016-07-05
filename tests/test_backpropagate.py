@@ -145,7 +145,8 @@ def test_3d_backprop_real():
     r = list()
     for p in parameters:
         f = odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=0,
-                                               dtype=np.float64, **p)
+                                               dtype=np.float64,
+                                               onlyreal=False, **p)
         r.append(f)
     # real
     r2 = list()
@@ -195,8 +196,6 @@ def test_3d_mprotate():
         write_results(myframe, _shared_array)
     assert np.allclose(np.array(_shared_array).flatten().view(float), get_results(myframe))
 
-
-    
 
 if __name__ == "__main__":
     # Run all tests
