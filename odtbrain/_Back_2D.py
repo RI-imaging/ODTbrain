@@ -189,10 +189,9 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
     if jmm is not None:
         jmm.value = A + 2
     # Check input data
-    if len(uSin.shape) != 2:
-        raise ValueError("Input data `uB` must have shape (A,N).")
-    if len(uSin) != A:
-        raise ValueError("`len(angles)` must be  equal to `len(uSin)`.")
+    assert len(uSin.shape) == 2, "Input data `uB` must have shape (A,N)!"
+    assert len(uSin) == A, "`len(angles)` must be  equal to `len(uSin)`!"
+    
     if coords is not None:
         raise NotImplementedError("Output coordinates cannot yet" +
                                   " be set for the 2D backrpopagation algorithm.")
@@ -471,10 +470,9 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
     if jmm is not None:
         jmm.value = 4
     # Check input data
-    if len(uSin.shape) != 2:
-        raise ValueError("Input data `uSin` must have shape (A,N).")
-    if len(uSin) != A:
-        raise ValueError("`len(angles)` must be  equal to `len(uSin)`.")
+    assert len(uSin.shape) == 2, "Input data `uSin` must have shape (A,N)!"
+    assert len(uSin) != A, "`len(angles)` must be  equal to `len(uSin)`!"
+    
     if coords is not None:
         raise NotImplementedError("Output coordinates cannot yet" +
                                   " be set for the 2D backrpopagation algorithm.")
