@@ -142,14 +142,6 @@ def _rotate(d):
         mode="constant",  # mode
         cval=0)
 
-def _filter2_func(args):
-    """
-    computes exp(1j * z * km*(M-1))
-    
-    """
-    zvp, Mpm1 = args
-    return np.exp(1j * zvp * Mpm1)
-
 
 def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      weight_angles=True, onlyreal=False, 
@@ -303,8 +295,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     
     # check for dtype
     dtype = np.dtype(dtype)
-    if not dtype.name in ["float32", "float64"]:
-        raise ValueError("dtype must be float32 or float64.")
+    assert dtype.name in ["float32", "float64"], "dtype must be float32 or float64!"
 
     assert num_cores <= _ncores, "`num_cores` must not exceed number " +\
                                  "of physical cores: {}".format(_ncores)

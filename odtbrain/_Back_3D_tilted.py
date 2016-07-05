@@ -13,7 +13,7 @@ import pyfftw
 import scipy.ndimage
 import warnings
 
-from ._Back_3D import _ncores, _np_float64, _verbose, _filter2_func
+from ._Back_3D import _ncores, _np_float64, _verbose
 from . import util
 import odtbrain
 
