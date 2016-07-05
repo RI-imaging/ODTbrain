@@ -592,14 +592,12 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     if len(angles.shape) != 2:
         if weight_angles:
             weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
-        else:
-            weights = 1
         # compute the 3D points from tilted axis
         angles = sphere_points_from_angles_and_tilt(angles, tilted_axis_yz)
     else:
         if weight_angles:
             warnings.warn("3D angular weighting not yet supported!")
-        weights = 1
+            weights = 1
 
         # normalize and rotate angles
         angles = 1*angles
@@ -652,7 +650,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     if copy:
         sinogram = uSin.copy()
 
-    sinogram *= weights
+    if weight_angles:
+        sinogram *= weights
 
     # lengths of the input data
     (la, lny, lnx) = sinogram.shape
