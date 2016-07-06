@@ -42,6 +42,7 @@ if __name__ == "__main__":
             'Operating System :: OS Independent',
             'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3.4',
+            'Programming Language :: Python :: 3.5',
             'Intended Audience :: Science/Research'
                      ],
         platforms=['ALL'],
