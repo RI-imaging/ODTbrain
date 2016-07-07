@@ -85,10 +85,9 @@ if True: # pragma: no cover
     def save_version(version, versionfile):
         """ save version to version_save.py
         """
-        data="""#!/usr/bin/env python
-    # This file was created automatically.
-    longversion="{VERSION}"
-    """
+        data="#!/usr/bin/env python\n"+\
+             "# This file was created automatically\n"+\
+             "longversion='{VERSION}'"
         try:
             with open(versionfile, "w") as fd:
                 fd.write(data.format(VERSION=version))
