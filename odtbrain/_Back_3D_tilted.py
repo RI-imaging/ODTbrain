@@ -944,8 +944,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         # However, the rotation matrix requires [x,y,z]. Therefore, we
         # need to np.transpose the first and last axis and also invert the
         # y-axis.
-        filtered_proj = filtered_proj.transpose(2,1,0)
-        filtered_proj[:,:,:] = filtered_proj[:,::-1,:] 
+        filtered_proj = filtered_proj.transpose(2,1,0)[:,::-1,:]
 
         # get rotation matrix for this point and also rotate in plane
         _drot, drotinv = rotation_matrix_from_point_planerot(angles[aa],
@@ -991,6 +990,5 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
 
     # Undo the axis transposition that we performed previously.
     outarr = outarr.transpose(2,1,0)
-    outarr[:,:,:] = outarr[:,::-1,:]
 
-    return outarr
+    return outarr[:,::-1,:]
