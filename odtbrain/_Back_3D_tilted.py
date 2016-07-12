@@ -990,6 +990,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     gc.collect()
 
     # Undo the axis transposition that we performed previously.
-    outarr = outarr.transpose(2,1,0)
+    outarr = outarr.transpose(2,1,0)[:,::-1,:]
 
-    return outarr[:,::-1,:]
+    return outarr
