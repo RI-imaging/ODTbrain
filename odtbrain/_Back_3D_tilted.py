@@ -961,21 +961,22 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         c = 0.5 * np.array(filtered_proj.shape) - .5
         offset = c - np.dot(drotinv, c)
         
-        # perform rotation
-        rotxzr = scipy.ndimage.interpolation.affine_transform(
+        ## Perform rotation
+        # We cannot split the rotation into multiple subrotations as we
+        # did in _Back_3d_tilted.backpropagate_3d, because the rotation
+        # axis is arbitrarily placed in the 3d array. Rotating single
+        # slices does not yield the same result as rotating the entire
+        # array!
+        outarr.real += scipy.ndimage.interpolation.affine_transform(
                                 filtered_proj.real, drotinv,
                                 offset=offset, mode="constant",
                                 cval=0, order=intp_order)
 
-        
-        outarr.real += rotxzr
-
         if not onlyreal:
-            rotxzi = scipy.ndimage.interpolation.affine_transform(
+            outarr.imag += scipy.ndimage.interpolation.affine_transform(
                                     filtered_proj.imag, drotinv,
                                     offset=offset, mode="constant",
                                     cval=0, order=intp_order)
-            outarr.imag += rotxzi
 
         if jmc is not None:
             jmc.value += 1

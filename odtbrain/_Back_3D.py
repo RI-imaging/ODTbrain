@@ -633,8 +633,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
         if not onlyreal:
             filtered_proj_imag = filtered_proj.imag
-        else:
-            filtered_proj_imag = None
 
         _mprotate(phi0, lny, pool4loop, intp_order)
 
