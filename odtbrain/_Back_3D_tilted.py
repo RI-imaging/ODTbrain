@@ -962,11 +962,12 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         offset = c - np.dot(drotinv, c)
         
         ## Perform rotation
-        # We cannot split the rotation into multiple subrotations as we
-        # did in _Back_3d_tilted.backpropagate_3d, because the rotation
+        # We cannot split the inplace-rotation into multiple subrotations
+        # as we did in _Back_3d_tilted.backpropagate_3d, because the rotation
         # axis is arbitrarily placed in the 3d array. Rotating single
         # slices does not yield the same result as rotating the entire
-        # array!
+        # array. Instead of using affine_transform, map_coordinates might
+        # be faster for multiple cores. 
         outarr.real += scipy.ndimage.interpolation.affine_transform(
                                 filtered_proj.real, drotinv,
                                 offset=offset, mode="constant",
