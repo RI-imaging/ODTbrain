@@ -131,7 +131,6 @@ def _mprotate(ang, lny, pool, order):
 
 def _rotate(d):
     (ymin, ymax, ang, order) = d
-    # print(_ang.value)
     return scipy.ndimage.interpolation.rotate(
         odtbrain._shared_array[:, ymin:ymax, :],  # input
         angle=-ang,  # angle
@@ -626,7 +625,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         #_shared_array[:] = sino_filtered.real[:ln, :lny, :lnx] / (lNx * lNy)
         # By performing the "/" operation here, we magically use less
         # memory and we gain speed...
-        _shared_array[:] = filtered_proj.real[:]
+        _shared_array[:] = filtered_proj.real
         #_shared_array[:] = sino_filtered.real[ :ln, padyl:padyl + lny, padxl:padxl + lnx] / (lNx * lNy)
 
         phi0 = np.rad2deg(angles[aa])
