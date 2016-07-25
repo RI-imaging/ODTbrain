@@ -31,7 +31,7 @@ def compute_angle_weights_1d(angles):
     """
     # copy and modulo np.pi
     # This is an array with values in [0, np.pi)
-    angles = angles.flatten() % (np.pi) 
+    angles = (angles.flatten() - angles.min()) % (np.pi) 
     # sort the array
     sortargs = np.argsort(angles)
     sortangl = angles[sortargs]
