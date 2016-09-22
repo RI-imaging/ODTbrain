@@ -944,7 +944,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         # However, the rotation matrix requires [x,y,z]. Therefore, we
         # need to np.transpose the first and last axis and also invert the
         # y-axis.
-        filtered_proj = filtered_proj.transpose(2,1,0)[:,::-1,:]
+        fil_p_t = filtered_proj.transpose(2,1,0)[:,::-1,:]
 
         # get rotation matrix for this point and also rotate in plane
         _drot, drotinv = rotation_matrix_from_point_planerot(angles[aa],
@@ -958,7 +958,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         # The offset "-.5" assures that we are rotating about
         # the center of the image and not the value at the center
         # of the array (this is also what `scipy.ndimage.rotate` does.
-        c = 0.5 * np.array(filtered_proj.shape) - .5
+        c = 0.5 * np.array(fil_p_t.shape) - .5
         offset = c - np.dot(drotinv, c)
         
         ## Perform rotation
@@ -967,17 +967,20 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         # axis is arbitrarily placed in the 3d array. Rotating single
         # slices does not yield the same result as rotating the entire
         # array. Instead of using affine_transform, map_coordinates might
-        # be faster for multiple cores. 
+        # be faster for multiple cores.
+        
+        # Also undo the axis transposition that we performed previously.
+
         outarr.real += scipy.ndimage.interpolation.affine_transform(
-                                filtered_proj.real, drotinv,
+                                fil_p_t.real, drotinv,
                                 offset=offset, mode="constant",
-                                cval=0, order=intp_order)
+                                cval=0, order=intp_order).transpose(2,1,0)[:,::-1,:]
 
         if not onlyreal:
             outarr.imag += scipy.ndimage.interpolation.affine_transform(
-                                    filtered_proj.imag, drotinv,
+                                    fil_p_t.imag, drotinv,
                                     offset=offset, mode="constant",
-                                    cval=0, order=intp_order)
+                                    cval=0, order=intp_order).transpose(2,1,0)[:,::-1,:]
 
         if jmc is not None:
             jmc.value += 1
@@ -989,8 +992,5 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     del shared_array_base
 
     gc.collect()
-
-    # Undo the axis transposition that we performed previously.
-    outarr = outarr.transpose(2,1,0)[:,::-1,:]
 
     return outarr
