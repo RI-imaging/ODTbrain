@@ -18,7 +18,7 @@ import odtbrain._Back_2D
 
 from common_methods import create_test_sino_2d, create_test_sino_3d, cutout, get_test_parameter_set, write_results, get_results
 
-WRITE_RES = True
+WRITE_RES = False
 
 
 def test_2dsum():
