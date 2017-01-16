@@ -378,7 +378,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     padyl = np.int(np.ceil(pady / 2))
     padyr = np.int(pady - padyl)
     padxl = np.int(np.ceil(padx / 2))
-    padxr = np.int(padx - padyl)
+    padxr = np.int(padx - padxl)
 
     #TODO: This padding takes up a lot of memory. Move it to a separate
     # for loop or to the main for-loop.

@@ -681,7 +681,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     padyl = np.int(np.ceil(pady / 2))
     padyr = np.int(pady - padyl)
     padxl = np.int(np.ceil(padx / 2))
-    padxr = np.int(padx - padyl)
+    padxr = np.int(padx - padxl)
 
 
     #TODO: This padding takes up a lot of memory. Move it to a separate

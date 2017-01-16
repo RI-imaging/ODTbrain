@@ -1,5 +1,7 @@
 0.1.6
-- Bugfix: `backpropagate_3d_tilted` used wrong shape of projections
+- Bugfixes:
+  - `backpropagate_3d_tilted` used wrong shape of projections
+  - 3D backpropagation methods did not use power-of-two padding size
 0.1.5
 - Code optimization (speed, memory) with numexpr
 - New keyword argument `save_memory` for 3D reconstruction
