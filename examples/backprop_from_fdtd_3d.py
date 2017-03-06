@@ -111,12 +111,12 @@ if __name__ == "__main__":
     
     # Sinogram
     axes[0,1].set_title("phase projection")    
-    phmap=axes[0,1].imshow(sino_phase[A//2], aspect=sino.shape[1]/sino.shape[0], **kwph)
+    phmap=axes[0,1].imshow(sino_phase[A//2,:,:], **kwph)
     axes[0,1].set_xlabel("detector x")
     axes[0,1].set_ylabel("detector y")
 
     axes[1,1].set_title("sinogram slice")    
-    axes[1,1].imshow(sino_phase[:,:,A//2], aspect=sino.shape[1]/sino.shape[0], **kwph)
+    axes[1,1].imshow(sino_phase[:,:,sino.shape[2]//2], aspect=sino.shape[1]/sino.shape[0], **kwph)
     axes[1,1].set_xlabel("detector y")
     axes[1,1].set_ylabel("angle [rad]")
     # set y ticks for sinogram

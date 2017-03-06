@@ -127,7 +127,7 @@ if __name__ == "__main__":
         lD = cfg["lD"]*cfg["res"]
 
     # Create sinogram
-    u_sin = np.tile(Ex.flat,A).reshape(A, cfg["size"], cfg["size"])
+    u_sin = np.tile(Ex.flat,A).reshape(A, int(cfg["size"]), int(cfg["size"]))
 
     # Apply the Rytov approximation
     u_sinR = odt.sinogram_as_rytov(u_sin)

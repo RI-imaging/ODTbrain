@@ -122,7 +122,7 @@ if __name__ == "__main__":
     
     # Sinogram
     axes[0,0].set_title("phase projection")    
-    phmap=axes[0,0].imshow(sino_phase[int(A/2),:,:], **kwph)
+    phmap=axes[0,0].imshow(sino_phase[A//2,:,:], **kwph)
     axes[0,0].set_xlabel("detector x")
     axes[0,0].set_ylabel("detector y")
 

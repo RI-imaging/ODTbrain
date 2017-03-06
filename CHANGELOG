@@ -1,5 +1,6 @@
 0.1.6
 - Bugfixes:
+  - size of reconstruction volume in z too large for in some cases
   - `backpropagate_3d_tilted` used wrong shape of projections
   - 3D backpropagation methods did not use power-of-two padding size
 0.1.5

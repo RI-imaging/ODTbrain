@@ -351,7 +351,9 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     # lengths of the input data
     (la, lny, lnx) = sinogram.shape
-    ln = max(lnx, lny)
+    # The z-size of the output array must match the x-size.
+    # The rotation is performed about the y-axis (lny).
+    ln = lnx
 
     # We perform padding before performing the Fourier transform.
     # This gets rid of artifacts due to false periodicity and also

@@ -544,6 +544,12 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     parametric representation could e.g. be a spiral between the poles
     of the unit sphere (but this kind of rotation is probably difficult
     to implement experimentally).
+
+    If you have input images with rectangular shape, e.g. Nx!=Ny and the
+    rotational axis deviates by >PI/2 from the axis (0,1,0), then data might
+    get cropped in the reconstruction volume. You can avoid that by rotating
+    your input data and the rotational axis by PI/2. For instance, change
+    `tilted_axis` from [1,0,0] to [0,1,0] and `np.rot90` the sinogram images.
     
     Do not use the parameter `lD` in combination with the Rytov
     approximation - the propagation is not correctly described.
@@ -655,7 +661,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
 
     # lengths of the input data
     (la, lny, lnx) = sinogram.shape
-    ln = max(lnx, lny)
+    ln = lnx
 
     # We do a zero-padding before performing the Fourier transform.
     # This gets rid of artifacts due to false periodicity and also
