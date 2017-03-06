@@ -29,60 +29,15 @@ This example requires Python3 because the data are lzma-compressed.
 """
 from __future__ import division, print_function
 
-def load_tar_lzma_data(afile):
-    """
-    Load FDTD data from a .tar.lzma file.
-    """
-    # open lzma file
-    with lzma.open(afile, "rb") as l:
-        data = l.read()
-    # write tar file
-    with open(afile[:-5], "wb") as t:
-        t.write(data)
-    # open tar file
-    fields_real = []
-    fields_imag = []
-    phantom = []
-    parms = {}
-    
-    with tarfile.open(afile[:-5], "r") as t:
-        members = t.getmembers()
-        members.sort(key=lambda x: x.name)
-        
-        for m in members:
-            n = m.name
-            f = t.extractfile(m)
-            if n.startswith("fdtd_info"):
-                for l in f.readlines():
-                    l = l.decode()
-                    if l.count("=") == 1:
-                        key, val = l.split("=")
-                        parms[key.strip()] = float(val.strip())
-            elif n.startswith("phantom"):
-                phantom.append(np.loadtxt(f))
-            elif n.startswith("field"):
-                if n.endswith("imag.txt"):
-                    fields_imag.append(np.loadtxt(f))
-                elif n.endswith("real.txt"):
-                    fields_real.append(np.loadtxt(f))
-
-    phantom = np.array(phantom)
-    sino = np.array(fields_real)+1j*np.array(fields_imag)
-    angles = np.linspace(0, 2*np.pi, sino.shape[0], endpoint=False)
-    
-    return sino, angles, phantom, parms
-    
 
 # All imports are moved to "__main__", because
 # sphinx might complain about some imports (e.g. mpl).
 if __name__ == "__main__":
     try:
-        from example_helper import get_file
+        from example_helper import get_file, load_tar_lzma_data
     except ImportError:
         print("Please make sure example_helper.py is available.")
         raise
-    import lzma  # @UnresolvedImport    # Only Python3
-    import tarfile
     import matplotlib.pylab as plt
     import numpy as np
     from os.path import abspath, dirname, split, join
@@ -145,23 +100,23 @@ if __name__ == "__main__":
     
     # Phantom
     axes[0,0].set_title("FDTD phantom center")
-    rimap=axes[0,0].imshow(phantom[int(px/2)], **kwri)
+    rimap=axes[0,0].imshow(phantom[px//2], **kwri)
     axes[0,0].set_xlabel("x")
     axes[0,0].set_ylabel("y")
 
     axes[1,0].set_title("FDTD phantom nucleolus")
-    axes[1,0].imshow(phantom[int(px/2)+2*cfg["res"]], **kwri)
+    axes[1,0].imshow(phantom[int(px/2+2*cfg["res"])], **kwri)
     axes[1,0].set_xlabel("x")
     axes[1,0].set_ylabel("y")    
     
-    # Sinorgam
+    # Sinogram
     axes[0,1].set_title("phase projection")    
-    phmap=axes[0,1].imshow(sino_phase[int(A/2)], aspect=sino.shape[1]/sino.shape[0], **kwph)
+    phmap=axes[0,1].imshow(sino_phase[A//2], aspect=sino.shape[1]/sino.shape[0], **kwph)
     axes[0,1].set_xlabel("detector x")
     axes[0,1].set_ylabel("detector y")
 
     axes[1,1].set_title("sinogram slice")    
-    axes[1,1].imshow(sino_phase[:,:,int(A/2)], aspect=sino.shape[1]/sino.shape[0], **kwph)
+    axes[1,1].imshow(sino_phase[:,:,A//2], aspect=sino.shape[1]/sino.shape[0], **kwph)
     axes[1,1].set_xlabel("detector y")
     axes[1,1].set_ylabel("angle [rad]")
     # set y ticks for sinogram
@@ -171,12 +126,12 @@ if __name__ == "__main__":
     axes[1,1].set_yticklabels(labels)
 
     axes[0,2].set_title("reconstruction center")
-    axes[0,2].imshow(n[int(sx/2)].real, **kwri)
+    axes[0,2].imshow(n[sx//2].real, **kwri)
     axes[0,2].set_xlabel("x")    
     axes[0,2].set_ylabel("y")
 
     axes[1,2].set_title("reconstruction nucleolus")
-    axes[1,2].imshow(n[int(sx/2)+2*cfg["res"]].real, **kwri)
+    axes[1,2].imshow(n[int(sx/2+2*cfg["res"])].real, **kwri)
     axes[1,2].set_xlabel("x")    
     axes[1,2].set_ylabel("y")
 

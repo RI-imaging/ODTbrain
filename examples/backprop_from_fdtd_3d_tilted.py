@@ -37,65 +37,18 @@ in the current directory.
 This example requires Python3 because the data are lzma-compressed.
 """
 from __future__ import division, print_function
-
-
-def load_tar_lzma_data(afile):
-    """
-    Load FDTD data from a .tar.lzma file.
-    """
-    # open lzma file
-    with lzma.open(afile, "rb") as l:
-        data = l.read()
-    # write tar file
-    with open(afile[:-5], "wb") as t:
-        t.write(data)
-    # open tar file
-    fields_real = []
-    fields_imag = []
-    phantom = []
-    parms = {}
-    
-    with tarfile.open(afile[:-5], "r") as t:
-        members = t.getmembers()
-        members.sort(key=lambda x: x.name)
-        
-        for m in members:
-            n = m.name
-            f = t.extractfile(m)
-            if n.startswith("fdtd_info"):
-                for l in f.readlines():
-                    l = l.decode()
-                    if l.count("=") == 1:
-                        key, val = l.split("=")
-                        parms[key.strip()] = float(val.strip())
-            elif n.startswith("phantom"):
-                phantom.append(np.loadtxt(f))
-            elif n.startswith("field"):
-                if n.endswith("imag.txt"):
-                    fields_imag.append(np.loadtxt(f))
-                elif n.endswith("real.txt"):
-                    fields_real.append(np.loadtxt(f))
-
-    phantom = np.array(phantom)
-    sino = np.array(fields_real)+1j*np.array(fields_imag)
-    angles = np.linspace(0, 2*np.pi, sino.shape[0], endpoint=False)
-    
-    return sino, angles, phantom, parms
     
 
 # All imports are moved to "__main__", because
 # sphinx might complain about some imports (e.g. mpl).
 if __name__ == "__main__":
     try:
-        from example_helper import get_file
+        from example_helper import get_file, load_tar_lzma_data
     except ImportError:
         print("Please make sure example_helper.py is available.")
         raise
-    import lzma  # @UnresolvedImport    # Only Python3
-    import tarfile
     import matplotlib.pylab as plt
     import numpy as np
-    import os
     from os.path import abspath, dirname, split, join
     import sys
     
@@ -132,36 +85,25 @@ if __name__ == "__main__":
     sinoRytov = odt.sinogram_as_rytov(sino)
 
     ## Perform naive backpropagation
-    f_name_naiv = "f_naiv.npy"
-    if not os.path.exists(f_name_naiv):
-        f_naiv = odt.backpropagate_3d( uSin=sinoRytov,
-                                       angles=angles,
-                                       res=cfg["res"],
-                                       nm=cfg["nm"],
-                                       lD=cfg["lD"]
-                                       )
-        np.save(f_name_naiv, f_naiv)
-    else:
-        f_naiv = np.load(f_name_naiv)
-
+    f_naiv = odt.backpropagate_3d(uSin=sinoRytov,
+                                  angles=angles,
+                                  res=cfg["res"],
+                                  nm=cfg["nm"],
+                                  lD=cfg["lD"]
+                                  )
 
     print("Performing tilted backpropagation.")
     ## Determine tilted axis
     tilted_axis = [0, np.cos(cfg["tilt_yz"]), np.sin(cfg["tilt_yz"])]
     
     ## Perform tilted backpropagation
-    f_name_tilt = "f_tilt.npy"
-    if not os.path.exists(f_name_tilt):
-        f_tilt = odt.backpropagate_3d_tilted( uSin=sinoRytov,
-                                              angles=angles,
-                                              res=cfg["res"],
-                                              nm=cfg["nm"],
-                                              lD=cfg["lD"],
-                                              tilted_axis=tilted_axis,
-                                              )
-        np.save(f_name_tilt, f_tilt)
-    else:
-        f_tilt = np.load(f_name_tilt)
+    f_tilt = odt.backpropagate_3d_tilted(uSin=sinoRytov,
+                                         angles=angles,
+                                         res=cfg["res"],
+                                         nm=cfg["nm"],
+                                         lD=cfg["lD"],
+                                         tilted_axis=tilted_axis,
+                                         )
 
     ## compute refractive index n from object function
     n_naiv = odt.odt_to_ri(f_naiv, res=cfg["res"], nm=cfg["nm"])
@@ -178,15 +120,14 @@ if __name__ == "__main__":
     kwri = {"vmin": n_tilt.real.min(), "vmax": n_tilt.real.max()}
     kwph = {"vmin": sino_phase.min(), "vmax": sino_phase.max(), "cmap":plt.cm.coolwarm}  # @UndefinedVariable
     
-    
-    # Sinorgam
+    # Sinogram
     axes[0,0].set_title("phase projection")    
     phmap=axes[0,0].imshow(sino_phase[int(A/2),:,:], **kwph)
     axes[0,0].set_xlabel("detector x")
     axes[0,0].set_ylabel("detector y")
 
     axes[1,0].set_title("sinogram slice")    
-    axes[1,0].imshow(sino_phase[:,:,int(sino.shape[2]/2)], aspect=sino.shape[1]/sino.shape[0], **kwph)
+    axes[1,0].imshow(sino_phase[:,:,sino.shape[2]//2], aspect=sino.shape[1]/sino.shape[0], **kwph)
     axes[1,0].set_xlabel("detector y")
     axes[1,0].set_ylabel("angle [rad]")
     # set y ticks for sinogram
@@ -196,22 +137,22 @@ if __name__ == "__main__":
     axes[1,0].set_yticklabels(labels)
 
     axes[0,1].set_title("normal (center)")
-    rimap = axes[0,1].imshow(n_naiv[int(sx/2)].real, **kwri)
+    rimap = axes[0,1].imshow(n_naiv[sx//2].real, **kwri)
     axes[0,1].set_xlabel("x") 
     axes[0,1].set_ylabel("y")
 
     axes[1,1].set_title("normal (nucleolus)")
-    axes[1,1].imshow(n_naiv[int(sx/2)+2*cfg["res"]].real, **kwri)
+    axes[1,1].imshow(n_naiv[int(sx/2+2*cfg["res"])].real, **kwri)
     axes[1,1].set_xlabel("x")    
     axes[1,1].set_ylabel("y")
 
     axes[0,2].set_title("tilt correction (center)")
-    axes[0,2].imshow(n_tilt[int(sx/2)].real, **kwri)
+    axes[0,2].imshow(n_tilt[sx//2].real, **kwri)
     axes[0,2].set_xlabel("x")
     axes[0,2].set_ylabel("y")
 
     axes[1,2].set_title("tilt correction (nucleolus)")
-    axes[1,2].imshow(n_tilt[int(sx/2)+2*cfg["res"]].real, **kwri)
+    axes[1,2].imshow(n_tilt[int(sx/2+2*cfg["res"])].real, **kwri)
     axes[1,2].set_xlabel("x")
     axes[1,2].set_ylabel("y")
 

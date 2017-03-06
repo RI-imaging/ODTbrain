@@ -32,7 +32,6 @@ from __future__ import division, print_function
 
 # All imports are moved to "__main__", because
 # sphinx might complain about some imports (e.g. mpl).
-
 if __name__ == "__main__":
     try:
         from example_helper import get_file
@@ -139,7 +138,6 @@ if __name__ == "__main__":
     nR200 = odt.odt_to_ri(fR200, res, nmed)
     fR200nw = odt.backpropagate_2d(u_sinR200, angles200, res, nmed, lD*res, weight_angles=False)
     nR200nw = odt.odt_to_ri(fR200nw, res, nmed)
-    
     
     # Rytov 50 projections
     remove50 = np.argsort(angles % .002)[:200]

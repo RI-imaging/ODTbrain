@@ -5,8 +5,11 @@ This file contains miscellaneous methods that are used by
 example scripts.
 """
 from __future__ import print_function
+
+
 import os
 from os.path import dirname, join, exists, isdir
+import tarfile
 
 import warnings
 
@@ -74,3 +77,56 @@ def get_file(fname):
         raise OSError("Could not obtain file: "+fname)
     
     return foundloc
+
+
+def load_tar_lzma_data(afile):
+    """
+    Load FDTD data from a .tar.lzma file.
+    """
+    try:
+        import lzma
+    except ImportError:
+        try:
+            from backports import lzma
+        except ImportError:
+            print("Please install lzma with 'pip install backports.lzma'")
+    import numpy as np
+
+    # open lzma file
+    with open(afile, "rb") as l:
+        data = lzma.decompress(l.read())
+    # write tar file
+    with open(afile[:-5], "wb") as t:
+        t.write(data)
+    # open tar file
+    fields_real = []
+    fields_imag = []
+    phantom = []
+    parms = {}
+    
+    with tarfile.open(afile[:-5], "r") as t:
+        members = t.getmembers()
+        members.sort(key=lambda x: x.name)
+        
+        for m in members:
+            n = m.name
+            f = t.extractfile(m)
+            if n.startswith("fdtd_info"):
+                for l in f.readlines():
+                    l = l.decode()
+                    if l.count("=") == 1:
+                        key, val = l.split("=")
+                        parms[key.strip()] = float(val.strip())
+            elif n.startswith("phantom"):
+                phantom.append(np.loadtxt(f))
+            elif n.startswith("field"):
+                if n.endswith("imag.txt"):
+                    fields_imag.append(np.loadtxt(f))
+                elif n.endswith("real.txt"):
+                    fields_real.append(np.loadtxt(f))
+
+    phantom = np.array(phantom)
+    sino = np.array(fields_real)+1j*np.array(fields_imag)
+    angles = np.linspace(0, 2*np.pi, sino.shape[0], endpoint=False)
+    
+    return sino, angles, phantom, parms

@@ -160,7 +160,7 @@ if __name__ == "__main__":
     axes[2].set_title("RI reconstruction, line plots")
     axes[2].set_xlabel("distance [px]")
     axes[2].set_ylabel("real refractive index")
-    center = cfg["size"]/2
+    center = int(cfg["size"]/2)
     x=np.arange(cfg["size"]) - center
     axes[2].plot(x, nR[:,center,center].real, label="along x")
     axes[2].plot(x, nR[center,center,:].real, label="along z")

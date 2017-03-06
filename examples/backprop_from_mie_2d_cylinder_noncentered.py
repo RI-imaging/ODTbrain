@@ -105,7 +105,6 @@ if __name__ == "__main__":
     print("Measurement position from object center:", cfg["lD"])
     print("Wavelength sampling:", cfg["res"])
     print("Performing backpropagation.")
-
     
     # Set measurement parameters
     # Compute scattered field from cylinder
@@ -140,15 +139,12 @@ if __name__ == "__main__":
     fR50 = odt.backpropagate_2d(u_sinR50, angles[::5], res, nmed, lD*res)
     nR50 = odt.odt_to_ri(fR50, res, nmed)
     
-    
     # Plot sinogram phase and amplitude
     ph = unwrap.unwrap(np.angle(sino/u0))
-    
     
     am = np.abs(sino/u0)
 
     # prepare plot
-    
     vmin = np.min(np.array([phantom, nB.real, nR50.real, nR.real]))
     vmax = np.max(np.array([phantom, nB.real, nR50.real, nR.real]))
     

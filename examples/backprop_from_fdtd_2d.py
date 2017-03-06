@@ -79,10 +79,8 @@ if __name__ == "__main__":
     print("Wavelength sampling:", cfg["res"])
     print("Performing backpropagation.")
 
-
     ## Apply the Rytov approximation
     sinoRytov = odt.sinogram_as_rytov(sino)
-
 
     ## perform backpropagation to obtain object function f
     f = odt.backpropagate_2d( uSin=sinoRytov,
@@ -92,10 +90,8 @@ if __name__ == "__main__":
                               lD=cfg["lD"]*cfg["res"]
                               )
 
-
     ## compute refractive index n from object function
     n = odt.odt_to_ri(f, res=cfg["res"], nm=cfg["nm"])
-
 
     ## compare phantom and reconstruction in plot
     fig, axes = plt.subplots(1, 3, figsize=(12,4), dpi=300)
@@ -117,7 +113,6 @@ if __name__ == "__main__":
     axes[2].imshow(n.real, vmin=phantom.min(), vmax=phantom.max())
     axes[2].set_xlabel("x")    
     axes[2].set_ylabel("y")
-
 
     # set y ticks for sinogram
     labels = np.linspace(0, 2*np.pi, len(axes[1].get_yticks()))

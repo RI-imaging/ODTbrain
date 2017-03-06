@@ -214,6 +214,7 @@ def cutout(a):
     #tool.arr2im(a, scale=True).save("test.png")
     return a
 
+
 def get_test_parameter_set(set_number=1):
     res = 2.1
     lD = 0

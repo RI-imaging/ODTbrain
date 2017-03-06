@@ -108,7 +108,6 @@ if __name__ == "__main__":
     print("Measurement position from object center:", cfg["lD"])
     print("Wavelength sampling:", cfg["res"])
     print("Performing backpropagation.")
-
     
     # Set measurement parameters
     # Compute scattered field from cylinder
@@ -142,7 +141,6 @@ if __name__ == "__main__":
     fRevennw = odt.backpropagate_2d(u_sinReven, angleseven, res, nmed, lD*res, weight_angles=False)
     nRevennw = odt.odt_to_ri(fRevennw, res, nmed)
     
-    
     # Rytov 100 projections more than 180
     removemiss = 249 - np.concatenate((np.arange(100), 100+np.arange(150)[::3]))
     anglesmiss = np.delete(angles, removemiss, axis=0)
@@ -154,7 +152,6 @@ if __name__ == "__main__":
     nRmiss = odt.odt_to_ri(fRmiss, res, nmed)    
     fRmissnw = odt.backpropagate_2d(u_sinRmiss, anglesmiss, res, nmed, lD*res, weight_angles=False)
     nRmissnw = odt.odt_to_ri(fRmissnw, res, nmed)
-    
 
     # Rytov 100 projections less than 180
     removebad = 249 - np.arange(150)
@@ -169,7 +166,6 @@ if __name__ == "__main__":
     nRbadnw = odt.odt_to_ri(fRbadnw, res, nmed)    
     
     # prepare plot
-    
     kw_ri = {"vmin": np.min(np.array([phantom, nRmiss.real, nReven.real])),
              "vmax": np.max(np.array([phantom, nRmiss.real, nReven.real]))
              }
@@ -178,7 +174,6 @@ if __name__ == "__main__":
              "vmax": np.max(np.array([pheven, phmiss])),
              "cmap": plt.cm.coolwarm  # @UndefinedVariable
              }
-    
     
     fig, axes = plt.subplots(3,3, figsize=(12,10), dpi=300)
     
@@ -209,7 +204,6 @@ if __name__ == "__main__":
     axes[2,2].set_title("RI with angular weights")
     axes[2,2].imshow(nRbad.real, **kw_ri)
     
-    
     # color bars
     cbkwargs = {"fraction": 0.045,
                 "format":"%.3f"}
@@ -223,8 +217,6 @@ if __name__ == "__main__":
     plt.colorbar(rimap, ax=axes[1,2], **cbkwargs)
     plt.colorbar(rimap, ax=axes[2,2], **cbkwargs)
 
-
-    
     plt.tight_layout()
     
     outname = join(DIR, "backprop_2d_incomplete_coverage.png")
