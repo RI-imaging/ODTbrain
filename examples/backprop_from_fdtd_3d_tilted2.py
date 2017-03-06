@@ -98,18 +98,13 @@ if __name__ == "__main__":
 
     print("Performing tilted backpropagation.")
     ## Perform tilted backpropagation
-    f_name_tilt = "f_tilt2.npy"
-    if not os.path.exists(f_name_tilt):
-        f_tilt = odt.backpropagate_3d_tilted(uSin=sinoRytov,
-                                             angles=angles,
-                                             res=cfg["res"],
-                                             nm=cfg["nm"],
-                                             lD=cfg["lD"],
-                                             tilted_axis=tilted_axis,
-                                             )
-        np.save(f_name_tilt, f_tilt)
-    else:
-        f_tilt = np.load(f_name_tilt)
+    f_tilt = odt.backpropagate_3d_tilted(uSin=sinoRytov,
+                                         angles=angles,
+                                         res=cfg["res"],
+                                         nm=cfg["nm"],
+                                         lD=cfg["lD"],
+                                         tilted_axis=tilted_axis,
+                                         )
 
     ## compute refractive index n from object function
     n_tilt = odt.odt_to_ri(f_tilt, res=cfg["res"], nm=cfg["nm"])
