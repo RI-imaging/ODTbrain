@@ -186,7 +186,7 @@ def sinogram_as_radon(uSin, align=True):
     Returns
     -------
     phase : 2d or 3d real ndarray
-        The unwrapped phase array corresponding to ``uSin``.
+        The unwrapped phase array corresponding to `uSin`.
 
     Notes
     -----
@@ -240,12 +240,12 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         The sinogram of the complex wave 
         :math:`u_\mathrm{R}(\mathbf{r}) + u_\mathrm{0}(\mathbf{r})`.
         The first axis iterates through the angles :math:`\phi_0`.
-    u0 : ndarray of dimension as ``uSin`` or less, or int.
+    u0 : ndarray of dimension as `uSin` or less, or int.
         The incident plane wave 
         :math:`u_\mathrm{0}(\mathbf{r})` at the detector.
-        If ``u0`` is "1", it is assumed that the data is already
+        If `u0` is "1", it is assumed that the data is already
         background-corrected (
-        ``uSin`` :math:`= \\frac{u_\mathrm{R}(\mathbf{r})}{
+        `uSin` :math:`= \\frac{u_\mathrm{R}(\mathbf{r})}{
         u_\mathrm{0}(\mathbf{r})} + 1`
         ). Note that if the reconstruction distance :math:`l_\mathrm{D}`
         of the original experiment is non-zero and `u0` is set to 1,

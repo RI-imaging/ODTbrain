@@ -1,6 +1,7 @@
 0.1.6
 - Bugfixes:
-  - size of reconstruction volume in z too large for in some cases
+  - size of reconstruction volume in z too large for cases where
+    the y-size is larger than the x-size of the sinogram images
   - `backpropagate_3d_tilted` used wrong shape of projections
   - 3D backpropagation methods did not use power-of-two padding size
 0.1.5

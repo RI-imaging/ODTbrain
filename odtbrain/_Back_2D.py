@@ -108,7 +108,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
         divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
     angles : (A,) ndarray
-        Angular positions :math:`\phi_j` of ``uSin`` in radians.
+        Angular positions :math:`\phi_j` of `uSin` in radians.
     res : float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
     nm : float
@@ -121,7 +121,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
         keyword is reserved for future versions and is not
         implemented yet.
     weight_angles : bool
-        If ``True``, weights each backpropagated projection with a factor
+        If `True`, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
         projections. 
         
@@ -130,7 +130,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
         
         .. versionadded:: 0.1.1
     onlyreal : bool
-        If ``True``, only the real part of the reconstructed image
+        If `True`, only the real part of the reconstructed image
         will be returned. This saves computation time.
     padding : bool
         Pad the input data to the second next power of 2 before
@@ -141,12 +141,12 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
         approximation, where an approximate zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi. 
-        If ``padval`` is ``None``, then the edge values are used for
+        If `padval` is `None`, then the edge values are used for
         padding (see documentation of :func:`numpy.pad`).
-    jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
+    jmc, jmm : instance of :func:`multiprocessing.Value` or `None`
         The progress of this function can be monitored with the 
-        :mod:`jobmanager` package. The current step ``jmc.value`` is
-        incremented ``jmm.value`` times. ``jmm.value`` is set at the 
+        :mod:`jobmanager` package. The current step `jmc.value` is
+        incremented `jmm.value` times. `jmm.value` is set at the 
         beginning.
     verbose : int
         Increment to increase verbosity.
@@ -404,7 +404,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
         divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
     angles : (A,) ndarray
-        Angular positions :math:`\phi_j` of ``uSin`` in radians.
+        Angular positions :math:`\phi_j` of `uSin` in radians.
     res : float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
     nm : float
@@ -413,7 +413,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
         Distance from center of rotation to detector plane 
         :math:`l_\mathrm{D}` in pixels.
     semi_coverage : bool
-        If set to ``True``, it is assumed that the sinogram does not 
+        If set to `True`, it is assumed that the sinogram does not 
         necessarily cover the full angular range from 0 to 2π, but an
         equidistant coverage over 2π can be achieved by inferring point
         (anti)symmetry of the (imaginary) real parts of the Fourier 
@@ -423,10 +423,10 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
-    jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
+    jmc, jmm : instance of :func:`multiprocessing.Value` or `None`
         The progress of this function can be monitored with the 
-        :mod:`jobmanager` package. The current step ``jmc.value`` is
-        incremented ``jmm.value`` times. ``jmm.value`` is set at the 
+        :mod:`jobmanager` package. The current step `jmc.value` is
+        incremented `jmm.value` times. `jmm.value` is set at the 
         beginning.
     verbose : int
         Increment to increase verbosity.
@@ -662,7 +662,7 @@ def sum_2d(uSin, angles, res, nm, lD=0, coords=None,
         divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
     angles : (A,) ndarray
-        Angular positions :math:`\phi_j` of ``uSin`` in radians.
+        Angular positions :math:`\phi_j` of `uSin` in radians.
     res : float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
     nm : float
@@ -674,10 +674,10 @@ def sum_2d(uSin, angles, res, nm, lD=0, coords=None,
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
-    jmc, jmm : instance of :func:`multiprocessing.Value` or ``None``
+    jmc, jmm : instance of :func:`multiprocessing.Value` or `None`
         The progress of this function can be monitored with the 
-        :mod:`jobmanager` package. The current step ``jmc.value`` is
-        incremented ``jmm.value`` times. ``jmm.value`` is set at the 
+        :mod:`jobmanager` package. The current step `jmc.value` is
+        incremented `jmm.value` times. `jmm.value` is set at the 
         beginning.
     verbose : int
         Increment to increase verbosity.
