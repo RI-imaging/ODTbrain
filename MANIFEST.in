@@ -1,7 +1,6 @@
-include examples/*.py
-include doc/*
-include doc/doc_include/*.txt
-include doc/extensions/*.py
+include CHANGELOG
+include LICENSE
 include README.rst
-include tests/data/*.zip
-include tests/*.py
+recursive-include examples *.py
+recursive-include doc *.py *.md *.txt *.rst
+recursive-include tests *.py *.md *.zip
