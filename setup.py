@@ -23,7 +23,7 @@ if __name__ == "__main__":
     setup(
         name=name,
         author=author,
-        author_email='paul.mueller at biotec.tu-dresden.de',
+        author_email='paul.mueller@biotec.tu-dresden.de',
         url='http://RI-imaging.github.io/ODTbrain/',
         version=version,
         packages=[name],
