@@ -12,7 +12,7 @@ from __future__ import print_function
 
 # Put the entire script into a `True` statement and add the hint
 # `pragma: no cover` to ignore code coverage here.
-if True: # pragma: no cover
+if True:  # pragma: no cover
     import imp
     import os
     from os.path import join, abspath, dirname
@@ -31,8 +31,8 @@ if True: # pragma: no cover
         """
         # make sure we are in a directory that belongs to the correct
         # repository.
-        ourdir  = dirname(abspath(__file__))
-        
+        ourdir = dirname(abspath(__file__))
+
         def _minimal_ext_cmd(cmd):
             # construct minimal environment
             env = {}
@@ -44,25 +44,25 @@ if True: # pragma: no cover
             env['LANGUAGE'] = 'C'
             env['LANG'] = 'C'
             env['LC_ALL'] = 'C'
-            out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=env).communicate()[0]
+            cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env)
+            out = cmd.communicate()[0]
             return out
-    
+
         # change directory
         olddir = abspath(os.curdir)
         os.chdir(ourdir)
-        
+
         try:
             out = _minimal_ext_cmd(['git', 'describe', '--tags', 'HEAD'])
             GIT_REVISION = out.strip().decode('ascii')
         except OSError:
             GIT_REVISION = ""
-            
+
         # go back to original directory
         os.chdir(olddir)
-        
+
         return GIT_REVISION
-    
-    
+
     def load_version(versionfile):
         """ load version from version_save.py
         """
@@ -70,63 +70,64 @@ if True: # pragma: no cover
         try:
             _version_save = imp.load_source("_version_save", versionfile)
             longversion = _version_save.longversion
-        except:
+        except BaseException:
             try:
                 from ._version_save import longversion
-            except:
+            except BaseException:
                 try:
                     from _version_save import longversion
-                except:
+                except BaseException:
                     pass
-    
+
         return longversion
-    
-    
+
     def save_version(version, versionfile):
         """ save version to version_save.py
         """
-        data="#!/usr/bin/env python\n"+\
-             "# This file was created automatically\n"+\
-             "longversion='{VERSION}'"
+        data = "#!/usr/bin/env python\n" \
+            + "# This file was created automatically\n" \
+            + "longversion='{VERSION}'"
         try:
             with open(versionfile, "w") as fd:
                 fd.write(data.format(VERSION=version))
-        except:
-            warnings.warn("Could not write package version to {}.".format(versionfile))
-    
+        except BaseException:
+            msg = "Could not write package version to {}.".format(versionfile)
+            warnings.warn(msg)
+
     versionfile = join(dirname(abspath(__file__)), "_version_save.py")
-    
-    ## Determine the accurate version
+
+    # Determine the accurate version
     longversion = ""
-    
+
     # 1. git describe
     try:
         # Get the version using `git describe`
         longversion = git_describe()
-    except:
+    except BaseException:
         pass
-    
+
     # 2. previously created version file
     if longversion == "":
         # Either this is this is not a git repository or we are in the
         # wrong git repository.
         # Get the version from the previously generated `_version_save.py`
         longversion = load_version(versionfile)
-    
+
     # 3. last resort: date
     if longversion == "":
         print("Could not determine version. Reason:")
         print(traceback.format_exc())
         ctime = os.stat(__file__)[8]
         longversion = time.strftime("%Y.%m.%d-%H-%M-%S", time.gmtime(ctime))
-        print("Using creation time to determine version: {}".format(longversion))
-    
+        print("Using creation time as version: {}".format(longversion))
+
     if not hasattr(sys, 'frozen'):
         # Save the version to `_version_save.py` to allow distribution using
         # `python setup.py sdist`.
-        # This is only done if the program is not frozen (with e.g. pyinstaller),
+        # This is only done if the program is not frozen (with e.g.
+        # pyinstaller),
         if longversion != load_version(versionfile):
             save_version(longversion, versionfile)
-    
+
     # PEP 440-conform development version:
     version = ".dev".join(longversion.split("-")[:2])
