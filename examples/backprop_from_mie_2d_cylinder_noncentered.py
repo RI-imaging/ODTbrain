@@ -100,7 +100,7 @@ if __name__ == "__main__":
                 key, val = l.split("=")
                 cfg[key.strip()] = float(val.strip())
 
-    print("Example: Backpropagation from 2d FDTD simulations")
+    print("Example: Backpropagation from 2d Mie simulations")
     print("Refractive index of medium:", cfg["nmed"])
     print("Measurement position from object center:", cfg["lD"])
     print("Wavelength sampling:", cfg["res"])
