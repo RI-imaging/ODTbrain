@@ -2,5 +2,5 @@ formats:
  - pdf
 requirements_file: doc/requirements.txt
 python:
-   setup_py_install: true
+   setup_py_install: false
    version: 3
