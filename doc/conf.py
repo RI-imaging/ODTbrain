@@ -12,8 +12,11 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
+import mock
 import os
+import sys
+
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -35,6 +38,11 @@ from setup import author, authors, description, name, version, year
 projectname = name
 projectdescription = description
 
+# Mock all
+install_requires = ["unwrap", "numexpr", "numpy", "pyfftw", "scipy",
+                    "scipy.interpolate", "scipy.ndimage", "scipy.stats"]
+for mod_name in install_requires:
+    sys.modules[mod_name] = mock.Mock()
 
 # -- General configuration ------------------------------------------------
 
