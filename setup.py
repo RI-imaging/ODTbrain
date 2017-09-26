@@ -11,11 +11,6 @@ name = 'odtbrain'
 description = 'Algorithms for diffraction tomography'
 year = "2015"
 
-long_description = """
-This package provides inverse scattering algorithms in 2D and 3D
-for diffraction tomogrpahy. Visit the home page for more information.
-"""
-
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
 from _version import version
 
