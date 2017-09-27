@@ -1,7 +1,7 @@
 ODTbrain
 ========
 
-|PyPI Version| |Build Status| |Coverage Status| |Docs Status|
+|PyPI Version| |Tests Status| |Coverage Status| |Docs Status|
 
 
 **ODTbrain** provides image reconstruction algorithms for **O**\ ptical **D**\ iffraction **T**\ omography with a **B**\ orn and **R**\ ytov
@@ -149,7 +149,7 @@ Running tests
 
 .. |PyPI Version| image:: http://img.shields.io/pypi/v/odtbrain.svg
    :target: https://pypi.python.org/pypi/odtbrain
-.. |Build Status| image:: http://img.shields.io/travis/RI-imaging/ODTbrain.svg?label=tests
+.. |Tests Status| image:: http://img.shields.io/travis/RI-imaging/ODTbrain.svg?label=tests
    :target: https://travis-ci.org/RI-imaging/ODTbrain
 .. |Coverage Status| image:: https://img.shields.io/coveralls/RI-imaging/ODTbrain.svg
    :target: https://coveralls.io/r/RI-imaging/ODTbrain

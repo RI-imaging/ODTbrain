@@ -19,7 +19,7 @@ if __name__ == "__main__":
         name=name,
         author=author,
         author_email='dev@craban.de',
-        url='http://RI-imaging.github.io/ODTbrain/',
+        url='https://github.com/RI-imaging/ODTbrain',
         version=version,
         packages=[name],
         package_dir={name: name},
