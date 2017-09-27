@@ -6,51 +6,31 @@ python:
 notifications:
   email: false
 env:
-  global:
-  - GH_REF: github.com/RI-imaging/ODTbrain.git
-  - secure: WmWLBSd2SnFKGWK+aL9jbaKf3GUSMEWrDS2xyraQJ58/h76ltI15JFmkQdlSt54PdaZLP7/tXhQQAC6sbCSjKPidnr9+dfJ6bIxM6VYRvAzQ4dMG+/xB6YdNmiczop5oM+m9wIDQ6006W1V7zjemplgOXYLZ31NXRV9oXH9JA7x6dXRxuVurOpFqtlQO0LHnSeA93RbSOZqPgNPvY5+TyOv5Tn6Ywz+kBpLZr0kbAfS7kEPM9H9kIwPwuUwOyt9fgStU8KcTwNEv9sHIGjhLSLb/HTjqMTbIkbR2U4j/waMVVIPZrPy998HqSTfKpQhdU/zkoe+/t4tG0D8Znja+SvoECmjp96oZYzWrjnXD9HAxbx8sb282XMiN2tvIGZLzemZP+K613JAOek/HiXx4B1AvzdZwAzmsfYB9IvxYinv3k1e7Tjx9VeDroGcFkyM/QE2RmFjA/XxPJT+Y2weY7HJ0836LxX+Og6UgxCW5ElHfif6rIMOxdD1Si5fWj2URdLs5FgNpfdgdgMZ/5QZBOL63f6BgmhwC3Q4n+XaUq+yC0v5LWYsttgkWOgH5YOeVsr/aQWqC87w8ZSkXJ1uC0FVVfPFCn8+neV7ZFzSSG78bDpFofbIlwVy7C87W2uvWhxyzQJMOwNXskuf17/PRFv10hW0stJH7acN3QUlNhbs=
   matrix:
-  - NUMPY_VERSION_MAX="1.7.9"
-  - NUMPY_VERSION_MAX="1.8.9"
-  - NUMPY_VERSION_MAX="1.9.9"
-  - NUMPY_VERSION_MAX="1.10.9"
+  - NUMPY_VERSION="1.8.1"
+  - NUMPY_VERSION="1.9.1"
+  - NUMPY_VERSION="1.10.1"
 matrix:
   exclude:
-    # These things won't install with anaconda:
+    # Not available on PyPI
     - python: "3.5"
-      env: NUMPY_VERSION_MAX="1.7.9"
-    - python: "3.5"
-      env: NUMPY_VERSION_MAX="1.8.9"
-    - python: "3.4"
-      env: NUMPY_VERSION_MAX="1.7.9"
-    
-before_install:
-- sudo apt-get update -qq
-- sudo apt-get install -qq libfftw3-3 libfftw3-dev
-# Using the major Python version in the conda installer fixes this error:
-#UnsatisfiableError: The following specifications were found to be in conflict:
-#  - enum34 -> python 2.6*|2.7*|3.3*
-#  - python 3.4*
-- wget https://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh
-- chmod +x miniconda.sh
-- INSTALL_DIR=${HOME}
-- ./miniconda.sh -b -p ${INSTALL_DIR}/miniconda
-- export PATH=${INSTALL_DIR}/miniconda/bin:$PATH
-- conda update --yes conda
-- travis_retry conda install --yes python=$TRAVIS_PYTHON_VERSION pip "numpy<=$NUMPY_VERSION_MAX" scipy cffi
-- travis_retry pip install .
+      env: NUMPY_VERSION="1.8.1"
 install:
-- travis_retry pip install coverage
-- travis_retry pip install coveralls
-- python setup.py develop
+# Install fftw library
+- travis_retry sudo apt-get update -qq
+- travis_retry sudo apt-get install -qq libfftw3-3 libfftw3-dev
+# install libraries that do not have wheels on PyPI
+- travis_retry pip install cffi --only-binary=:all:
+- travis_retry pip install pyfftw unwrap
+# Install numpy
+- travis_retry pip install "numpy==$NUMPY_VERSION"
+# Install everything else
+- travis_retry pip install . --only-binary=:all:
+# Install coverage packages
+- travis_retry pip install coverage coveralls
 - pip freeze
 script:
 - coverage run --source=odtbrain ./setup.py test
 - coverage report -m
 after_success:
 - coveralls --verbose
-- git config credential.helper "store --file=.git/credentials"
-- echo "https://${GH_TOKEN}:@github.com" > .git/credentials
-- if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then travis_retry conda install --yes sphinx=1.3.1; fi
-- if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then pip install numpydoc; fi
-- if [[ $TRAVIS_PYTHON_VERSION == 3.4 ]]; then python doc/deploy_ghpages.py; fi

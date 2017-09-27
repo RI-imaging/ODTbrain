@@ -1,4 +1,5 @@
 formats:
  - pdf
-requirements_file: doc/requirements.txt
+ - epub
+requirements_file: docs/requirements.txt
 
