@@ -6,8 +6,6 @@ Content
 -------
 .. toctree::
    :maxdepth: 4
-   
-   index
     
 For an alphabetically sorted list of all methods, see :ref:`genindex`.
 

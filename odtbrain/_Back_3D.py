@@ -16,7 +16,7 @@ The Green's function in 3D can be written as:
 
 .. math::
     G(\mathbf{r-r'}) = \\frac{ik_\mathrm{m}}{8\pi^2} \iint \!\! dpdq 
-        \\frac{1}{M}& \exp\! \\left \\lbrace i k_\mathrm{m} \\left[ 
+        \\frac{1}{M} \exp\! \\left \\lbrace i k_\mathrm{m} \\left[ 
         p(x-x') + q(y-y') + M(z-z') \\right] \\right \\rbrace
 
 with

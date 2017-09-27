@@ -79,8 +79,8 @@ following cases, but have not been tested appropriately:
 
 How to cite
 -----------
-If you use ODTbrain in a scientific publication, please cite at least
-[2]_. 
+If you use ODTbrain in a scientific publication, please cite
+Müller et al., *BMC Bioinformatics* (2015) [2]_. 
 
 
 """
