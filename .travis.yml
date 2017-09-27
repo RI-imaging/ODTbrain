@@ -10,23 +10,26 @@ env:
   - NUMPY="1.8.1"
   - NUMPY="1.9.1"
   - NUMPY="1.10.1"
+  - NUMPY="1.11.3"
+  - NUMPY="1.12.3"
+  - NUMPY="1.13.1"
 matrix:
   exclude:
     # Not available on PyPI
     - python: "3.5"
       env: NUMPY="1.8.1"
 install:
-# Install fftw library
+# fftw library
 - travis_retry sudo apt-get update -qq
 - travis_retry sudo apt-get install -qq libfftw3-3 libfftw3-dev
-# Install numpy
+# numpy (must be installed before pyfftw, unwrap)
 - travis_retry pip install "numpy==$NUMPY"
-# install libraries that do not have wheels on PyPI
+# libraries that do not have wheels on PyPI
 - travis_retry pip install cffi --only-binary=cffi
 - travis_retry pip install pyfftw unwrap
-# Install everything else
+# everything else
 - "travis_retry pip install . --only-binary=:all:"
-# Install coverage packages
+# coverage packages
 - travis_retry pip install coverage coveralls
 - pip freeze
 script:
