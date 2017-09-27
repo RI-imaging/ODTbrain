@@ -54,14 +54,14 @@ if True:  # pragma: no cover
 
         try:
             out = _minimal_ext_cmd(['git', 'describe', '--tags', 'HEAD'])
-            GIT_REVISION = out.strip().decode('ascii')
+            git_revision = out.strip().decode('ascii')
         except OSError:
-            GIT_REVISION = ""
+            git_revision = ""
 
         # go back to original directory
         os.chdir(olddir)
 
-        return GIT_REVISION
+        return git_revision
 
     def load_version(versionfile):
         """ load version from version_save.py
@@ -86,7 +86,7 @@ if True:  # pragma: no cover
         """
         data = "#!/usr/bin/env python\n" \
             + "# This file was created automatically\n" \
-            + "longversion='{VERSION}'"
+            + "longversion = '{VERSION}'\n"
         try:
             with open(versionfile, "w") as fd:
                 fd.write(data.format(VERSION=version))
