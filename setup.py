@@ -7,8 +7,8 @@ import sys
 
 author = u"Paul Müller"
 authors = [author]
-name = 'odtbrain'
 description = 'Algorithms for diffraction tomography'
+name = 'odtbrain'
 year = "2015"
 
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
@@ -36,8 +36,7 @@ if __name__ == "__main__":
         classifiers= [
             'Operating System :: OS Independent',
             'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: 3.4',
-            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3',
             'Intended Audience :: Science/Research'
                      ],
         platforms=['ALL'],
