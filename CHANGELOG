@@ -1,3 +1,7 @@
+0.1.7
+- Move documentation from GitHub to readthedocs.io
+- Add universal wheel on PyPI
+- Update tests on travis with new versions of NumPy
 0.1.6
 - Bugfixes:
   - size of reconstruction volume in z too large for cases where

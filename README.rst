@@ -11,7 +11,7 @@ ODTbrain
 Documentation
 -------------
 
-The documentation, including the reference and examples, is available `here <http://RI-imaging.github.io/ODTbrain/>`__.
+The documentation, including the reference and examples, is available on `readthedocs.io <https://odtbrain.readthedocs.io/en/stable/>`__.
 
 
 Installation
