@@ -20,7 +20,7 @@ install:
 - travis_retry sudo apt-get update -qq
 - travis_retry sudo apt-get install -qq libfftw3-3 libfftw3-dev
 # install libraries that do not have wheels on PyPI
-- "travis_retry pip install cffi --only-binary=:all:"
+- "travis_retry pip install cffi --only-binary=cffi"
 - travis_retry pip install pyfftw unwrap
 # Install numpy
 - travis_retry pip install "numpy==$NUMPY"
