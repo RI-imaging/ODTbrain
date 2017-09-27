@@ -1,6 +1,6 @@
 ODTbrain documentation
 ======================
-Install requirements for building documentation
+To install the requirements for building the documentation, run
 
     pip install -r requirements.txt
 
