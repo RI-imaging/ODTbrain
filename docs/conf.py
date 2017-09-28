@@ -74,7 +74,7 @@ extensions = [
 #              'hidden_code_block',
               'sphinx.ext.autosummary',
 #              'sphinx.ext.viewcode',
-              'numpydoc',
+              'sphinx.ext.napoleon',
               'myviewcode',
               ]
 
@@ -316,7 +316,7 @@ intersphinx_mapping = {
     'http://docs.scipy.org/doc/numpy': None,
     'http://docs.scipy.org/doc/scipy/reference': None,
     'http://RI-imaging.github.io/radontea': None,
-    'http://RI-imaging.github.io/nrefocus': None,
+    'http://nrefocus.readthedocs.io/en/stable': None,
     'http://cimatosa.github.io/jobmanager': None,
-}
+    }
 
