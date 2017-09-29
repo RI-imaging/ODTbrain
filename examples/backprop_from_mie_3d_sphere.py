@@ -88,45 +88,45 @@ fR = odt.backpropagate_3d(uSin=u_sinR,
 nR = odt.odt_to_ri(fR, cfg["res"], cfg["nm"])
 
 # Plotting
-fig, axes = plt.subplots(2, 3, figsize=(8, 4))
+fig, axes = plt.subplots(2, 3, figsize=(8, 5))
 axes = np.array(axes).flatten()
 # field
 axes[0].set_title("Mie field phase")
-axes[0].set_xlabel("xD")
-axes[0].set_ylabel("yD")
+axes[0].set_xlabel("detector x")
+axes[0].set_ylabel("detector y")
 axes[0].imshow(np.angle(Ex), cmap=plt.cm.coolwarm)  # @UndefinedVariable
 axes[1].set_title("Mie field amplitude")
-axes[1].set_xlabel("xD")
-axes[1].set_ylabel("yD")
+axes[1].set_xlabel("detector x")
+axes[1].set_ylabel("detector y")
 axes[1].imshow(np.abs(Ex), cmap=plt.cm.gray)  # @UndefinedVariable
 
 # line plot
-axes[2].set_title("RI reconstruction, line plots")
+axes[2].set_title("line plots")
 axes[2].set_xlabel("distance [px]")
 axes[2].set_ylabel("real refractive index")
 center = int(cfg["size"] / 2)
 x = np.arange(cfg["size"]) - center
-axes[2].plot(x, nR[:, center, center].real, label="along x")
-axes[2].plot(x, nR[center, center, :].real, label="along z")
-axes[2].plot(x, nR[center, :, center].real, label="along y")
-axes[2].legend(loc=2)
+axes[2].plot(x, nR[:, center, center].real, label="x")
+axes[2].plot(x, nR[center, center, :].real, label="z")
+axes[2].plot(x, nR[center, :, center].real, label="y")
+axes[2].legend(loc=4)
 axes[2].set_xlim((-center, center))
 dn = abs(cfg["nsph"] - cfg["nm"])
 axes[2].set_ylim((cfg["nm"] - dn / 10, cfg["nsph"] + dn))
 axes[2].ticklabel_format(useOffset=False)
 
 # cross sections
-axes[3].set_title("RI reconstruction, section at x=0")
+axes[3].set_title("RI reconstruction\nsection at x=0")
 axes[3].set_xlabel("z")
 axes[3].set_ylabel("y")
 axes[3].imshow(nR[center, :, :].real)
 
-axes[4].set_title("RI reconstruction, section at y=0")
+axes[4].set_title("RI reconstruction\nsection at y=0")
 axes[4].set_xlabel("x")
 axes[4].set_ylabel("z")
 axes[4].imshow(nR[:, center, :].real)
 
-axes[5].set_title("RI reconstruction, section at z=0")
+axes[5].set_title("RI reconstruction\nsection at z=0")
 axes[5].set_xlabel("y")
 axes[5].set_ylabel("x")
 axes[5].imshow(nR[:, :, center].real)

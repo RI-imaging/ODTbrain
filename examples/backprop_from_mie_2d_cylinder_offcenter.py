@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Mie non-centered cylinder
+"""Mie off-center cylinder
 
 The *in silico* data set was created with the
 softare `miefield  <https://github.com/RI-imaging/miefield>`_.
-The data are 1D projections of a non-centered cylinder of constant
+The data are 1D projections of an off-center cylinder of constant
 refractive index. The Born approximation is error-prone due to
 a relatively large radius of the cylinder (30 wavelengths) and
 a refractive index difference of 0.006 between cylinder and

@@ -68,3 +68,5 @@ _version_save.py
 
 # extracted test files
 tests/data/*__*.txt
+*.tar
+.env

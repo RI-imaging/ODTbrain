@@ -13,5 +13,8 @@
 Backpropagation
 ~~~~~~~~~~~~~~~
 .. autofunction:: backpropagate_3d
-    
+
+
+Backpropagation with tilted axis of rotation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: backpropagate_3d_tilted

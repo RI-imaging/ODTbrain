@@ -6,5 +6,5 @@ To install the requirements for building the documentation, run
 
 To compile the documentation, run
 
-    sphinx-build . html
+    sphinx-build . _build
 

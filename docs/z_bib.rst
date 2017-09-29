@@ -2,4 +2,4 @@
 Bilbliography
 =============
 
-.. bibliography:: _static/odtbrain.bib
+.. bibliography:: odtbrain.bib
