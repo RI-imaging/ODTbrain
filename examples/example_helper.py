@@ -16,6 +16,7 @@ import warnings
 datadir = "data"
 webloc = "https://github.com/RI-imaging/ODTbrain/raw/master/examples/data"
 
+
 def dl_file(url, dest, chunk_size=6553):
     """
     Download `url` to `dest`.
@@ -26,7 +27,7 @@ def dl_file(url, dest, chunk_size=6553):
     with open(dest, 'wb') as out:
         while True:
             data = r.read(chunk_size)
-            if data is None or len(data)==0:
+            if data is None or len(data) == 0:
                 break
             out.write(data)
     r.release_conn()
@@ -35,7 +36,7 @@ def dl_file(url, dest, chunk_size=6553):
 def get_file(fname):
     """
     Return the full path to a basename. If the file does not exist
-    in the current directory or in subdirectory `datadir`, try to 
+    in the current directory or in subdirectory `datadir`, try to
     download it from the public GitHub repository.
     """
     # download location
@@ -44,22 +45,21 @@ def get_file(fname):
         if isdir(dlloc):
             pass
         else:
-            raise OSError("Must be directory: "+dlloc)
+            raise OSError("Must be directory: " + dlloc)
     else:
         os.mkdir(dlloc)
-        
-    
+
     # find the file
     foundloc = None
-    
+
     # Search possible file locations
-    possloc = [dirname(__file__), dlloc]  
+    possloc = [dirname(__file__), dlloc]
 
     for pl in possloc:
         if exists(join(pl, fname)):
             foundloc = join(pl, fname)
             break
-                
+
     if foundloc is None:
         # Download file with urllib2.urlopen
         print("Attempting to download file {} from {} to {}.".
@@ -67,15 +67,15 @@ def get_file(fname):
         try:
             dl_file(url=join(webloc, fname),
                     dest=join(dlloc, fname))
-        except:
-            warnings.warn("Download failed: "+fname)
+        except BaseException:
+            warnings.warn("Download failed: " + fname)
             raise
         else:
             foundloc = join(dlloc, fname)
-    
+
     if foundloc is None:
-        raise OSError("Could not obtain file: "+fname)
-    
+        raise OSError("Could not obtain file: " + fname)
+
     return foundloc
 
 
@@ -103,11 +103,11 @@ def load_tar_lzma_data(afile):
     fields_imag = []
     phantom = []
     parms = {}
-    
+
     with tarfile.open(afile[:-5], "r") as t:
         members = t.getmembers()
         members.sort(key=lambda x: x.name)
-        
+
         for m in members:
             n = m.name
             f = t.extractfile(m)
@@ -126,7 +126,7 @@ def load_tar_lzma_data(afile):
                     fields_real.append(np.loadtxt(f))
 
     phantom = np.array(phantom)
-    sino = np.array(fields_real)+1j*np.array(fields_imag)
-    angles = np.linspace(0, 2*np.pi, sino.shape[0], endpoint=False)
-    
+    sino = np.array(fields_real) + 1j * np.array(fields_imag)
+    angles = np.linspace(0, 2 * np.pi, sino.shape[0], endpoint=False)
+
     return sino, angles, phantom, parms

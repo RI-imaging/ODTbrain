@@ -159,7 +159,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     by a dielectric object with refractive index
     :math:`n(x,y,z)`.
 
-    This method implements the 3D backpropagation algorithm [1]_
+    This method implements the 3D backpropagation algorithm
+    :cite:`Mueller2015arxiv`.
 
 
     .. math::

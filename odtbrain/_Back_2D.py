@@ -75,7 +75,8 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
     by a dielectric object with refractive index
     :math:`n(x,z)`.
 
-    This method implements the 2D backpropagation algorithm [1]_
+    This method implements the 2D backpropagation algorithm
+    :cite:`Mueller2015arxiv`.
 
     .. math::
         f(\mathbf{r}) = 

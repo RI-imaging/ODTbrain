@@ -393,7 +393,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     
     This method implements the 3D backpropagation algorithm with
     a rotational axis that is tilted by :math:`\\theta_\mathrm{tilt}`
-    w.r.t. the imaging plane [3]_
+    w.r.t. the imaging plane :cite:`Mueller2015tilted`.
 
     .. math::
         f(\mathbf{r}) = 

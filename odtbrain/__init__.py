@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-u""" Algorithms for scalar diffraction tomography.
+u"""Algorithms for scalar diffraction tomography.
 
 This package provides reconstruction algorithms for diffraction
 tomography in two and three dimensions.
@@ -26,7 +26,8 @@ installation instructions at the `GitHub repository`_.
 
 Theoretical background
 ----------------------
-A detailed summary of the underlying theory is available in [1]_.
+A detailed summary of the underlying theory is available
+in :cite:`Mueller2015arxiv`.
 
 The Fourier diffraction theorem states, that the Fourier transform
 :math:`\widehat{U}_{\mathrm{B},\phi_0}(\mathbf{k_\mathrm{D}})` of 
@@ -35,7 +36,7 @@ a certain angle :math:`\phi_0`, is distributed along a circular arc
 (2D) or along a semi-spherical surface (3D) in Fourier space,
 synthesizing the Fourier transform 
 :math:`\widehat{F}(\mathbf{k})` of the object function 
-:math:`f(\mathbf{r})` ([4]_, [5]_).
+:math:`f(\mathbf{r})` :cite:`Kak2001`, :cite:`Wolf1969`.
 
 .. math::
 
@@ -80,7 +81,7 @@ following cases, but have not been tested appropriately:
 How to cite
 -----------
 If you use ODTbrain in a scientific publication, please cite
-Müller et al., *BMC Bioinformatics* (2015) [2]_. 
+Müller et al., *BMC Bioinformatics* (2015) :cite:`Mueller2015`. 
 
 
 """

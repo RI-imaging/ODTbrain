@@ -27,8 +27,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.abspath(
 
 sys.path.append(os.path.abspath('extensions'))
 
-# include examples
-sys.path.append(os.path.abspath(os.path.dirname(__file__)+"/../examples"))
 
 # There should be a file "setup.py" that has the property "version"
 from setup import author, authors, description, name, version, year
@@ -38,8 +36,15 @@ projectdescription = description
 # Mock all dependencies of ODTbrain
 install_requires = ["unwrap", "numexpr", "numpy", "pyfftw", "scipy",
                     "scipy.interpolate", "scipy.ndimage", "scipy.stats"]
+
 for mod_name in install_requires:
     sys.modules[mod_name] = mock.Mock()
+
+# http://www.sphinx-doc.org/en/stable/ext/autodoc.html#confval-autodoc_member_order
+# Order class attributes and functions in separate blocks
+autodoc_member_order = 'bysource'
+autodoc_mock_imports = install_requires
+
 
 # -- General configuration ------------------------------------------------
 
@@ -75,6 +80,8 @@ extensions = [
               'sphinx.ext.autosummary',
 #              'sphinx.ext.viewcode',
               'sphinx.ext.napoleon',
+              'sphinxcontrib.bibtex',
+              'include_doc_code_img',
               'myviewcode',
               ]
 
@@ -148,11 +155,6 @@ exclude_patterns = ['_build']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'default'
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-html_theme_options = {"stickysidebar": True}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
