@@ -54,31 +54,10 @@ autodoc_mock_imports = install_requires
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-#extensions = [
-#    'sphinx.ext.autodoc',
-#    'sphinx.ext.doctest',
-#    'sphinx.ext.coverage',
-#    'sphinx.ext.pngmath',
-#    'sphinx.ext.viewcode',
-#]
-
-
-extensions = [
-#              'matplotlib.sphinxext.mathmpl',
-#              'matplotlib.sphinxext.only_directives',
-#              'matplotlib.sphinxext.plot_directive',
-#               'ipython_directive',
-              'sphinx.ext.intersphinx',
+extensions = ['sphinx.ext.intersphinx',
               'sphinx.ext.autodoc',
-#              'sphinx.ext.doctest',
-#              'ipython_console_highlighting',
-#               'sphinx.ext.pngmath',
               'sphinx.ext.mathjax',
-#              'sphinx.ext.todo',
-#             'inheritance_diagram',
-#              'hidden_code_block',
               'sphinx.ext.autosummary',
-#              'sphinx.ext.viewcode',
               'sphinx.ext.napoleon',
               'sphinxcontrib.bibtex',
               'include_doc_code_img',
@@ -312,13 +291,9 @@ texinfo_documents = [
 # -----------------------------------------------------------------------------
 # intersphinx
 # -----------------------------------------------------------------------------
-_python_doc_base = 'http://docs.python.org/2.7'
-intersphinx_mapping = {
-    _python_doc_base: None,
-    'http://docs.scipy.org/doc/numpy': None,
-    'http://docs.scipy.org/doc/scipy/reference': None,
-    'http://RI-imaging.github.io/radontea': None,
-    'http://nrefocus.readthedocs.io/en/stable': None,
-    'http://cimatosa.github.io/jobmanager': None,
-    }
-
+intersphinx_mapping = {"python": ('https://docs.python.org/', None),
+                       "numpy": ('http://docs.scipy.org/doc/numpy', None),
+                       "scipy": ('https://docs.scipy.org/doc/scipy/reference/', None),
+                       "radontea": ('http://radontea.readthedocs.io/en/stable', None),
+                       "nrefocus": ('http://nrefocus.readthedocs.io/en/stable', None),
+                       }

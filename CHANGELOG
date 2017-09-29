@@ -1,3 +1,6 @@
+0.1.8
+- Updated documentation
+- Cleaned up examples
 0.1.7
 - Move documentation from GitHub to readthedocs.io
 - Add universal wheel on PyPI

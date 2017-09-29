@@ -17,6 +17,7 @@ if __name__ == "__main__":
     files = [f for f in files if f.endswith(".py")]
     files = [f for f in files if not f == op.basename(__file__)]
     files = [op.join(thisdir, f) for f in files]
+    files.sort()
 
     for f in files:
         fname = f[:-3] + ".jpg"

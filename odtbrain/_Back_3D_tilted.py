@@ -485,7 +485,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         case, this value should be a multiple of 2πi. 
         If `padval` is `None`, then the edge values are used for
         padding (see documentation of :func:`numpy.pad`).
-    order : int between 0 and 5
+    intp_order : int between 0 and 5
         Order of the interpolation for rotation.
         See :func:`scipy.ndimage.interpolation.affine_transform` for details.
     dtype : dtype object or argument for :func:`numpy.dtype`

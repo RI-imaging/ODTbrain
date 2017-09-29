@@ -63,8 +63,8 @@ print("Performing backpropagation.")
 angles = np.linspace(0, 2 * np.pi, A, endpoint=False)
 
 # Perform focusing
-Ex, d = nrefocus.refocus(Ex,
-                         d=cfg["lD"]*cfg["res"],
+Ex = nrefocus.refocus(Ex,
+                         d=-cfg["lD"]*cfg["res"],
                          nm=cfg["nm"],
                          res=cfg["res"],
                          )
@@ -81,7 +81,8 @@ fR = odt.backpropagate_3d(uSin=u_sinR,
                           res=cfg["res"],
                           nm=cfg["nm"],
                           lD=0,
-                          padfac=2.1)
+                          padfac=2.1,
+                          save_memory=True)
 
 # RI computation
 nR = odt.odt_to_ri(fR, cfg["res"], cfg["nm"])

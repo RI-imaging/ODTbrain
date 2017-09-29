@@ -91,7 +91,7 @@ px, py, pz = phantom.shape
 sino_phase = np.angle(sino)
 
 # compare phantom and reconstruction in plot
-fig, axes = plt.subplots(2, 3, figsize=(8, 5))
+fig, axes = plt.subplots(2, 3, figsize=(8, 4.5))
 kwri = {"vmin": n_tilt.real.min(), "vmax": n_tilt.real.max()}
 kwph = {"vmin": sino_phase.min(), "vmax": sino_phase.max(),
         "cmap": plt.cm.coolwarm}  # @UndefinedVariable
