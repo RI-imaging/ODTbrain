@@ -67,6 +67,7 @@ class IncludeDirective(Directive):
             image_path = ""
         if image_path:
             rst.append(".. figure:: {}".format(image_path))
+            rst.append("")
 
         # download file
         rst.append(":download:`{}<{}>`".format(
