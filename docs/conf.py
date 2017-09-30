@@ -45,9 +45,10 @@ for mod_name in install_requires:
 autodoc_member_order = 'bysource'
 autodoc_mock_imports = install_requires
 
-html_theme_options = {"github_url": "https://github.com/RI-imaging/ODTbrain",
-                      "display_version": True,
-                      }
+# Display link to GitHub repo instead of doc on rtfd
+rst_prolog = """
+:github_url: https://github.com/RI-imaging/ODTbrain
+"""
 
 # -- General configuration ------------------------------------------------
 
