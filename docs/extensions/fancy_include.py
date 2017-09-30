@@ -3,7 +3,7 @@
 Use case
 --------
 There is an "examples" directory in the root of a repository,
-e.g. 'include_doc_code_img_path = "../examples"' in conf.py 
+e.g. 'include_doc_code_img_path = "../examples"' in conf.py
 (default). An example is a file ("an_example.py") that consists
 of a doc string at the beginning of the file, the example code,
 and, optionally, an image file (png, jpg) ("an_example.png").
@@ -13,16 +13,16 @@ Configuration
 -------------
 In conf.py, set the parameter
 
-   include_doc_code_img_path = "../examples"
+   fancy_include_path = "../examples"
 
 to wherever the included files reside.
 
 
 Usage
 -----
-The directive 
+The directive
 
-   .. include_doc_code_img:: an_example.py
+   .. fancy_include:: an_example.py
 
 will display the doc string formatted with the first line as a
 heading, a code block with line numbers, and the image file.
@@ -41,23 +41,23 @@ class IncludeDirective(Directive):
     optional_arguments = 0
 
     def run(self):
-        path = self.state.document.settings.env.config.include_doc_code_img_path
+        path = self.state.document.settings.env.config.fancy_include_path
         full_path = op.join(path, self.arguments[0])
-        
+
         with open(full_path, "r") as myfile:
             text = myfile.read()
-        
+
         source = text.split('"""')
         doc = source[1].split("\n")
-        doc.insert(1, "~"*len(doc[0])) # make title heading
-        
+        doc.insert(1, "~" * len(doc[0]))  # make title heading
+
         code = source[2].split("\n")
-        
+
         # documentation
         rst = []
         for line in doc:
             rst.append(line)
-        
+
         # image
         for ext in [".png", ".jpg"]:
             image_path = full_path[:-3] + ext
@@ -67,7 +67,11 @@ class IncludeDirective(Directive):
             image_path = ""
         if image_path:
             rst.append(".. figure:: {}".format(image_path))
-        
+
+        # download file
+        rst.append(":download:`Download {} <{}>`".format(
+            op.basename(full_path), full_path))
+
         # code
         rst.append("")
         rst.append(".. code-block:: python")
@@ -77,10 +81,6 @@ class IncludeDirective(Directive):
             rst.append("   {}".format(line))
         rst.append("")
 
-        # download file
-        rst.append(":download:`Download {} <{}>`".format(op.basename(full_path), full_path))
-        
-        
         vl = ViewList(rst, "fakefile.rst")
         # Create a node.
         node = nodes.section()
@@ -89,9 +89,10 @@ class IncludeDirective(Directive):
         nested_parse_with_titles(self.state, vl, node)
         return node.children
 
-def setup(app):
-    app.add_config_value('include_doc_code_img_path', "../examples", 'html')
 
-    app.add_directive('include_doc_code_img', IncludeDirective)
+def setup(app):
+    app.add_config_value('fancy_include_path', "../examples", 'html')
+
+    app.add_directive('fancy_include', IncludeDirective)
 
     return {'version': '0.1'}   # identifies the version of our extension

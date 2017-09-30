@@ -6,11 +6,11 @@ downloaded from the source repository by the script
 Please make sure that this script is present in the example
 script folder.
 
-.. include_doc_code_img:: backprop_from_mie_3d_sphere.py
+.. fancy_include:: backprop_from_mie_3d_sphere.py
 
-.. include_doc_code_img:: backprop_from_fdtd_3d.py
+.. fancy_include:: backprop_from_fdtd_3d.py
 
-.. include_doc_code_img:: backprop_from_fdtd_3d_tilted.py
+.. fancy_include:: backprop_from_fdtd_3d_tilted.py
 
-.. include_doc_code_img:: backprop_from_fdtd_3d_tilted2.py
+.. fancy_include:: backprop_from_fdtd_3d_tilted2.py
 

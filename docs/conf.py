@@ -64,7 +64,7 @@ extensions = ['sphinx.ext.intersphinx',
               'sphinx.ext.autosummary',
               'sphinx.ext.napoleon',
               'sphinxcontrib.bibtex',
-              'include_doc_code_img',
+              'fancy_include',
               'myviewcode',
               ]
 

@@ -6,11 +6,11 @@ downloaded from the source repository by the script
 Please make sure that this script is present in the example
 script folder.
 
-.. include_doc_code_img:: backprop_from_mie_2d_cylinder_offcenter.py
+.. fancy_include:: backprop_from_mie_2d_cylinder_offcenter.py
 
-.. include_doc_code_img:: backprop_from_mie_2d_weights_angles.py
+.. fancy_include:: backprop_from_mie_2d_weights_angles.py
 
-.. include_doc_code_img:: backprop_from_mie_2d_incomplete_coverage.py
+.. fancy_include:: backprop_from_mie_2d_incomplete_coverage.py
 
-.. include_doc_code_img:: backprop_from_fdtd_2d.py
+.. fancy_include:: backprop_from_fdtd_2d.py
 
