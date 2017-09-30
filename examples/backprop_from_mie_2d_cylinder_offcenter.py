@@ -53,8 +53,7 @@ u0 = u0_real + 1j * u0_imag
 # create 2d array
 u0 = np.tile(u0, size).reshape(A, size).transpose()
 
-# background field necessary to compute initial born field
-# computed with
+# background field necessary to compute initial born field using
 # u0_single = mie.GetFieldCylinder(radius, nmed, nmed, lD, size, res)
 u0_single_real = np.loadtxt(arc.open("u0_single_real.txt"))
 u0_single_imag = np.loadtxt(arc.open("u0_single_real.txt"))

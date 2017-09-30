@@ -26,11 +26,6 @@ rotation; the result is a blurry reconstruction. The third column
 shows the improved reconstruction; the known tilted axis of rotation
 is used in the reconstruction process.
 
-Download the :download:`full example <../examples/backprop_from_fdtd_3d_tilted.py>`.
-If you are not running the example from the git repository, make sure the
-file :download:`example_helper.py <../examples/example_helper.py>` is present
-in the current directory.
-
 This example requires Python3 because the data are lzma-compressed.
 
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
