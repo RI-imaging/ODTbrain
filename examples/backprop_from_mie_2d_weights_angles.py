@@ -37,16 +37,14 @@ arc = zipfile.ZipFile(datazip)
 
 angles = np.loadtxt(arc.open("mie_angles.txt"))
 
-# sinogram computed with mie
-# computed with
+# sinogram computed with Mie theory
 # miefield.GetSinogramCylinderRotation(radius, nmed, ncyl, lD, lC, size, A, res)
 sino_real = np.loadtxt(arc.open("sino_real.txt"))
 sino_imag = np.loadtxt(arc.open("sino_imag.txt"))
 sino = sino_real + 1j * sino_imag
 A, size = sino_real.shape
 
-# background sinogram computed with mie
-# computed with
+# background sinogram computed with Mie theory
 # miefield.GetSinogramCylinderRotation(radius, nmed, nmed, lD, lC, size, A, res)
 u0_real = np.loadtxt(arc.open("u0_real.txt"))
 u0_imag = np.loadtxt(arc.open("u0_imag.txt"))
@@ -55,7 +53,6 @@ u0 = u0_real + 1j * u0_imag
 u0 = np.tile(u0, size).reshape(A, size).transpose()
 
 # background field necessary to compute initial born field
-# computed with
 # u0_single = mie.GetFieldCylinder(radius, nmed, nmed, lD, size, res)
 u0_single_real = np.loadtxt(arc.open("u0_single_real.txt"))
 u0_single_imag = np.loadtxt(arc.open("u0_single_real.txt"))
