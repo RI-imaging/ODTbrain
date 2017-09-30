@@ -69,7 +69,7 @@ class IncludeDirective(Directive):
             rst.append(".. figure:: {}".format(image_path))
 
         # download file
-        rst.append(":download:`{}`".format(
+        rst.append(":download:`{}<{}>`".format(
             op.basename(full_path), full_path))
 
         # code
