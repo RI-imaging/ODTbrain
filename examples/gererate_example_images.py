@@ -21,9 +21,13 @@ if __name__ == "__main__":
     for f in files:
         fname = f[:-3] + ".jpg"
         if not op.exists(fname):
-            exec(open(f).read())
-            plt.savefig(fname, dpi=DPI)
-            print("Image created: '{}'".format(fname))
+            exec_str = open(f).read()
+            if exec_str.count("plt.show()"):
+                exec(exec_str)
+                plt.savefig(fname, dpi=DPI)
+                print("Image created: '{}'".format(fname))
+            else:
+                print("No image: '{}'".format(fname))
         else:
             print("Image skipped (already exists): '{}'".format(fname))
         plt.close()
