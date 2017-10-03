@@ -33,7 +33,7 @@ from setup import author, authors, description, name, version, year
 projectname = name
 projectdescription = description
 
-# Mock all dependencies of ODTbrain
+# Mock all dependencies
 install_requires = ["unwrap", "numexpr", "numpy", "pyfftw", "scipy",
                     "scipy.interpolate", "scipy.ndimage", "scipy.stats"]
 

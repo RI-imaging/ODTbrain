@@ -27,7 +27,7 @@ The directive
 will display the doc string formatted with the first line as a
 heading, a code block with line numbers, and the image file.
 """
-
+import io
 import os.path as op
 
 from docutils.statemachine import ViewList
@@ -44,7 +44,7 @@ class IncludeDirective(Directive):
         path = self.state.document.settings.env.config.fancy_include_path
         full_path = op.join(path, self.arguments[0])
 
-        with open(full_path, "r") as myfile:
+        with io.open(full_path, "r") as myfile:
             text = myfile.read()
 
         source = text.split('"""')
