@@ -47,14 +47,19 @@ class IncludeDirective(Directive):
         with io.open(full_path, "r") as myfile:
             text = myfile.read()
 
+        # add reference
+        name = op.basename(full_path)[:-3]
+        rst = [".. _example_{}:".format(name),
+               "",
+               ]
+
+        # add docstring
         source = text.split('"""')
         doc = source[1].split("\n")
         doc.insert(1, "~" * len(doc[0]))  # make title heading
 
         code = source[2].split("\n")
 
-        # documentation
-        rst = []
         for line in doc:
             rst.append(line)
 
