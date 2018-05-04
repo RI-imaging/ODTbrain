@@ -44,8 +44,11 @@ if True:  # pragma: no cover
             env['LANGUAGE'] = 'C'
             env['LANG'] = 'C'
             env['LC_ALL'] = 'C'
-            cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env)
-            out = cmd.communicate()[0]
+            pop = subprocess.Popen(cmd,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   env=env)
+            out = pop.communicate()[0]
             return out
 
         # change directory
