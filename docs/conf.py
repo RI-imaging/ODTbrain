@@ -65,7 +65,6 @@ extensions = ['sphinx.ext.intersphinx',
               'sphinx.ext.napoleon',
               'sphinxcontrib.bibtex',
               'fancy_include',
-              'myviewcode',
               ]
 
 

@@ -85,7 +85,10 @@ Müller et al., *BMC Bioinformatics* (2015) :cite:`Mueller2015`.
 
 
 """
-from ._Back_2D import backpropagate_2d, fourier_map_2d, sum_2d
+from .alg2d_bpp import backpropagate_2d
+from .alg2d_fmp import fourier_map_2d
+from .alg2d_int import integrate_2d
+
 from ._Back_3D import backpropagate_3d
 from ._Back_3D_tilted import backpropagate_3d_tilted
 from ._br import odt_to_ri, opt_to_ri, sinogram_as_radon, sinogram_as_rytov
