@@ -17,7 +17,6 @@ DIR = dirname(abspath(__file__))
 sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain
-import odtbrain._Back_2D
 import odtbrain._Back_3D
 import odtbrain._Back_3D_tilted
 

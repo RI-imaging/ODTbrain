@@ -17,7 +17,6 @@ DIR = dirname(abspath(__file__))
 sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain
-import odtbrain._Back_2D
 
 from common_methods import create_test_sino_2d, get_test_parameter_set, write_results, get_results
 
@@ -34,18 +33,18 @@ def test_angle_offset():
     # reference
     r1 = []
     for p in parameters:
-        f1 = odtbrain._Back_2D.backpropagate_2d(sino, angles, weight_angles=False, **p)
+        f1 = odtbrain.backpropagate_2d(sino, angles, weight_angles=False, **p)
         r1.append(f1)
     # with offset
     angles[::2] += 2*np.pi*np.arange(angles[::2].shape[0])
     r2 = []
     for p in parameters:
-        f2 = odtbrain._Back_2D.backpropagate_2d(sino, angles, weight_angles=False, **p)    
+        f2 = odtbrain.backpropagate_2d(sino, angles, weight_angles=False, **p)    
         r2.append(f2)
     # with offset and weights
     r3 = []
     for p in parameters:
-        f3 = odtbrain._Back_2D.backpropagate_2d(sino, angles, weight_angles=True, **p)    
+        f3 = odtbrain.backpropagate_2d(sino, angles, weight_angles=True, **p)    
         r3.append(f3)
     assert np.allclose(np.array(r1).flatten().view(float),
                        np.array(r2).flatten().view(float))
@@ -68,7 +67,7 @@ def test_angle_swap():
     # reference
     r1 = []
     for p in parameters:
-        f1 = odtbrain._Back_2D.backpropagate_2d(sino, angles, weight_angles=True, **p)
+        f1 = odtbrain.backpropagate_2d(sino, angles, weight_angles=True, **p)
         r1.append(f1)
     # change order of angles
     order = np.argsort(angles % .5) 
@@ -76,7 +75,7 @@ def test_angle_swap():
     sino = sino[order,:]
     r2 = []
     for p in parameters:
-        f2 = odtbrain._Back_2D.backpropagate_2d(sino, angles, weight_angles=True, **p)    
+        f2 = odtbrain.backpropagate_2d(sino, angles, weight_angles=True, **p)    
         r2.append(f2)
     assert np.allclose(np.array(r1).flatten().view(float),
                        np.array(r2).flatten().view(float))

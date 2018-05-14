@@ -1,9 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-""" Tests tilted backpropagation algorithm
-"""
-from __future__ import division, print_function
-
+"""Test copying arrays"""
 import numpy as np
 import os
 from os.path import abspath, basename, dirname, join, split, exists
@@ -18,7 +13,6 @@ DIR = dirname(abspath(__file__))
 sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain
-import odtbrain._Back_2D
 import odtbrain._Back_3D
 import odtbrain._Back_3D_tilted
 import odtbrain._br

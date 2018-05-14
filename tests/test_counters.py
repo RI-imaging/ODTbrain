@@ -1,25 +1,16 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-""" Tests tilted backpropagation algorithm
-"""
-from __future__ import division, print_function
+"""Tests progress counters"""
 
 import multiprocessing as mp
-import numpy as np
-import os
-from os.path import abspath, basename, dirname, join, split, exists
 import platform
-from scipy.ndimage import rotate
 import sys
 import warnings
 import zipfile
 
-# Add parent directory to beginning of path variable
-DIR = dirname(abspath(__file__))
-sys.path = [split(DIR)[0]] + sys.path
+import numpy as np
+from scipy.ndimage import rotate
+
 
 import odtbrain
-import odtbrain._Back_2D
 import odtbrain._Back_3D
 import odtbrain._Back_3D_tilted
 import odtbrain._br
@@ -27,58 +18,49 @@ import odtbrain._br
 from common_methods import create_test_sino_2d, create_test_sino_3d, create_test_sino_3d_tilted, cutout, get_test_parameter_set, write_results, get_results, normalize
 
 
-def test_sum2d():
-    myframe = sys._getframe()
-    myname = myframe.f_code.co_name
-    print("running ", myname)
+def test_integrate_2d():
     sino, angles = create_test_sino_2d(N=10)
     p = get_test_parameter_set(1)[0]
     # complex
     jmc = mp.Value("i", 0)
     jmm = mp.Value("i", 0)
 
-    f = odtbrain._Back_2D.sum_2d(sino, angles,
-                                         jmc=jmc,
-                                         jmm=jmm,
-                                         **p)
+    odtbrain.integrate_2d(sino, angles,
+                          count=jmc,
+                          max_count=jmm,
+                          **p)
     
     assert jmc.value == jmm.value
     assert jmc.value != 0
 
 
-def test_fmap2d():
-    myframe = sys._getframe()
-    myname = myframe.f_code.co_name
-    print("running ", myname)
+def test_fmp_2d():
     sino, angles = create_test_sino_2d(N=10)
     p = get_test_parameter_set(1)[0]
     # complex
     jmc = mp.Value("i", 0)
     jmm = mp.Value("i", 0)
 
-    f = odtbrain._Back_2D.fourier_map_2d(sino, angles,
-                                         jmc=jmc,
-                                         jmm=jmm,
-                                         **p)
+    odtbrain.fourier_map_2d(sino, angles,
+                            count=jmc,
+                            max_count=jmm,
+                            **p)
     
     assert jmc.value == jmm.value
     assert jmc.value != 0
 
 
-def test_back2d():
-    myframe = sys._getframe()
-    myname = myframe.f_code.co_name
-    print("running ", myname)
+def test_bpp_2d():
     sino, angles = create_test_sino_2d(N=10)
     p = get_test_parameter_set(1)[0]
     # complex
     jmc = mp.Value("i", 0)
     jmm = mp.Value("i", 0)
 
-    f = odtbrain._Back_2D.backpropagate_2d(sino, angles, padval=0,
-                                           jmc=jmc,
-                                           jmm=jmm,
-                                           **p)
+    odtbrain.backpropagate_2d(sino, angles, padval=0,
+                              count=jmc,
+                              max_count=jmm,
+                              **p)
     assert jmc.value == jmm.value
     assert jmc.value != 0
 
