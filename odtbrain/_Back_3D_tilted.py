@@ -13,7 +13,7 @@ import pyfftw
 import scipy.ndimage
 import warnings
 
-from .alg3d_bpp import _ncores, _np_float64
+from ._alg3d_bpp import _ncores, _np_float64
 from . import util
 import odtbrain
 

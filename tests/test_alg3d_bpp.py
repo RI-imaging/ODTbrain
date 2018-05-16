@@ -7,7 +7,7 @@ import sys
 import numpy as np
 
 import odtbrain
-from odtbrain import alg3d_bpp
+from odtbrain import _alg3d_bpp
 
 from common_methods import create_test_sino_3d, cutout, \
     get_test_parameter_set, write_results, get_results
@@ -112,7 +112,7 @@ def test_3d_mprotate():
     odtbrain._shared_array = _shared_array
     # pool must be created after _shared array
     pool = mp.Pool(processes=mp.cpu_count())
-    alg3d_bpp._mprotate(2, ln, pool, 2)
+    _alg3d_bpp._mprotate(2, ln, pool, 2)
     if WRITE_RES:
         write_results(myframe, _shared_array)
     assert np.allclose(np.array(_shared_array).flatten().view(
