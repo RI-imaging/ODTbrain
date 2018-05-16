@@ -17,7 +17,6 @@ DIR = dirname(abspath(__file__))
 sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain
-import odtbrain._Back_3D
 import odtbrain._Back_3D_tilted
 import odtbrain._br
 
@@ -33,7 +32,7 @@ def test_3d_backprop_phase_real():
     # reference
     rref = list()
     for p in parameters:
-        fref = odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=0,
+        fref = odtbrain.backpropagate_3d(sino, angles, padval=0,
                                                   dtype=np.float64, onlyreal=True, **p)
         rref.append(cutout(fref))
     dataref = np.array(rref).flatten().view(float)
@@ -57,7 +56,7 @@ def test_3d_backprop_pad():
     # reference
     rref = list()
     for p in parameters:
-        fref = odtbrain._Back_3D.backpropagate_3d(sino, angles, padval=None,
+        fref = odtbrain.backpropagate_3d(sino, angles, padval=None,
                                                   dtype=np.float64, onlyreal=False, **p)
         rref.append(cutout(fref))
     dataref = np.array(rref).flatten().view(float)

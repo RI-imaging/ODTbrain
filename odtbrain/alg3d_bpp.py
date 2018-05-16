@@ -82,7 +82,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      num_cores=_ncores,
                      save_memory=False,
                      copy=True,
-                     jmc=None, jmm=None,
+                     count=None, max_count=None,
                      verbose=0):
     """3D backpropagation with the Fourier diffraction theorem
 
@@ -195,11 +195,11 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
         .. versionadded:: 0.1.5
 
-    jmc, jmm : instance of :func:`multiprocessing.Value` or `None`
-        The progress of this function can be monitored with the
-        :mod:`jobmanager` package. The current step `jmc.value` is
-        incremented `jmm.value` times. `jmm.value` is set at the
-        beginning.
+    count, max_count: multiprocessing.Value or `None`
+        Can be used to monitor the progress of the algorithm.
+        Initially, the value of `max_count.value` is incremented
+        by the total number of steps. At each step, the value
+        of `count.value` is incremented.
     verbose : int
         Increment to increase verbosity.
 
@@ -234,8 +234,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     A = angles.shape[0]
     # jobmanager
-    if jmm is not None:
-        jmm.value = A + 2
+    if max_count is not None:
+        max_count.value += A + 2
 
     # check for dtype
     dtype = np.dtype(dtype)
@@ -427,8 +427,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     myfftw_plan = pyfftw.FFTW(temp_array, temp_array, threads=num_cores,
                               flags=["FFTW_ESTIMATE"], axes=(0, 1))
 
-    if jmc is not None:
-        jmc.value += 1
+    if count is not None:
+        count.value += 1
 
     for p in range(len(sino)):
         # this overwrites sino
@@ -483,8 +483,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         # computation later
         # filter2[0].size*len(filter2)*128/8/1024**3
 
-    if jmc is not None:
-        jmc.value += 1
+    if count is not None:
+        count.value += 1
 
     #                                  a, z, y,  x
     # projection = projection.reshape(la, 1, lNy, lNx)
@@ -581,8 +581,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
             _mprotate(phi0, lny, pool4loop, intp_order)
             outarr.imag += _shared_array
 
-        if jmc is not None:
-            jmc.value += 1
+        if count is not None:
+            count.value += 1
 
     pool4loop.terminate()
     pool4loop.join()
