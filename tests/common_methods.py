@@ -1,20 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-""" Tests backpropagation algorithm
-"""
-from __future__ import division, print_function, unicode_literals
-
-import numpy as np
-import os
-from os.path import abspath, basename, dirname, join, split, exists
-from scipy.ndimage import rotate
-import sys
+"""Test helper functions"""
+import pathlib
+import tempfile
 import warnings
 import zipfile
 
-# Add parent directory to beginning of path variable
-DIR = dirname(abspath(__file__))
-sys.path = [split(DIR)[0]] + sys.path
+import numpy as np
+from scipy.ndimage import rotate
 
 
 def create_test_sino_2d(A=9, N=22, max_phase=5.0,
@@ -24,7 +15,7 @@ def create_test_sino_2d(A=9, N=22, max_phase=5.0,
     The sinogram is generated from a Gaussian that is shifted
     according to the rotational position of a non-centered
     object.
-    
+
     Parameters
     ----------
     A : int
@@ -70,14 +61,14 @@ def create_test_sino_2d(A=9, N=22, max_phase=5.0,
 
 
 def create_test_sino_3d(A=9, Nx=22, Ny=22, max_phase=5.0,
-                        ampl_range=(1.0,1.0)):
+                        ampl_range=(1.0, 1.0)):
     """
     Creates 3D test sinogram for optical diffraction tomography.
     The sinogram is generated from a Gaussian that is shifted
     according to the rotational position of a non-centered
     object. The simulated rotation is about the second (y)/[1]
     axis.
-    
+
     Parameters
     ----------
     A : int
@@ -93,7 +84,7 @@ def create_test_sino_3d(A=9, Nx=22, Ny=22, max_phase=5.0,
     ampl_range : tuple of floats
         Determines the min/max range of the amplitude values.
         Equal values means constant amplitude.
-    
+
     Returns
     """
     # initiate array
@@ -101,8 +92,8 @@ def create_test_sino_3d(A=9, Nx=22, Ny=22, max_phase=5.0,
     # 2pi coverage
     angles = np.linspace(0, 2*np.pi, A, endpoint=False)
     # x-values of Gaussain
-    x = np.linspace(-Nx/2, Nx/2, Nx, endpoint=True).reshape(1,-1)
-    y = np.linspace(-Ny/2, Ny/2, Ny, endpoint=True).reshape(-1,1)
+    x = np.linspace(-Nx/2, Nx/2, Nx, endpoint=True).reshape(1, -1)
+    y = np.linspace(-Ny/2, Ny/2, Ny, endpoint=True).reshape(-1, 1)
     # SD of Gaussian
     dev = min(np.sqrt(Nx/2), np.sqrt(Ny/2))
     # Off-centered rotation  about second axis:
@@ -128,7 +119,7 @@ def create_test_sino_3d(A=9, Nx=22, Ny=22, max_phase=5.0,
 
 
 def create_test_sino_3d_tilted(A=9, Nx=22, Ny=22, max_phase=5.0,
-                               ampl_range=(1.0,1.0),
+                               ampl_range=(1.0, 1.0),
                                tilt_plane=0.0):
     """
     Creates 3D test sinogram for optical diffraction tomography.
@@ -136,7 +127,7 @@ def create_test_sino_3d_tilted(A=9, Nx=22, Ny=22, max_phase=5.0,
     according to the rotational position of a non-centered
     object. The simulated rotation is about the second (y)/[1]
     axis.
-    
+
     Parameters
     ----------
     A : int
@@ -154,7 +145,7 @@ def create_test_sino_3d_tilted(A=9, Nx=22, Ny=22, max_phase=5.0,
         Equal values means constant amplitude.
     tilt_plane : float
         Rotation tilt offset [rad].
-    
+
     Returns
     """
     # initiate array
@@ -162,8 +153,8 @@ def create_test_sino_3d_tilted(A=9, Nx=22, Ny=22, max_phase=5.0,
     # 2pi coverage
     angles = np.linspace(0, 2*np.pi, A, endpoint=False)
     # x-values of Gaussain
-    x = np.linspace(-Nx/2, Nx/2, Nx, endpoint=True).reshape(1,-1)
-    y = np.linspace(-Ny/2, Ny/2, Ny, endpoint=True).reshape(-1,1)
+    x = np.linspace(-Nx/2, Nx/2, Nx, endpoint=True).reshape(1, -1)
+    y = np.linspace(-Ny/2, Ny/2, Ny, endpoint=True).reshape(-1, 1)
     # SD of Gaussian
     dev = min(np.sqrt(Nx/2), np.sqrt(Ny/2))
     # Off-centered rotation  about second axis:
@@ -198,21 +189,43 @@ def cutout(a):
     """
     x = np.arange(a.shape[0])
     c = a.shape[0] / 2
-    
+
     if len(a.shape) == 2:
-        x = x.reshape(-1,1)
-        y = x.reshape(1,-1)
+        x = x.reshape(-1, 1)
+        y = x.reshape(1, -1)
         zero = ((x-c)**2 + (y-c)**2) < c**2
     elif len(a.shape) == 3:
-        x = x.reshape(-1,1,1)
-        y = x.reshape(1,-1,1)
-        z = x.reshape(1,-1,1)
+        x = x.reshape(-1, 1, 1)
+        y = x.reshape(1, -1, 1)
+        z = x.reshape(1, -1, 1)
         zero = ((x-c)**2 + (y-c)**2 + (z-c)**2) < c**2
     else:
         raise ValueError("Cutout array must have dimension 2 or 3!")
     a *= zero
-    #tool.arr2im(a, scale=True).save("test.png")
     return a
+
+
+def get_results(frame):
+    """ Get the results from the frame of a method """
+    filen = frame.f_globals["__file__"]
+    funcname = frame.f_code.co_name
+    identifier = "{}__{}".format(filen.split("test_", 1)[1][:-3],
+                                 funcname)
+    wdir = pathlib.Path(__file__).parent / "data"
+    zipf = wdir / (identifier + ".zip")
+    text = "data.txt"
+    tdir = tempfile.gettempdir()
+
+    if zipf.exists():
+        with zipfile.ZipFile(str(zipf)) as arc:
+            arc.extract(text, tdir)
+    else:
+        raise ValueError("No reference found for test: {}".format(text))
+
+    tfile = pathlib.Path(tdir) / text
+    data = np.loadtxt(str(tfile))
+    tfile.unlink()
+    return data
 
 
 def get_test_parameter_set(set_number=1):
@@ -220,14 +233,15 @@ def get_test_parameter_set(set_number=1):
     lD = 0
     nm = 1.333
     parameters = []
-    for i in range(set_number):
-        parameters.append({"res" : res,
-                           "lD" : lD,
-                           "nm" : nm})
+    for _i in range(set_number):
+        parameters.append({"res": res,
+                           "lD": lD,
+                           "nm": nm})
         res += .1
         lD += np.pi
         nm *= 1.01
     return parameters
+
 
 def normalize(av, vmin=0, vmax=1):
     """
@@ -238,30 +252,10 @@ def normalize(av, vmin=0, vmax=1):
     elif vmax < vmin:
         warnings.warn("swapping vmin and vmax, because vmax < vmin.")
         vmin, vmax = vmax, vmin
-    
+
     norm_one = (av - np.min(av))/(np.max(av)-np.min(av))
     return norm_one * (vmax-vmin) + vmin
 
-
-def get_results(frame):
-    """ Get the results from the frame of a method """
-    filen = frame.f_globals["__file__"]
-    funcname = frame.f_code.co_name
-    identifier = "{}__{}".format(filen.split("test_", 1)[1][:-3],
-                                 funcname)
-    wdir = join(dirname(abspath(__file__)), "data")
-    text = join(wdir, identifier+".txt")
-    zipf = join(wdir, identifier+".zip")
-    if exists(text):
-        pass
-    elif exists(zipf):
-        with zipfile.ZipFile(zipf) as arc:
-            arc.extract(basename(text), wdir)
-    else:
-        raise ValueError("No reference found for test: {}".format(text))
-    
-    data = np.loadtxt(text)
-    return data
 
 def write_results(frame, r):
     """
@@ -273,16 +267,18 @@ def write_results(frame, r):
     funcname = frame.f_code.co_name
     identifier = "{}__{}".format(filen.split("test_", 1)[1][:-3],
                                  funcname)
-    text = identifier+".txt"
-    zipf = identifier+".zip"
+    text = pathlib.Path("data.txt")
+    zipf = pathlib.Path(identifier+".zip")
     # remove existing files
-    if exists(text):
-        os.remove(text)
-    if exists(zipf):
-        os.remove(zipf)
+    if text.exists():
+        text.unlink()
+    if zipf.exists():
+        zipf.unlink()
     # save text
-    np.savetxt(text, data, fmt="%.10f")
+    np.savetxt(str(text), data, fmt="%.10f")
     # make zip
-    with zipfile.ZipFile(zipf, "w", compression=zipfile.ZIP_DEFLATED) as arc:
-        arc.write(text)
-    os.remove(text)
+    with zipfile.ZipFile(str(zipf),
+                         "w",
+                         compression=zipfile.ZIP_DEFLATED) as arc:
+        arc.write(str(text))
+    text.unlink()

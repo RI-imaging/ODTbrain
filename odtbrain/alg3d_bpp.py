@@ -1,73 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-""" 3D reconstruction in optical tomography with the Born approximation
-
-The first Born approximation for a 3D scattering problem with a plane
-wave 
-:math:`u_0(\mathbf{r}) = a_0 \exp(-ik_\mathrm{m}\mathbf{s_0r})`
-reads:
-
-
-.. math::
-    u_\mathrm{B}(\mathbf{r}) = \iiint \!\! d^3r' 
-        G(\mathbf{r-r'}) f(\mathbf{r'}) u_0(\mathbf{r'})
-
-The Green's function in 3D can be written as:
-
-.. math::
-    G(\mathbf{r-r'}) = \\frac{ik_\mathrm{m}}{8\pi^2} \iint \!\! dpdq 
-        \\frac{1}{M} \exp\! \\left \\lbrace i k_\mathrm{m} \\left[ 
-        p(x-x') + q(y-y') + M(z-z') \\right] \\right \\rbrace
-
-with
-
-.. math::
-    
-    M = \sqrt{1-p^2-q^2}
-    
-Solving for :math:`f(\mathbf{r})` yields the Fourier diffraction theorem
-in 3D
-
-.. math::
-    \widehat{F}(k_\mathrm{m}(\mathbf{s-s_0})) = 
-        - \sqrt{\\frac{2}{\pi}} 
-        \\frac{i k_\mathrm{m}}{a_0} M
-        \widehat{U}_{\mathrm{B},\phi_0}(k_\mathrm{Dx}, k_\mathrm{Dy})
-        \exp \! \\left(-i k_\mathrm{m} M l_\mathrm{D} \\right)
-    
-where 
-:math:`\widehat{F}(k_\mathrm{x}, k_\mathrm{y}, k_\mathrm{z})`
-is the Fourier transformed object function and 
-:math:`\widehat{U}_{\mathrm{B}, \phi_0}(k_\mathrm{Dx}, k_\mathrm{Dy})` 
-is the Fourier transformed complex wave that travels along 
-:math:`\mathbf{s_0}`
-(in the direction of :math:`\phi_0`) measured at the detector
-:math:`\mathbf{r_D}`.
-
-
-The following identities are used:
-
-.. math::
-    k_\mathrm{m} (\mathbf{s-s_0}) &= k_\mathrm{Dx} \, \mathbf{t_\perp} +
-    k_\mathrm{m}(M - 1) \, \mathbf{s_0}
-    
-    \mathbf{s} = (p, q, M)
-
-    \mathbf{s_0} = (p_0, q_0, M_0) = (-\sin\phi_0, \, 0, \, \cos\phi_0)
-
-    \mathbf{t_\perp} = \\left(\cos\phi_0, \,
-                \\frac{k_\mathrm{Dy}}{k_\mathrm{Dx}}, \,
-                \sin\phi_0 \\right)^\\top 
-
-"""
-from __future__ import division, print_function
-
 import ctypes
 import gc
 import multiprocessing as mp
+import platform
+
 import numexpr as ne
 import numpy as np
-import platform
 import pyfftw
 import scipy.ndimage
 
@@ -75,23 +12,19 @@ import odtbrain
 
 from . import util
 
-__all__ = ["backpropagate_3d", "fourier_map_3d", "sum_3d",
-           "backpropagate_3d_4pi"]
-
 _ncores = mp.cpu_count()
 _np_float32 = np.dtype(np.float32)
 _np_float64 = np.dtype(np.float64)
-_verbose = 1
 
 
 def _mprotate(ang, lny, pool, order):
-    u""" Uses multiprocessing to wrap around _rotate
+    """Uses multiprocessing to wrap around _rotate
 
     4x speedup on an intel i7-3820 CPU @ 3.60GHz with 8 cores.
 
     The function calls _rotate which accesses the
     `odtbrain._shared_array`. Data is rotated in-place.
-    
+
     Parameters
     ----------
     ang: float
@@ -143,19 +76,19 @@ def _rotate(d):
 
 
 def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
-                     weight_angles=True, onlyreal=False, 
+                     weight_angles=True, onlyreal=False,
                      padding=(True, True), padfac=1.75, padval=None,
                      intp_order=2, dtype=_np_float64,
                      num_cores=_ncores,
                      save_memory=False,
                      copy=True,
                      jmc=None, jmm=None,
-                     verbose=_verbose):
-    u""" 3D backpropagation with the Fourier diffraction theorem
+                     verbose=0):
+    """3D backpropagation with the Fourier diffraction theorem
 
     Three-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
-    :math:`u_0(\mathbf{r}) = u_0(x,y,z)` 
+    :math:`u_0(\mathbf{r}) = u_0(x,y,z)`
     by a dielectric object with refractive index
     :math:`n(x,y,z)`.
 
@@ -164,26 +97,26 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
 
     .. math::
-        f(\mathbf{r}) = 
+        f(\mathbf{r}) =
             -\\frac{i k_\mathrm{m}}{2\pi}
             \\sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j} \!\!
             \\left \{
             \\text{FFT}^{-1}_{\mathrm{2D}}
             \\left \{
-            \\left| k_\mathrm{Dx} \\right|  
+            \\left| k_\mathrm{Dx} \\right|
             \\frac{\\text{FFT}_{\mathrm{2D}} \\left \{
             u_{\mathrm{B},\phi_j}(x_\mathrm{D}, y_\mathrm{D}) \\right \}}
             {u_0(l_\mathrm{D})}
             \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot
             (z_{\phi_j}-l_\mathrm{D}) \\right]
-            \\right \} 
+            \\right \}
             \\right \}
 
-    with the forward :math:`\\text{FFT}_{\mathrm{2D}}` and inverse 
+    with the forward :math:`\\text{FFT}_{\mathrm{2D}}` and inverse
     :math:`\\text{FFT}^{-1}_{\mathrm{2D}}` 2D fast Fourier transform, the
     rotational operator :math:`D_{-\phi_j}`, the angular distance between the
     projections :math:`\Delta \phi_0`, the ramp filter in Fourier space
-    :math:`|k_\mathrm{Dx}|`, and the propagation distance 
+    :math:`|k_\mathrm{Dx}|`, and the propagation distance
     :math:`(z_{\phi_j}-l_\mathrm{D})`.
 
     Parameters
@@ -200,7 +133,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     nm : float
         Refractive index of the surrounding medium :math:`n_\mathrm{m}`.
     lD : float
-        Distance from center of rotation to detector plane 
+        Distance from center of rotation to detector plane
         :math:`l_\mathrm{D}` in pixels.
     coords : None [(3, M) ndarray]
         Only compute the output image at these coordinates. This
@@ -209,11 +142,12 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     weight_angles : bool
         If `True`, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
-        projections. 
-        
+        projections.
+
         .. math::
-            \Delta \phi_0 \\longmapsto \Delta \phi_j = \\frac{\phi_{j+1} - \phi_{j-1}}{2}
-        
+            \Delta \phi_0 \\longmapsto \Delta \phi_j =
+                \\frac{\phi_{j+1} - \phi_{j-1}}{2}
+
         .. versionadded:: 0.1.1
     onlyreal : bool
         If `True`, only the real part of the reconstructed image
@@ -238,7 +172,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         The value used for padding. This is important for the Rytov
         approximation, where an approximat zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
-        case, this value should be a multiple of 2πi. 
+        case, this value should be a multiple of 2πi.
         If `padval` is `None`, then the edge values are used for
         padding (see documentation of :func:`numpy.pad`).
     intp_order : int between 0 and 5
@@ -252,19 +186,19 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         defaults to the number of cores on the system.
     save_memory : bool
         Saves memory at the cost of longer computation time.
-        
+
         .. versionadded:: 0.1.5
-        
+
     copy : bool
         Copy input sinogram `uSin` for data processing. If `copy`
         is set to `False`, then `uSin` will be overridden.
-        
+
         .. versionadded:: 0.1.5
-        
+
     jmc, jmm : instance of :func:`multiprocessing.Value` or `None`
-        The progress of this function can be monitored with the 
+        The progress of this function can be monitored with the
         :mod:`jobmanager` package. The current step `jmc.value` is
-        incremented `jmm.value` times. `jmm.value` is set at the 
+        incremented `jmm.value` times. `jmm.value` is set at the
         beginning.
     verbose : int
         Increment to increase verbosity.
@@ -275,13 +209,13 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     f : ndarray of shape (Nx, Ny, Nx), complex if `onlyreal==False`
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
-        :math:`f(x,z) = 
+        :math:`f(x,z) =
         k_m^2 \\left(\\left(\\frac{n(x,z)}{n_m}\\right)^2 -1\\right)`
 
 
     See Also
     --------
-    odt_to_ri : conversion of the object function :math:`f(\mathbf{r})` 
+    odt_to_ri : conversion of the object function :math:`f(\mathbf{r})`
         to refractive index :math:`n(\mathbf{r})`.
 
     Notes
@@ -302,10 +236,11 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # jobmanager
     if jmm is not None:
         jmm.value = A + 2
-    
+
     # check for dtype
     dtype = np.dtype(dtype)
-    assert dtype.name in ["float32", "float64"], "dtype must be float32 or float64!"
+    assert dtype.name in ["float32",
+                          "float64"], "dtype must be float32 or float64!"
 
     assert num_cores <= _ncores, "`num_cores` must not exceed number " +\
                                  "of physical cores: {}".format(_ncores)
@@ -322,8 +257,10 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     assert len(uSin.shape) == 3, "Input data `uSin` must have shape (A,Ny,Nx)."
     assert len(uSin) == A, "`len(angles)` must be  equal to `len(uSin)`."
-    assert len(list(padding)) == 2, "Parameter `padding` must be boolean tuple of length 2!"
-    assert np.array(padding).dtype is np.dtype(bool), "Parameter `padding` must be boolean tuple."
+    assert len(
+        list(padding)) == 2, "`padding` must be boolean tuple of length 2!"
+    assert np.array(padding).dtype is np.dtype(
+        bool), "Parameter `padding` must be boolean tuple."
     assert coords is None, "Setting coordinates is not yet supported."
 
     # Cut-Off frequency
@@ -347,7 +284,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     sinogram = uSin
     # Perform weighting
     if weight_angles:
-        weights = util.compute_angle_weights_1d(angles).reshape(-1,1,1)
+        weights = util.compute_angle_weights_1d(angles).reshape(-1, 1, 1)
         sinogram *= weights
 
     # lengths of the input data
@@ -383,7 +320,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     padxl = np.int(np.ceil(padx / 2))
     padxr = np.int(padx - padxl)
 
-    #TODO: This padding takes up a lot of memory. Move it to a separate
+    # TODO: This padding takes up a lot of memory. Move it to a separate
     # for loop or to the main for-loop.
     if padval is None:
         sino = np.pad(sinogram, ((0, 0), (padyl, padyr), (padxl, padxr)),
@@ -407,7 +344,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # zero-padded length of sinogram.
     (lA, lNy, lNx) = sino.shape  # @UnusedVariable
     lNz = ln
-
 
     # Ask for the filter. Do not include zero (first element).
     #
@@ -470,7 +406,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # Also filter the prefactor, so nothing outside the required
     # low-pass contributes to the sum.
     prefactor *= np.abs(kx) * filter_klp
-    #prefactor *= np.sqrt(((kx**2+ky**2)) * filter_klp )
+    # prefactor *= np.sqrt(((kx**2+ky**2)) * filter_klp )
     # new in version 0.1.4:
     # We multiply by the factor (M-1) instead of just (M)
     # to take into account that we have a scattered
@@ -478,7 +414,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     prefactor *= np.exp(-1j * km * (M-1) * lD)
     # Perform filtering of the sinogram,
     # save memory by in-place operations
-    #projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor
+    # projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor
     # FFTW-flag is "estimate":
     #   specifies that, instead of actual measurements of different
     #   algorithms, a simple heuristic is used to pick a (probably
@@ -489,8 +425,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     temp_array = pyfftw.n_byte_align_empty(sino[0].shape, 16, dtype_complex)
 
     myfftw_plan = pyfftw.FFTW(temp_array, temp_array, threads=num_cores,
-                              flags=["FFTW_ESTIMATE"], axes=(0,1))
-
+                              flags=["FFTW_ESTIMATE"], axes=(0, 1))
 
     if jmc is not None:
         jmc.value += 1
@@ -535,7 +470,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     Mp = M.reshape(lNy, lNx)
 
     # filter2 = np.exp(1j * zv * km * (Mp - 1))
-    f2_exp_fac = 1j* km * (Mp - 1)
+    f2_exp_fac = 1j * km * (Mp - 1)
     if save_memory:
         # compute filter2 later
         pass
@@ -543,22 +478,20 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         # compute filter2 now
         filter2 = ne.evaluate("exp(factor * zv)",
                               local_dict={"factor": f2_exp_fac,
-                                          "zv":zv})
+                                          "zv": zv})
         # occupies some amount of ram, but yields faster
         # computation later
-        #filter2[0].size*len(filter2)*128/8/1024**3
+        # filter2[0].size*len(filter2)*128/8/1024**3
 
     if jmc is not None:
         jmc.value += 1
 
-    #                               a, z, y,  x
-    #projection = projection.reshape(la, 1, lNy, lNx)
+    #                                  a, z, y,  x
+    # projection = projection.reshape(la, 1, lNy, lNx)
     projection = projection.reshape(la, lNy, lNx)
-
 
     # This frees comparatively few data
     del M
-    #del Mp
 
     # Prepare complex output image
     if onlyreal:
@@ -568,7 +501,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     # Create plan for fftw:
     inarr = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
-    #inarr[:] = (projection[0]*filter2)[0,:,:]
+    # inarr[:] = (projection[0]*filter2)[0,:,:]
     # plan is "patient":
     #    FFTW_PATIENT is like FFTW_MEASURE, but considers a wider range
     #    of algorithms and often produces a “more optimal” plan
@@ -577,14 +510,12 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     #    transforms).
     # print(inarr.flags)
 
-
     myifftw_plan = pyfftw.FFTW(inarr, inarr, threads=num_cores,
-                               axes=(0,1),
+                               axes=(0, 1),
                                direction="FFTW_BACKWARD",
                                flags=["FFTW_MEASURE"])
 
-
-    #assert shared_array.base.base is shared_array_base.get_obj()
+    # assert shared_array.base.base is shared_array_base.get_obj()
     shared_array_base = mp.Array(ct_dt_map[dtype], ln * lny * lnx)
     _shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
     _shared_array = _shared_array.reshape(ln, lny, lnx)
@@ -609,27 +540,29 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                 # compute filter2 here;
                 # this is comparatively slower than the other case
                 ne.evaluate("exp(factor * zvp) * projectioni",
-                            local_dict={"zvp":zv[p],
-                                        "projectioni":projection[aa],
-                                        "factor":f2_exp_fac},
+                            local_dict={"zvp": zv[p],
+                                        "projectioni": projection[aa],
+                                        "factor": f2_exp_fac},
                             out=inarr)
             else:
                 # use universal functions
                 np.multiply(filter2[p], projection[aa], out=inarr)
             myifftw_plan.execute()
             filtered_proj[p, :, :] = inarr[
-                                       padyl:padyl + lny,
-                                       padxl:padxl + lnx
-                                      ]
+                padyl:padyl + lny,
+                padxl:padxl + lnx
+            ]
 
         # resize image to original size
         # The copy is necessary to prevent memory leakage.
         # The fftw did not normalize the data.
-        #_shared_array[:] = sino_filtered.real[:ln, :lny, :lnx] / (lNx * lNy)
+        # _shared_array[:] = sino_filtered.real[:ln, :lny, :lnx] / (lNx * lNy)
         # By performing the "/" operation here, we magically use less
         # memory and we gain speed...
         _shared_array[:] = filtered_proj.real
-        #_shared_array[:] = sino_filtered.real[ :ln, padyl:padyl + lny, padxl:padxl + lnx] / (lNx * lNy)
+        # _shared_array[:] = sino_filtered.real[:ln,
+        #                                       padyl:padyl+lny,
+        #                                       padxl:padxl+lnx] / (lNx * lNy)
 
         phi0 = np.rad2deg(angles[aa])
 
@@ -642,12 +575,11 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
         if not onlyreal:
             _shared_array[:] = filtered_proj_imag
-            #_shared_array[:] = sino_filtered_imag[
+            # _shared_array[:] = sino_filtered_imag[
             #    :ln, :lny, :lnx] / (lNx * lNy)
             del filtered_proj_imag
             _mprotate(phi0, lny, pool4loop, intp_order)
             outarr.imag += _shared_array
-
 
         if jmc is not None:
             jmc.value += 1

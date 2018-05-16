@@ -13,7 +13,7 @@ import pyfftw
 import scipy.ndimage
 import warnings
 
-from ._Back_3D import _ncores, _np_float64, _verbose
+from .alg3d_bpp import _ncores, _np_float64
 from . import util
 import odtbrain
 
@@ -383,7 +383,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                      save_memory=False,
                      copy=True,
                      jmc=None, jmm=None,
-                     verbose=_verbose):
+                     verbose=0):
     u""" 3D backpropagation with the Fourier diffraction theorem
     Three-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave

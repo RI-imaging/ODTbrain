@@ -144,14 +144,12 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
 
-    # The radon transform introduced a shift in the data, which is not
-    # conform with the FFT algorithm.
     UB = np.fft.fft(np.fft.ifftshift(uSin, axes=-1)) * np.sqrt(2 * np.pi)
 
     # Corresponding sample frequencies
     fx = np.fft.fftfreq(len(uSin[0]))  # 1D array
 
-    # kx is an 1D array.
+    # kx is a 1D array.
     kx = 2 * np.pi * fx
 
     if count is not None:

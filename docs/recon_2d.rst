@@ -50,6 +50,8 @@ The following identities are used:
 .. currentmodule:: odtbrain
 
 
+Method summary
+~~~~~~~~~~~~~~
 .. autosummary:: 
     backpropagate_2d
     fourier_map_2d

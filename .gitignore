@@ -70,3 +70,4 @@ _version_save.py
 tests/data/*__*.txt
 *.tar
 .env
+.pytest_cache
