@@ -129,6 +129,17 @@ def test_sino_rytov():
     assert np.allclose(0, negative_modulo_rest_imag(ryt2d2 - ryt[:,0,:], twopi).view(float), atol=1e-6)
 
 
+def test_divmod_neg():
+    assert np.allclose(odtbrain._br.divmod_neg(0, 2*np.pi), (0,0))
+    assert np.allclose(odtbrain._br.divmod_neg(-1e-17, 2*np.pi), (0,0))
+    assert np.allclose(odtbrain._br.divmod_neg(1e-17, 2*np.pi), (0,0))
+    assert np.allclose(odtbrain._br.divmod_neg(-.1, 2*np.pi), (0,-.1))
+    assert np.allclose(odtbrain._br.divmod_neg(.1, 2*np.pi), (0,.1))
+    assert np.allclose(odtbrain._br.divmod_neg(3*np.pi, 2*np.pi), (1,np.pi))
+    assert np.allclose(odtbrain._br.divmod_neg(-.99*np.pi, 2*np.pi), (0,-.99*np.pi))
+    assert np.allclose(odtbrain._br.divmod_neg(-1.01*np.pi, 2*np.pi), (-1,.99*np.pi))
+
+
 
 if __name__ == "__main__":
     # Run all tests

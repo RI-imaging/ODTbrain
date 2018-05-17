@@ -55,7 +55,6 @@ def align_unwrapped(sino):
 
     # obtain divmod min
     twopi = 2*np.pi
-
     minimum = divmod_neg(np.min(sino), twopi)[0]
     remove += minimum*twopi
     
@@ -67,9 +66,10 @@ def divmod_neg(a,b):
     """returns divmod with closest result to zero"""
     q, r = divmod(a,b)
     # make sure r is close to zero
-    if np.abs(r)>b/2:
-        r -= b * np.sign(r)
-        q -= np.sign(r)
+    sr = np.sign(r)
+    if np.abs(r) > b/2:
+        q += sr
+        r -= b * sr
     return q, r
 
 
