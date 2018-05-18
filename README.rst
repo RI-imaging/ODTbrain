@@ -64,9 +64,8 @@ Install the FFTW3 and Python libraries. For Python 3.6, run
 Windows
 ~~~~~~~
 
-- Install the `Anaconda <http://continuum.io/downloads#all>`__ version matching your architecture (32-bit or 64-bit).
-- Install `PyFFTW` using the corresponding `installer at PyPI <https://pypi.python.org/pypi/pyFFTW>`__.
-- Finally:
+- Install `Anaconda <http://continuum.io/downloads#all>`__ with Python3 for your architecture (32-bit or 64-bit).
+- Run:
   ::
   
       pip install odtbrain
