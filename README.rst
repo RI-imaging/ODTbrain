@@ -24,7 +24,7 @@ Dependencies
 - The FFTW3 library
 - These Python packages: 
 
-  - `PyFFTW <https://github.com/hgomersall/pyFFTW>`__ (not `PyFFTW3`)
+  - `PyFFTW <https://github.com/pyFFTW/pyFFTW>`__ (not `PyFFTW3`)
   - `numpy <https://github.com/numpy/numpy>`__
   - `scikit-image <https://github.com/scikit-image/scikit-image/>`__
   - `scipy <https://github.com/scipy/scipy>`__
