@@ -15,11 +15,10 @@ install:
 # fftw library
 - travis_retry sudo apt-get update -qq
 - travis_retry sudo apt-get install -qq libfftw3-3 libfftw3-dev
-# numpy (must be installed before pyfftw, unwrap)
+# numpy (must be installed before pyfftw)
 - travis_retry pip install "numpy==$NUMPY"
 # libraries that do not have wheels on PyPI
-- travis_retry pip install cffi --only-binary=cffi
-- travis_retry pip install pyfftw unwrap
+- travis_retry pip install pyfftw
 # everything else
 - "travis_retry pip install . --only-binary=:all:"
 # coverage packages

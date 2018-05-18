@@ -2,12 +2,13 @@
 import ctypes
 import gc
 import multiprocessing as mp
+import warnings
+
 import numexpr as ne
 import numpy as np
-
 import pyfftw
 import scipy.ndimage
-import warnings
+
 
 from ._alg3d_bpp import _ncores, _np_float64
 from . import util

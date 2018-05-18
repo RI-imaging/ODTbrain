@@ -14,7 +14,7 @@ also provides post-processing methods
 import numpy as np
 from scipy.stats import mode
 
-import unwrap
+from skimage.restoration import unwrap
 
 __all__ = ["odt_to_ri", "opt_to_ri",
            "sinogram_as_rytov", "sinogram_as_radon"]
@@ -205,7 +205,7 @@ def sinogram_as_radon(uSin, align=True):
         # slices one by one.
         phiR = np.angle(uSin)
         for i in range(len(phiR)):
-            phiR[i] = unwrap.unwrap(phiR[i])
+            phiR[i] = unwrap.unwrap_phase(phiR[i])
 
     if align:
         align_unwrapped(phiR)
@@ -281,7 +281,7 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         # data. Since we have a sinogram, we need to pass it the
         # slices one by one.
         for i in range(len(phiR)):
-            phiR[i] = unwrap.unwrap(phiR[i])
+            phiR[i] = unwrap.unwrap_phase(phiR[i])
 
     if align:
         align_unwrapped(phiR)
