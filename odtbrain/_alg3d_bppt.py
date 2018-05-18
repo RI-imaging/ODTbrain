@@ -10,7 +10,7 @@ import pyfftw
 import scipy.ndimage
 
 
-from ._alg3d_bpp import _ncores, _np_float64
+from ._alg3d_bpp import _ncores
 from . import util
 import odtbrain
 
@@ -372,7 +372,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                             tilted_axis=[0, 1, 0],
                             coords=None, weight_angles=True, onlyreal=False,
                             padding=(True, True), padfac=1.75, padval=None,
-                            intp_order=2, dtype=_np_float64,
+                            intp_order=2, dtype=None,
                             num_cores=_ncores,
                             save_memory=False,
                             copy=True,
@@ -486,7 +486,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         See :func:`scipy.ndimage.interpolation.affine_transform` for details.
     dtype: dtype object or argument for :func:`numpy.dtype`
         The data type that is used for calculations (float or double).
-        Defaults to `numpy.float`.
+        Defaults to `numpy.float_`.
     num_cores: int
         The number of cores to use for parallel operations. This value
         defaults to the number of cores on the system.
@@ -613,6 +613,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
             angles[ii] = norm_vec(np.dot(rotmat, angles[ii]))
 
     # check for dtype
+    if dtype is None:
+        dtype = np.float_
     dtype = np.dtype(dtype)
     assert dtype.name in ["float32",
                           "float64"], "dtype must be float32 or float64!"
