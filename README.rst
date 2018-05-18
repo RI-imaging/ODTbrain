@@ -77,12 +77,12 @@ Debian/Ubuntu
 
 Install the following packages:
 
-- for Python 3:
+- Packages from the repository:
   ::
   
       sudo apt-get install libfftw3-3 libfftw3-dev python3-cffi python3-numpy python3-pip python3-scipy``
 - Install the `PyFFTW` package. Depending on your distribution, the package name is
-  either ``python-fftw3``, ``python3-fftw3`` (old) or ``python-pyfftw``, ``python3-pyfftw`` (new).
+  ``python3-fftw3`` (old), ``python3-pyfftw`` (new), or non-existent.
   Attention: The package ``python-fftw`` provides a different FFTW library that is not used by ODTbrain.
   Alternatively, install from PyPI:
   ::
