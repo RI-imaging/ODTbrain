@@ -2,7 +2,6 @@
 import numpy as np
 
 import odtbrain
-import odtbrain._Back_3D_tilted
 
 from common_methods import create_test_sino_3d, get_test_parameter_set
 
@@ -33,14 +32,14 @@ def test_back3d_tilted():
     # complex
     r = list()
     for p in parameters:
-        f = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=0,
+        f = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
                                                              dtype=np.float64,
                                                              save_memory=False, **p)
         r.append(f)
     # real
     r2 = list()
     for p in parameters:
-        f = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=0,
+        f = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
                                                              dtype=np.float64, 
                                                              save_memory=True, **p)
         r2.append(f)

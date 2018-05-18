@@ -4,7 +4,6 @@ import multiprocessing as mp
 import numpy as np
 
 import odtbrain
-import odtbrain._Back_3D_tilted
 
 from common_methods import create_test_sino_2d, create_test_sino_3d, \
                            get_test_parameter_set
@@ -78,11 +77,11 @@ def test_back3d_tilted():
     # complex
     jmc = mp.Value("i", 0)
     jmm = mp.Value("i", 0)
-    odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=0,
-                                                         dtype=np.float64,
-                                                         jmc=jmc,
-                                                         jmm=jmm,
-                                                         **p)
+    odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
+                                     dtype=np.float64,
+                                     count=jmc,
+                                     max_count=jmm,
+                                     **p)
     assert jmc.value == jmm.value
     assert jmc.value != 0
 

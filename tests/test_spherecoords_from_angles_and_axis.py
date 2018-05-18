@@ -1,36 +1,20 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-""" Tests backpropagation algorithm
-"""
-from __future__ import division, print_function
+"""3D backpropagation with tilted axis of rotation: sphere coordinates"""
 
 import numpy as np
-import os
-from os.path import abspath, basename, dirname, join, split, exists
-import platform
-import sys
-import warnings
-import zipfile
-
-# Add parent directory to beginning of path variable
-DIR = dirname(abspath(__file__))
-sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain
-import odtbrain._Back_3D_tilted
+import odtbrain._alg3d_bppt
 
 
 def test_simple_sphere():
-    """
-    simple geometrical tests
-    """
+    """simple geometrical tests"""
     angles = np.array([0, np.pi/2, np.pi])
     axes = [[1,0,0], [0,1,0], [0,0,1], [0,1,1], [1,0,1], [1,1,1]]
 
     results = []
     
     for tilted_axis in axes:
-        angle_coords = odtbrain._Back_3D_tilted.sphere_points_from_angles_and_tilt(angles, tilted_axis)
+        angle_coords = odtbrain._alg3d_bppt.sphere_points_from_angles_and_tilt(angles, tilted_axis)
         results.append(angle_coords)
     
     s2 = 1/np.sqrt(2)
@@ -63,7 +47,7 @@ if __name__ == "__main__":
     
         def draw(self, renderer):
             xs3d, ys3d, zs3d = self._verts3d
-            xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+            xs, ys, _zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
             self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
             FancyArrowPatch.draw(self, renderer)
 
@@ -79,7 +63,7 @@ if __name__ == "__main__":
         tilted_axis = np.array(tilted_axis)
         tilted_axis = tilted_axis/np.sqrt(np.sum(tilted_axis**2)) 
         
-        angle_coords = odtbrain._Back_3D_tilted.sphere_points_from_angles_and_tilt(angles, tilted_axis)
+        angle_coords = odtbrain._alg3d_bppt.sphere_points_from_angles_and_tilt(angles, tilted_axis)
         
         u,v,w = tilted_axis
         a = Arrow3D([0,u],[0,v],[0,w], mutation_scale=20, lw=1, arrowstyle="-|>", color=color)

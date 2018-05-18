@@ -1,3 +1,4 @@
+"""3D backpropagation algorithm"""
 import ctypes
 import gc
 import multiprocessing as mp
@@ -84,7 +85,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      copy=True,
                      count=None, max_count=None,
                      verbose=0):
-    """3D backpropagation with the Fourier diffraction theorem
+    """3D backpropagation
 
     Three-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
@@ -121,25 +122,25 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     Parameters
     ----------
-    uSin : (A, Ny, Nx) ndarray
+    uSin: (A, Ny, Nx) ndarray
         Three-dimensional sinogram of plane recordings
         :math:`u_{\mathrm{B}, \phi_j}(x_\mathrm{D}, y_\mathrm{D})`
         divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
-    angles : (A,) ndarray
+    angles: (A,) ndarray
         Angular positions :math:`\phi_j` of `uSin` in radians.
-    res : float
+    res: float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
-    nm : float
+    nm: float
         Refractive index of the surrounding medium :math:`n_\mathrm{m}`.
-    lD : float
+    lD: float
         Distance from center of rotation to detector plane
         :math:`l_\mathrm{D}` in pixels.
-    coords : None [(3, M) ndarray]
+    coords: None [(3, M) ndarray]
         Only compute the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
-    weight_angles : bool
+    weight_angles: bool
         If `True`, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
         projections.
@@ -149,10 +150,10 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                 \\frac{\phi_{j+1} - \phi_{j-1}}{2}
 
         .. versionadded:: 0.1.1
-    onlyreal : bool
+    onlyreal: bool
         If `True`, only the real part of the reconstructed image
         will be returned. This saves computation time.
-    padding : tuple of bool
+    padding: tuple of bool
         Pad the input data to the second next power of 2 before
         Fourier transforming. This reduces artifacts and speeds up
         the process for input image sizes that are not powers of 2.
@@ -160,7 +161,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         For padding only in x-direction (e.g. for cylindrical
         symmetries), set `padding` to `(True, False)`. To turn off
         padding, set it to `(False, False)`.
-    padfac : float
+    padfac: float
         Increase padding size of the input data. A value greater
         than one will trigger padding to the second-next power of
         two. For example, a value of 1.75 will lead to a padded
@@ -168,28 +169,28 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         lead to a padded size of 512 for an initial size of 150.
         Values geater than 2 are allowed. This parameter may
         greatly increase memory usage!
-    padval : float
+    padval: float
         The value used for padding. This is important for the Rytov
         approximation, where an approximat zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi.
         If `padval` is `None`, then the edge values are used for
         padding (see documentation of :func:`numpy.pad`).
-    intp_order : int between 0 and 5
+    intp_order: int between 0 and 5
         Order of the interpolation for rotation.
         See :func:`scipy.ndimage.interpolation.rotate` for details.
-    dtype : dtype object or argument for :func:`numpy.dtype`
+    dtype: dtype object or argument for :func:`numpy.dtype`
         The data type that is used for calculations (float or double).
         Defaults to `numpy.float`.
-    num_cores : int
+    num_cores: int
         The number of cores to use for parallel operations. This value
         defaults to the number of cores on the system.
-    save_memory : bool
+    save_memory: bool
         Saves memory at the cost of longer computation time.
 
         .. versionadded:: 0.1.5
 
-    copy : bool
+    copy: bool
         Copy input sinogram `uSin` for data processing. If `copy`
         is set to `False`, then `uSin` will be overridden.
 
@@ -200,13 +201,13 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         Initially, the value of `max_count.value` is incremented
         by the total number of steps. At each step, the value
         of `count.value` is incremented.
-    verbose : int
+    verbose: int
         Increment to increase verbosity.
 
 
     Returns
     -------
-    f : ndarray of shape (Nx, Ny, Nx), complex if `onlyreal==False`
+    f: ndarray of shape (Nx, Ny, Nx), complex if `onlyreal==False`
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
@@ -215,7 +216,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     See Also
     --------
-    odt_to_ri : conversion of the object function :math:`f(\mathbf{r})`
+    odt_to_ri: conversion of the object function :math:`f(\mathbf{r})`
         to refractive index :math:`n(\mathbf{r})`.
 
     Notes

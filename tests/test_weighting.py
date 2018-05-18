@@ -3,7 +3,6 @@ import numpy as np
 import platform
 
 import odtbrain
-import odtbrain._Back_3D_tilted
 
 from common_methods import create_test_sino_3d, get_test_parameter_set
 
@@ -29,8 +28,8 @@ def test_3d_backprop_tilted_weights_even():
     platform.system = lambda:"Windows"
     sino, angles = create_test_sino_3d()
     p = get_test_parameter_set(1)[0]
-    f1 = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, weight_angles=False, **p)
-    f2 = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, weight_angles=True, **p)
+    f1 = odtbrain.backpropagate_3d_tilted(sino, angles, weight_angles=False, **p)
+    f2 = odtbrain.backpropagate_3d_tilted(sino, angles, weight_angles=True, **p)
     data1 = np.array(f1).flatten().view(float)
     data2 = np.array(f2).flatten().view(float)
     assert np.allclose(data1, data2)

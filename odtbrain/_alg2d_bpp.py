@@ -45,25 +45,25 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
 
     Parameters
     ----------
-    uSin : (A,N) ndarray
+    uSin: (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_j}(x_\mathrm{D})`
         divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
-    angles : (A,) ndarray
+    angles: (A,) ndarray
         Angular positions :math:`\phi_j` of `uSin` in radians.
-    res : float
+    res: float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
-    nm : float
+    nm: float
         Refractive index of the surrounding medium :math:`n_\mathrm{m}`.
-    lD : float
+    lD: float
         Distance from center of rotation to detector plane
         :math:`l_\mathrm{D}` in pixels.
-    coords : None [(2,M) ndarray]
+    coords: None [(2,M) ndarray]
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
-    weight_angles : bool
+    weight_angles: bool
         If `True`, weights each backpropagated projection with a factor
         proportional to the angular distance between the neighboring
         projections.
@@ -73,14 +73,14 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
                 \\frac{\phi_{j+1} - \phi_{j-1}}{2}
 
         .. versionadded:: 0.1.1
-    onlyreal : bool
+    onlyreal: bool
         If `True`, only the real part of the reconstructed image
         will be returned. This saves computation time.
-    padding : bool
+    padding: bool
         Pad the input data to the second next power of 2 before
         Fourier transforming. This reduces artifacts and speeds up
         the process for input image sizes that are not powers of 2.
-    padval : float
+    padval: float
         The value used for padding. This is important for the Rytov
         approximation, where an approximate zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
@@ -92,13 +92,13 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
         Initially, the value of `max_count.value` is incremented
         by the total number of steps. At each step, the value
         of `count.value` is incremented.
-    verbose : int
+    verbose: int
         Increment to increase verbosity.
 
 
     Returns
     -------
-    f : ndarray of shape (N,N), complex if `onlyreal` is `False`
+    f: ndarray of shape (N,N), complex if `onlyreal` is `False`
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
@@ -107,10 +107,10 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
 
     See Also
     --------
-    odt_to_ri : conversion of the object function :math:`f(\mathbf{r})`
+    odt_to_ri: conversion of the object function :math:`f(\mathbf{r})`
         to refractive index :math:`n(\mathbf{r})`.
 
-    radontea.backproject : backprojection based on the Fourier slice
+    radontea.backproject: backprojection based on the Fourier slice
         theorem.
 
     Notes

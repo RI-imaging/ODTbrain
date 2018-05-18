@@ -18,28 +18,28 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
 
     Parameters
     ----------
-    uSin : (A,N) ndarray
+    uSin: (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_j}(x_\mathrm{D})`
         divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
-    angles : (A,) ndarray
+    angles: (A,) ndarray
         Angular positions :math:`\phi_j` of `uSin` in radians.
-    res : float
+    res: float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
-    nm : float
+    nm: float
         Refractive index of the surrounding medium :math:`n_\mathrm{m}`.
-    lD : float
+    lD: float
         Distance from center of rotation to detector plane
         :math:`l_\mathrm{D}` in pixels.
-    semi_coverage : bool
+    semi_coverage: bool
         If set to `True`, it is assumed that the sinogram does not
         necessarily cover the full angular range from 0 to 2π, but an
         equidistant coverage over 2π can be achieved by inferring point
         (anti)symmetry of the (imaginary) real parts of the Fourier
         transform of f. Valid for any set of angles {X} that result in
         a 2π coverage with the union set {X}U{X+π}.
-    coords : None [(2,M) ndarray]
+    coords: None [(2,M) ndarray]
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
@@ -48,13 +48,13 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
         Initially, the value of `max_count.value` is incremented
         by the total number of steps. At each step, the value
         of `count.value` is incremented.
-    verbose : int
+    verbose: int
         Increment to increase verbosity.
 
 
     Returns
     -------
-    f : ndarray of shape (N,N), complex if `onlyreal` is `False`
+    f: ndarray of shape (N,N), complex if `onlyreal` is `False`
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
@@ -63,8 +63,8 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
 
     See Also
     --------
-    backpropagate_2d : implementation by backpropagation
-    odt_to_ri : conversion of the object function :math:`f(\mathbf{r})`
+    backpropagate_2d: implementation by backpropagation
+    odt_to_ri: conversion of the object function :math:`f(\mathbf{r})`
         to refractive index :math:`n(\mathbf{r})`.
 
     Notes

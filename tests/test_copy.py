@@ -2,9 +2,8 @@
 import numpy as np
 
 import odtbrain
-import odtbrain._Back_3D_tilted
 
-from common_methods import create_test_sino_2d, create_test_sino_3d, create_test_sino_3d_tilted, cutout, get_test_parameter_set, write_results, get_results, normalize
+from common_methods import create_test_sino_3d, get_test_parameter_set
 
 
 def test_back3d():
@@ -23,12 +22,12 @@ def test_back3d():
 def test_back3d_tilted():
     sino, angles = create_test_sino_3d(Nx=10, Ny=10)
     p = get_test_parameter_set(1)[0]
-    f1 = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=0,
-                                           dtype=np.float64,
-                                           copy=False, **p)
-    f2 = odtbrain._Back_3D_tilted.backpropagate_3d_tilted(sino, angles, padval=0,
-                                           dtype=np.float64,
-                                           copy=True, **p)
+    f1 = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
+                                          dtype=np.float64,
+                                          copy=False, **p)
+    f2 = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
+                                          dtype=np.float64,
+                                          copy=True, **p)
     assert np.allclose(f1, f2)
 
 

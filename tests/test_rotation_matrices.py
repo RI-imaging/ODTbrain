@@ -1,47 +1,32 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-""" Tests backpropagation algorithm
-"""
-from __future__ import division, print_function
-
+"""Test 3D backpropagation with tilted axis of ration: matrices"""
 import numpy as np
-import os
-from os.path import abspath, basename, dirname, join, split, exists
-import platform
-import sys
-import warnings
-import zipfile
-
-# Add parent directory to beginning of path variable
-DIR = dirname(abspath(__file__))
-sys.path = [split(DIR)[0]] + sys.path
 
 import odtbrain
-import odtbrain._Back_3D_tilted
+import odtbrain._alg3d_bppt
 
 from common_methods import create_test_sino_2d, get_test_parameter_set, write_results, get_results
 
 
 def test_rotate_points_to_axis():
     # rotation of axis itself always goes to y-axis
-    rot1 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=[[1,2,3]], axis=[1,2,3])   
+    rot1 = odtbrain._alg3d_bppt.rotate_points_to_axis(points=[[1,2,3]], axis=[1,2,3])   
     assert rot1[0][0] < 1e-14
     assert rot1[0][2] < 1e-14
-    rot2 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=[[-3,.6,.1]], axis=[-3,.6,.1])   
+    rot2 = odtbrain._alg3d_bppt.rotate_points_to_axis(points=[[-3,.6,.1]], axis=[-3,.6,.1])   
     assert rot2[0][0] < 1e-14
     assert rot2[0][2] < 1e-14
     
     sq2 = np.sqrt(2)
     # rotation to 45deg about x
     points=[[0,0,1], [1,0,0], [1,1,0]]
-    rot3 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[0,1,1])
+    rot3 = odtbrain._alg3d_bppt.rotate_points_to_axis(points=points, axis=[0,1,1])
     assert np.allclose(rot3[0], [0,1/sq2,1/sq2])
     assert np.allclose(rot3[1], [1,0,0])
     assert np.allclose(rot3[2], [1,1/sq2,-1/sq2])
 
     # rotation to 45deg about y
     points=[[0,0,1], [1,0,0], [0,-1,0]]
-    rot4 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[1,0,1])
+    rot4 = odtbrain._alg3d_bppt.rotate_points_to_axis(points=points, axis=[1,0,1])
     assert np.allclose(rot4[0], [-.5,1/sq2,.5])
     assert np.allclose(rot4[1], [.5,1/sq2,-.5])
     assert np.allclose(rot4[2], [1/sq2,0,1/sq2])
@@ -70,7 +55,7 @@ def test_rotate_points_to_axis():
 
     # rotation to -90deg about z
     points=[[0,0,1], [1,0,1], [1,-1,0]]
-    rot4 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[1,0,0])
+    rot4 = odtbrain._alg3d_bppt.rotate_points_to_axis(points=points, axis=[1,0,0])
     assert np.allclose(rot4[0], [0,0,1])
     assert np.allclose(rot4[1], [0,1,1])
     assert np.allclose(rot4[2], [1,1,0])
@@ -79,7 +64,7 @@ def test_rotate_points_to_axis():
     # In this case, everything is rotated in the y-z plane
     # (this case is not physical for tomogrpahy)
     points=[[0,0,1], [1,0,0], [1,-1,0]]
-    rot4 = odtbrain._Back_3D_tilted.rotate_points_to_axis(points=points, axis=[0,-1,0])
+    rot4 = odtbrain._alg3d_bppt.rotate_points_to_axis(points=points, axis=[0,-1,0])
     assert np.allclose(rot4[0], [0,0,-1])
     assert np.allclose(rot4[1], [1,0,0])
     assert np.allclose(rot4[2], [1,1,0])
@@ -92,18 +77,18 @@ def test_rotation_matrix_from_point():
     """
     sq2 = np.sqrt(2)
     # identity
-    m1 = odtbrain._Back_3D_tilted.rotation_matrix_from_point([0,0,1])
+    m1 = odtbrain._alg3d_bppt.rotation_matrix_from_point([0,0,1])
     assert np.allclose(np.dot(m1, [1,2,3]), [1,2,3])
     assert np.allclose(np.dot(m1, [-3,.5,-.6]), [-3,.5,-.6])
 
     # simple
-    m2 = odtbrain._Back_3D_tilted.rotation_matrix_from_point([0,1,1])
+    m2 = odtbrain._alg3d_bppt.rotation_matrix_from_point([0,1,1])
     assert np.allclose(np.dot(m2, [0,0,1]), [0,1/sq2,1/sq2])
     assert np.allclose(np.dot(m2, [0,1,1]), [0,sq2,0])
     assert np.allclose(np.dot(m2, [1,0,0]), [1,0,0])
     
     # negative
-    m3 = odtbrain._Back_3D_tilted.rotation_matrix_from_point([-1,1,0])
+    m3 = odtbrain._alg3d_bppt.rotation_matrix_from_point([-1,1,0])
     assert np.allclose(np.dot(m3, [1,0,0]), [0,0,-1])
     assert np.allclose(np.dot(m3, [0,1,1]), [0,sq2,0])
     assert np.allclose(np.dot(m3, [0,-1/sq2,-1/sq2]), [0,-1,0])    
@@ -163,10 +148,10 @@ if __name__ == "__main__":
     angles = np.linspace(0, 2*np.pi, A, endpoint=False)
     #angles = np.array([0, np.pi/2, np.pi])
     # The first point in that array will be in the x-z-plane.
-    points = odtbrain._Back_3D_tilted.sphere_points_from_angles_and_tilt(angles, axis)
+    points = odtbrain._alg3d_bppt.sphere_points_from_angles_and_tilt(angles, axis)
     
     # The following steps are exactly those that are used in 
-    # odtbrain._Back_3D_tilted.backpropagate_3d_tilted
+    # odtbrain._alg3d_bppt.backpropagate_3d_tilted
     # to perform 3D reconstruction with tilted angles.
     u, v, w = axis
     theta = np.arccos(v)
@@ -236,5 +221,3 @@ if __name__ == "__main__":
 
     # show backprojection of test volume (should be cone aligned with y)
     spimagine.volshow(out)
-    import IPython
-    IPython.embed()    

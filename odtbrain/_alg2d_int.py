@@ -17,21 +17,21 @@ def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
 
     Parameters
     ----------
-    uSin : (A,N) ndarray
+    uSin: (A,N) ndarray
         Two-dimensional sinogram of line recordings
         :math:`u_{\mathrm{B}, \phi_j}(x_\mathrm{D})`
         divided by the incident plane wave :math:`u_0(l_\mathrm{D})`
         measured at the detector.
-    angles : (A,) ndarray
+    angles: (A,) ndarray
         Angular positions :math:`\phi_j` of `uSin` in radians.
-    res : float
+    res: float
         Vacuum wavelength of the light :math:`\lambda` in pixels.
-    nm : float
+    nm: float
         Refractive index of the surrounding medium :math:`n_\mathrm{m}`.
-    lD : float
+    lD: float
         Distance from center of rotation to detector plane
         :math:`l_\mathrm{D}` in pixels.
-    coords : None or (2,M) ndarray]
+    coords: None or (2,M) ndarray]
         Computes only the output image at these coordinates. This
         keyword is reserved for future versions and is not
         implemented yet.
@@ -40,12 +40,12 @@ def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
         Initially, the value of `max_count.value` is incremented
         by the total number of steps. At each step, the value
         of `count.value` is incremented.
-    verbose : int
+    verbose: int
         Increment to increase verbosity.
 
     Returns
     -------
-    f : ndarray of shape (N,N), complex if `onlyreal` is `False`
+    f: ndarray of shape (N,N), complex if `onlyreal` is `False`
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
@@ -54,9 +54,9 @@ def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
 
     See Also
     --------
-    backpropagate_2d : implementation by backprojection
-    fourier_map_2d : implementation by Fourier interpolation
-    odt_to_ri : conversion of the object function :math:`f(\mathbf{r})`
+    backpropagate_2d: implementation by backprojection
+    fourier_map_2d: implementation by Fourier interpolation
+    odt_to_ri: conversion of the object function :math:`f(\mathbf{r})`
         to refractive index :math:`n(\mathbf{r})`.
 
 
