@@ -30,6 +30,7 @@ setup(
                       "scipy>=0.10.0"],
     setup_requires=['pytest-runner'],
     tests_require=["pytest"],
+    python_requires='>=3.4, <4',
     keywords=["odt", "opt", "diffraction", "born", "rytov", "radon",
               "backprojection", "backpropagation", "inverse problem",
               "Fourier diffraction theorem", "Fourier slice theorem"],
