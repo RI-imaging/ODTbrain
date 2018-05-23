@@ -14,8 +14,6 @@ The figure shows the 3D reconstruction from
 simulations. The known tilted axis of rotation is used in the
 reconstruction process.
 
-This example requires Python3 because the data are lzma-compressed.
-
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
 import matplotlib.pylab as plt

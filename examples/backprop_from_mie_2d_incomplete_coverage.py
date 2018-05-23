@@ -12,7 +12,7 @@ The first column shows the used sinograms (missing angles are displayed
 as zeros) that were created from the original sinogram with 250
 projections. The second column shows the reconstruction without angular
 weights and the third column shows the reconstruction with angular
-weights. The keyword argument `weight_angle` was introduced in version
+weights. The keyword argument `weight_angles` was introduced in version
 0.1.1.
 
 A 180 degree coverage results in a good reconstruction of the object.

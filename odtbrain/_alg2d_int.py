@@ -4,7 +4,7 @@ import numpy as np
 
 def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
                  count=None, max_count=None, verbose=0):
-    """2D integration-reconstruction with the Fourier diffraction theorem
+    """(slow) 2D reconstruction with the Fourier diffraction theorem
 
     Two-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
@@ -57,7 +57,7 @@ def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
     backpropagate_2d: implementation by backprojection
     fourier_map_2d: implementation by Fourier interpolation
     odt_to_ri: conversion of the object function :math:`f(\mathbf{r})`
-        to refractive index :math:`n(\mathbf{r})`.
+        to refractive index :math:`n(\mathbf{r})`
 
 
     Notes

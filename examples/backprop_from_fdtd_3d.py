@@ -12,8 +12,6 @@ The figure shows a 3D reconstruction from
 :abbr:`FDTD (Finite Difference Time Domain)` data created with
 `meep`_ simulations.
 
-This example requires Python3 because the data are lzma-compressed.
-
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
 import matplotlib.pylab as plt

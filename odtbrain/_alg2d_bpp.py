@@ -108,10 +108,10 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
     See Also
     --------
     odt_to_ri: conversion of the object function :math:`f(\mathbf{r})`
-        to refractive index :math:`n(\mathbf{r})`.
+        to refractive index :math:`n(\mathbf{r})`
 
     radontea.backproject: backprojection based on the Fourier slice
-        theorem.
+        theorem
 
     Notes
     -----

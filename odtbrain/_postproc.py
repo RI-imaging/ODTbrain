@@ -3,7 +3,7 @@ import numpy as np
 
 
 def odt_to_ri(f, res, nm):
-    """Converts the ODT object function to refractive index
+    """Convert the ODT object function to refractive index
 
     In :abbr:`ODT (Optical Diffraction Tomography)`, the object function
     is defined by the Helmholtz equation
@@ -58,7 +58,7 @@ def odt_to_ri(f, res, nm):
 
 
 def opt_to_ri(f, res, nm):
-    """Converts the OPT object function to refractive index.
+    """Convert the OPT object function to refractive index
 
     In :abbr:`OPT (Optical Projection Tomography)`, the object function
     is computed from the raw phase data. This method converts phase data

@@ -24,8 +24,6 @@ rotation; the result is a blurry reconstruction. The third column
 shows the improved reconstruction; the known tilted axis of rotation
 is used in the reconstruction process.
 
-This example requires Python3 because the data are lzma-compressed.
-
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
 import matplotlib.pylab as plt

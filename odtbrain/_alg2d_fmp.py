@@ -65,7 +65,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
     --------
     backpropagate_2d: implementation by backpropagation
     odt_to_ri: conversion of the object function :math:`f(\mathbf{r})`
-        to refractive index :math:`n(\mathbf{r})`.
+        to refractive index :math:`n(\mathbf{r})`
 
     Notes
     -----
