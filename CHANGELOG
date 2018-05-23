@@ -2,11 +2,12 @@
  - BREAKING CHANGES:
    - Dropped support for Python 2
    - Renamed `sum_2d` to `integrate_2d`
- - Refactoring (#5):
+ - Refactoring (#4, #5):
    - Moved each reconstruction algorithm to a separate file
    - Modified code to comply with PEP8
    - Moved long doc strings from source to docs directory
    - Migrate from unwrap to scikit-image
+   - Cleaned up example scripts
  - Bugfixes:
    - Mistake in "negative-modulo" method for determination of
      2PI sinogram phase offsets

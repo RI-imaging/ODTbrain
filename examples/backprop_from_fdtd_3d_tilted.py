@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """FDTD cell phantom with tilted axis of rotation
 
 The *in silico* data set was created with the
@@ -30,21 +28,19 @@ This example requires Python3 because the data are lzma-compressed.
 
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
-from __future__ import division, print_function
-
 import matplotlib.pylab as plt
 import numpy as np
 
 import odtbrain as odt
 
-from example_helper import get_file, load_tar_lzma_data
+from example_helper import load_data
 
-lzmafile = get_file("fdtd_3d_sino_A220_R6.500_tiltyz0.2.tar.lzma")
-sino, angles, phantom, cfg = load_tar_lzma_data(lzmafile)
+sino, angles, phantom, cfg = \
+    load_data("fdtd_3d_sino_A220_R6.500_tiltyz0.2.tar.lzma")
 
 A = angles.shape[0]
 
-print("Example: Backpropagation from 3d FDTD simulations")
+print("Example: Backpropagation from 3D FDTD simulations")
 print("Refractive index of medium:", cfg["nm"])
 print("Measurement position from object center:", cfg["lD"])
 print("Wavelength sampling:", cfg["res"])
@@ -89,7 +85,7 @@ sino_phase = np.angle(sino)
 fig, axes = plt.subplots(2, 3, figsize=(8, 4.5))
 kwri = {"vmin": n_tilt.real.min(), "vmax": n_tilt.real.max()}
 kwph = {"vmin": sino_phase.min(), "vmax": sino_phase.max(),
-        "cmap": plt.cm.coolwarm}  # @UndefinedVariable
+        "cmap": "coolwarm"}
 
 # Sinogram
 axes[0, 0].set_title("phase projection")

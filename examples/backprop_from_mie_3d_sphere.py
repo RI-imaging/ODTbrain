@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Mie sphere
 The *in silico* data set was created with the Mie calculation software
 `GMM-field`_. The data consist of a two-dimensional projection of a
@@ -21,38 +19,24 @@ space.
 
 .. _`GMM-field`: https://code.google.com/p/scatterlib/wiki/Nearfield
 """
-from __future__ import division, print_function
-
-import zipfile
-
 import matplotlib.pylab as plt
 import nrefocus
 import numpy as np
 
 import odtbrain as odt
 
-from example_helper import get_file
+from example_helper import load_data
 
-datazip = get_file("mie_3d_sphere_field.zip")
-# Get simulation data
-arc = zipfile.ZipFile(datazip)
 
-Ex_real = np.loadtxt(arc.open("mie_sphere_real.txt"))
-Ex_imag = np.loadtxt(arc.open("mie_sphere_imag.txt"))
-Ex = Ex_real + 1j * Ex_imag
-# get nm, lD, res
-with arc.open("mie_info.txt") as info:
-    cfg = {}
-    for l in info.readlines():
-        l = l.decode()
-        if l.count("=") == 1:
-            key, val = l.split("=")
-            cfg[key.strip()] = float(val.strip())
+Ex, cfg = load_data("mie_3d_sphere_field.zip",
+                    f_sino_imag="mie_sphere_imag.txt",
+                    f_sino_real="mie_sphere_imag.txt",
+                    f_info="mie_info.txt")
 
 # Manually set number of angles:
 A = 200
 
-print("Example: Backpropagation from 3d Mie scattering")
+print("Example: Backpropagation from 3D Mie scattering")
 print("Refractive index of medium:", cfg["nm"])
 print("Measurement position from object center:", cfg["lD"])
 print("Wavelength sampling:", cfg["res"])
@@ -64,10 +48,10 @@ angles = np.linspace(0, 2 * np.pi, A, endpoint=False)
 
 # Perform focusing
 Ex = nrefocus.refocus(Ex,
-                         d=-cfg["lD"]*cfg["res"],
-                         nm=cfg["nm"],
-                         res=cfg["res"],
-                         )
+                      d=-cfg["lD"]*cfg["res"],
+                      nm=cfg["nm"],
+                      res=cfg["res"],
+                      )
 
 # Create sinogram
 u_sin = np.tile(Ex.flat, A).reshape(A, int(cfg["size"]), int(cfg["size"]))
@@ -94,11 +78,11 @@ axes = np.array(axes).flatten()
 axes[0].set_title("Mie field phase")
 axes[0].set_xlabel("detector x")
 axes[0].set_ylabel("detector y")
-axes[0].imshow(np.angle(Ex), cmap=plt.cm.coolwarm)  # @UndefinedVariable
+axes[0].imshow(np.angle(Ex), cmap="coolwarm")
 axes[1].set_title("Mie field amplitude")
 axes[1].set_xlabel("detector x")
 axes[1].set_ylabel("detector y")
-axes[1].imshow(np.abs(Ex), cmap=plt.cm.gray)  # @UndefinedVariable
+axes[1].imshow(np.abs(Ex), cmap="gray")
 
 # line plot
 axes[2].set_title("line plots")

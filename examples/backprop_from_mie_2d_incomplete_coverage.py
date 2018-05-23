@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Mie cylinder with incomplete angular coverage
 
 This example illustrates how the backpropagation algorithm of ODTbrain
@@ -22,55 +20,35 @@ Angular weighting as implemented in the backpropagation algorithm
 of ODTbrain automatically addresses uneven and incomplete angular
 coverage.
 """
-from __future__ import division, print_function
-
-import zipfile
-
 import matplotlib.pylab as plt
 import numpy as np
-import unwrap
 
 import odtbrain as odt
 
-from example_helper import get_file
+from example_helper import load_data
 
-datazip = get_file("mie_2d_noncentered_cylinder_A250_R2.zip")
-
-# Get simulation data
-arc = zipfile.ZipFile(datazip)
-
-angles = np.loadtxt(arc.open("mie_angles.txt"))
-
-# sinogram computed with Mie theory
-# miefield.GetSinogramCylinderRotation(radius, nmed, ncyl, lD, lC, size, A, res)
-sino_real = np.loadtxt(arc.open("sino_real.txt"))
-sino_imag = np.loadtxt(arc.open("sino_imag.txt"))
-sino = sino_real + 1j * sino_imag
-A, size = sino_real.shape
+sino, angles, cfg = load_data("mie_2d_noncentered_cylinder_A250_R2.zip",
+                              f_angles="mie_angles.txt",
+                              f_sino_real="sino_real.txt",
+                              f_sino_imag="sino_imag.txt",
+                              f_info="mie_info.txt")
+A, size = sino.shape
 
 # background sinogram computed with Mie theory
-# miefield.GetSinogramCylinderRotation(radius, nmed, nmed, lD, lC, size, A, res)
-u0_real = np.loadtxt(arc.open("u0_real.txt"))
-u0_imag = np.loadtxt(arc.open("u0_imag.txt"))
-u0 = u0_real + 1j * u0_imag
+# miefield.GetSinogramCylinderRotation(radius, nmed, nmed, lD, lC, size, A,res)
+u0 = load_data("mie_2d_noncentered_cylinder_A250_R2.zip",
+               f_sino_imag="u0_imag.txt",
+               f_sino_real="u0_real.txt")
 # create 2d array
 u0 = np.tile(u0, size).reshape(A, size).transpose()
 
 # background field necessary to compute initial born field
 # u0_single = mie.GetFieldCylinder(radius, nmed, nmed, lD, size, res)
-u0_single_real = np.loadtxt(arc.open("u0_single_real.txt"))
-u0_single_imag = np.loadtxt(arc.open("u0_single_real.txt"))
-u0_single = u0_single_real + 1j * u0_single_imag
+u0_single = load_data("mie_2d_noncentered_cylinder_A250_R2.zip",
+                      f_sino_imag="u0_single_imag.txt",
+                      f_sino_real="u0_single_real.txt")
 
-with arc.open("mie_info.txt") as info:
-    cfg = {}
-    for l in info.readlines():
-        l = l.decode()
-        if l.count("=") == 1:
-            key, val = l.split("=")
-            cfg[key.strip()] = float(val.strip())
-
-print("Example: Backpropagation from 2d FDTD simulations")
+print("Example: Backpropagation from 2D FDTD simulations")
 print("Refractive index of medium:", cfg["nmed"])
 print("Measurement position from object center:", cfg["lD"])
 print("Wavelength sampling:", cfg["res"])
@@ -88,7 +66,6 @@ size = cfg["size"]
 res = cfg["res"]  # px/wavelengths
 A = cfg["A"]  # number of projections
 
-#phantom = np.loadtxt(arc.open("mie_phantom.txt"))
 x = np.arange(size) - size / 2.0
 X, Y = np.meshgrid(x, x)
 rad_px = radius * res
@@ -101,7 +78,7 @@ u_sinR = odt.sinogram_as_rytov(sino / u0)
 removeeven = np.argsort(angles % .002)[:150]
 angleseven = np.delete(angles, removeeven, axis=0)
 u_sinReven = np.delete(u_sinR, removeeven, axis=0)
-pheven = unwrap.unwrap(np.angle(sino / u0))
+pheven = odt.sinogram_as_radon(sino / u0)
 pheven[removeeven] = 0
 
 fReven = odt.backpropagate_2d(u_sinReven, angleseven, res, nmed, lD * res)
@@ -115,7 +92,7 @@ removemiss = 249 - \
     np.concatenate((np.arange(100), 100 + np.arange(150)[::3]))
 anglesmiss = np.delete(angles, removemiss, axis=0)
 u_sinRmiss = np.delete(u_sinR, removemiss, axis=0)
-phmiss = unwrap.unwrap(np.angle(sino / u0))
+phmiss = odt.sinogram_as_radon(sino / u0)
 phmiss[removemiss] = 0
 
 fRmiss = odt.backpropagate_2d(u_sinRmiss, anglesmiss, res, nmed, lD * res)
@@ -128,7 +105,7 @@ nRmissnw = odt.odt_to_ri(fRmissnw, res, nmed)
 removebad = 249 - np.arange(150)
 anglesbad = np.delete(angles, removebad, axis=0)
 u_sinRbad = np.delete(u_sinR, removebad, axis=0)
-phbad = unwrap.unwrap(np.angle(sino / u0))
+phbad = odt.sinogram_as_radon(sino / u0)
 phbad[removebad] = 0
 
 fRbad = odt.backpropagate_2d(u_sinRbad, anglesbad, res, nmed, lD * res)
@@ -139,13 +116,11 @@ nRbadnw = odt.odt_to_ri(fRbadnw, res, nmed)
 
 # prepare plot
 kw_ri = {"vmin": np.min(np.array([phantom, nRmiss.real, nReven.real])),
-         "vmax": np.max(np.array([phantom, nRmiss.real, nReven.real]))
-         }
+         "vmax": np.max(np.array([phantom, nRmiss.real, nReven.real]))}
 
 kw_ph = {"vmin": np.min(np.array([pheven, phmiss])),
          "vmax": np.max(np.array([pheven, phmiss])),
-         "cmap": plt.cm.coolwarm  # @UndefinedVariable
-         }
+         "cmap": "coolwarm"}
 
 fig, axes = plt.subplots(3, 3, figsize=(8, 6.5))
 

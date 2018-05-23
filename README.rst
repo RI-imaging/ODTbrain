@@ -128,7 +128,7 @@ Running tests
    :target: https://pypi.python.org/pypi/odtbrain
 .. |Tests Status| image:: http://img.shields.io/travis/RI-imaging/ODTbrain.svg?label=tests
    :target: https://travis-ci.org/RI-imaging/ODTbrain
-.. |Coverage Status| image:: https://img.shields.io/coveralls/RI-imaging/ODTbrain.svg
-   :target: https://coveralls.io/r/RI-imaging/ODTbrain
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/RI-imaging/ODTbrain/master.svg
+   :target: https://codecov.io/gh/RI-imaging/ODTbrain
 .. |Docs Status| image:: https://readthedocs.org/projects/odtbrain/badge/?version=latest
    :target: https://readthedocs.org/projects/odtbrain/builds/

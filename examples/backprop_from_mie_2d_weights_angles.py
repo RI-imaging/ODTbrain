@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Mie cylinder with unevenly spaced angles
 
 Angular weighting can significantly improve reconstruction quality
@@ -12,61 +10,44 @@ The first column shows the used sinograms (missing angles are displayed
 as zeros) that were created from the original sinogram with 250
 projections. The second column shows the reconstruction without angular
 weights and the third column shows the reconstruction with angular
-weights. The keyword argument `weight_angle` was introduced in version
+weights. The keyword argument `weight_angles` was introduced in version
 0.1.1.
 
 The illustrates the impact of angular weighting on backpropagation with
 the Rytov approximation.
 """
-from __future__ import division, print_function
-
-import zipfile
-
 import matplotlib.pylab as plt
 import numpy as np
 import unwrap
 
 import odtbrain as odt
 
-from example_helper import get_file
+from example_helper import load_data
 
-datazip = get_file("mie_2d_noncentered_cylinder_A250_R2.zip")
 
-# Get simulation data
-arc = zipfile.ZipFile(datazip)
-
-angles = np.loadtxt(arc.open("mie_angles.txt"))
-
-# sinogram computed with Mie theory
-# miefield.GetSinogramCylinderRotation(radius, nmed, ncyl, lD, lC, size, A, res)
-sino_real = np.loadtxt(arc.open("sino_real.txt"))
-sino_imag = np.loadtxt(arc.open("sino_imag.txt"))
-sino = sino_real + 1j * sino_imag
-A, size = sino_real.shape
+sino, angles, cfg = load_data("mie_2d_noncentered_cylinder_A250_R2.zip",
+                              f_angles="mie_angles.txt",
+                              f_sino_real="sino_real.txt",
+                              f_sino_imag="sino_imag.txt",
+                              f_info="mie_info.txt")
+A, size = sino.shape
 
 # background sinogram computed with Mie theory
-# miefield.GetSinogramCylinderRotation(radius, nmed, nmed, lD, lC, size, A, res)
-u0_real = np.loadtxt(arc.open("u0_real.txt"))
-u0_imag = np.loadtxt(arc.open("u0_imag.txt"))
-u0 = u0_real + 1j * u0_imag
+# miefield.GetSinogramCylinderRotation(radius, nmed, nmed, lD, lC, size, A,res)
+u0 = load_data("mie_2d_noncentered_cylinder_A250_R2.zip",
+               f_sino_imag="u0_imag.txt",
+               f_sino_real="u0_real.txt")
 # create 2d array
 u0 = np.tile(u0, size).reshape(A, size).transpose()
 
 # background field necessary to compute initial born field
 # u0_single = mie.GetFieldCylinder(radius, nmed, nmed, lD, size, res)
-u0_single_real = np.loadtxt(arc.open("u0_single_real.txt"))
-u0_single_imag = np.loadtxt(arc.open("u0_single_real.txt"))
-u0_single = u0_single_real + 1j * u0_single_imag
+u0_single = load_data("mie_2d_noncentered_cylinder_A250_R2.zip",
+                      f_sino_imag="u0_single_imag.txt",
+                      f_sino_real="u0_single_real.txt")
 
-with arc.open("mie_info.txt") as info:
-    cfg = {}
-    for l in info.readlines():
-        l = l.decode()
-        if l.count("=") == 1:
-            key, val = l.split("=")
-            cfg[key.strip()] = float(val.strip())
 
-print("Example: Backpropagation from 2d FDTD simulations")
+print("Example: Backpropagation from 2D FDTD simulations")
 print("Refractive index of medium:", cfg["nmed"])
 print("Measurement position from object center:", cfg["lD"])
 print("Wavelength sampling:", cfg["res"])
@@ -84,7 +65,6 @@ size = cfg["size"]
 res = cfg["res"]  # px/wavelengths
 A = cfg["A"]  # number of projections
 
-#phantom = np.loadtxt(arc.open("mie_phantom.txt"))
 x = np.arange(size) - size / 2.0
 X, Y = np.meshgrid(x, x)
 rad_px = radius * res
@@ -95,41 +75,38 @@ u_sinR = odt.sinogram_as_rytov(sino / u0)
 
 # Rytov 200 projections
 # remove 50 projections from total of 250 projections
-remove200 = np.argsort(angles % .002)[:50]
+remove200 = np.argsort(angles % .0002)[:50]
 angles200 = np.delete(angles, remove200, axis=0)
 u_sinR200 = np.delete(u_sinR, remove200, axis=0)
 ph200 = unwrap.unwrap(np.angle(sino / u0))
 ph200[remove200] = 0
 
-fR200 = odt.backpropagate_2d(u_sinR200, angles200, res, nmed, lD * res)
+fR200 = odt.backpropagate_2d(u_sinR200, angles200, res, nmed, lD*res)
 nR200 = odt.odt_to_ri(fR200, res, nmed)
-fR200nw = odt.backpropagate_2d(
-    u_sinR200, angles200, res, nmed, lD * res, weight_angles=False)
+fR200nw = odt.backpropagate_2d(u_sinR200, angles200, res, nmed, lD*res,
+                               weight_angles=False)
 nR200nw = odt.odt_to_ri(fR200nw, res, nmed)
 
 # Rytov 50 projections
-remove50 = np.argsort(angles % .002)[:200]
+remove50 = np.argsort(angles % .0002)[:200]
 angles50 = np.delete(angles, remove50, axis=0)
 u_sinR50 = np.delete(u_sinR, remove50, axis=0)
 ph50 = unwrap.unwrap(np.angle(sino / u0))
 ph50[remove50] = 0
 
-fR50 = odt.backpropagate_2d(u_sinR50, angles50, res, nmed, lD * res)
+fR50 = odt.backpropagate_2d(u_sinR50, angles50, res, nmed, lD*res)
 nR50 = odt.odt_to_ri(fR50, res, nmed)
-fR50nw = odt.backpropagate_2d(
-    u_sinR50, angles50, res, nmed, lD * res, weight_angles=False)
+fR50nw = odt.backpropagate_2d(u_sinR50, angles50, res, nmed, lD*res,
+                              weight_angles=False)
 nR50nw = odt.odt_to_ri(fR50nw, res, nmed)
 
 # prepare plot
-
-kw_ri = {"vmin": np.min(np.array([phantom, nR50.real, nR200.real])),
-         "vmax": np.max(np.array([phantom, nR50.real, nR200.real]))
-         }
+kw_ri = {"vmin": 1.330,
+         "vmax": 1.340}
 
 kw_ph = {"vmin": np.min(np.array([ph200, ph50])),
          "vmax": np.max(np.array([ph200, ph50])),
-         "cmap": plt.cm.coolwarm  # @UndefinedVariable
-         }
+         "cmap": "coolwarm"}
 
 fig, axes = plt.subplots(2, 3, figsize=(8, 4))
 axes = np.array(axes).flatten()

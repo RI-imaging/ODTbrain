@@ -1,30 +1,25 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
-This file contains miscellaneous methods that are used by
-example scripts.
-"""
-from __future__ import print_function
-
-
+"""Miscellaneous methods for example data handling"""
+import lzma
 import os
-from os.path import dirname, join, exists, isdir
+import pathlib
 import tarfile
-
+import tempfile
 import warnings
+import zipfile
 
-datadir = "data"
-webloc = "https://github.com/RI-imaging/ODTbrain/raw/master/examples/data"
+import numpy as np
+
+
+datapath = pathlib.Path(__file__).parent / "data"
+webloc = "https://github.com/RI-imaging/ODTbrain/raw/master/examples/data/"
 
 
 def dl_file(url, dest, chunk_size=6553):
-    """
-    Download `url` to `dest`.
-    """
+    """Download `url` to `dest`"""
     import urllib3
     http = urllib3.PoolManager()
     r = http.request('GET', url, preload_content=False)
-    with open(dest, 'wb') as out:
+    with dest.open('wb') as out:
         while True:
             data = r.read(chunk_size)
             if data is None or len(data) == 0:
@@ -33,78 +28,56 @@ def dl_file(url, dest, chunk_size=6553):
     r.release_conn()
 
 
-def get_file(fname):
-    """
-    Return the full path to a basename. If the file does not exist
-    in the current directory or in subdirectory `datadir`, try to
-    download it from the public GitHub repository.
+def get_file(fname, datapath=datapath):
+    """Return path of an example data file
+
+    Return the full path to an example data file name.
+    If the file does not exist in the `datapath` directory,
+    tries to download it from the ODTbrain GitHub repository.
     """
     # download location
-    dlloc = join(dirname(__file__), datadir)
-    if exists(dlloc):
-        if isdir(dlloc):
-            pass
-        else:
-            raise OSError("Must be directory: " + dlloc)
-    else:
-        os.mkdir(dlloc)
+    datapath = pathlib.Path(datapath)
+    datapath.mkdir(parents=True, exist_ok=True)
 
-    # find the file
-    foundloc = None
-
-    # Search possible file locations
-    possloc = [dirname(__file__), dlloc]
-
-    for pl in possloc:
-        if exists(join(pl, fname)):
-            foundloc = join(pl, fname)
-            break
-
-    if foundloc is None:
-        # Download file with urllib2.urlopen
+    dlfile = datapath / fname
+    if not dlfile.exists():
         print("Attempting to download file {} from {} to {}.".
-              format(fname, webloc, dlloc))
+              format(fname, webloc, datapath))
         try:
-            dl_file(url=join(webloc, fname),
-                    dest=join(dlloc, fname))
+            dl_file(url=webloc+fname, dest=dlfile)
         except BaseException:
-            warnings.warn("Download failed: " + fname)
+            warnings.warn("Download failed: {}".format(fname))
             raise
-        else:
-            foundloc = join(dlloc, fname)
-
-    if foundloc is None:
-        raise OSError("Could not obtain file: " + fname)
-
-    return foundloc
+    return dlfile
 
 
-def load_tar_lzma_data(afile):
-    """
-    Load FDTD data from a .tar.lzma file.
-    """
-    try:
-        import lzma
-    except ImportError:
-        try:
-            from backports import lzma
-        except ImportError:
-            print("Please install lzma with 'pip install backports.lzma'")
-    import numpy as np
+def load_data(fname, **kwargs):
+    """Load example data"""
+    fname = get_file(fname)
+    if fname.suffix == ".lzma":
+        return load_tar_lzma_data(fname)
+    elif fname.suffix == ".zip":
+        return load_zip_data(fname, **kwargs)
 
+
+def load_tar_lzma_data(tlfile):
+    """Load example sinogram data from a .tar.lzma file"""
+    tlfile = pathlib.Path(tlfile)
     # open lzma file
-    with open(afile, "rb") as l:
-        data = lzma.decompress(l.read())
-    # write tar file
-    with open(afile[:-5], "wb") as t:
-        t.write(data)
+    with tlfile.open("rb") as td:
+        data = lzma.decompress(td.read())
+    # write temporary tar file
+    fd, tmpname = tempfile.mkstemp(prefix="odt_ex_", suffix=".tar")
+    with open(fd, "wb") as fo:
+        fo.write(data)
+
     # open tar file
     fields_real = []
     fields_imag = []
     phantom = []
     parms = {}
 
-    with tarfile.open(afile[:-5], "r") as t:
+    with tarfile.open(tmpname, "r") as t:
         members = t.getmembers()
         members.sort(key=lambda x: x.name)
 
@@ -112,10 +85,10 @@ def load_tar_lzma_data(afile):
             n = m.name
             f = t.extractfile(m)
             if n.startswith("fdtd_info"):
-                for l in f.readlines():
-                    l = l.decode()
-                    if l.count("=") == 1:
-                        key, val = l.split("=")
+                for ln in f.readlines():
+                    ln = ln.decode()
+                    if ln.count("=") == 1:
+                        key, val = ln.split("=")
                         parms[key.strip()] = float(val.strip())
             elif n.startswith("phantom"):
                 phantom.append(np.loadtxt(f))
@@ -125,8 +98,40 @@ def load_tar_lzma_data(afile):
                 elif n.endswith("real.txt"):
                     fields_real.append(np.loadtxt(f))
 
+    try:
+        os.remove(tmpname)
+    except OSError:
+        pass
+
     phantom = np.array(phantom)
     sino = np.array(fields_real) + 1j * np.array(fields_imag)
     angles = np.linspace(0, 2 * np.pi, sino.shape[0], endpoint=False)
 
     return sino, angles, phantom, parms
+
+
+def load_zip_data(zipname, f_sino_real, f_sino_imag,
+                  f_angles=None, f_phantom=None, f_info=None):
+    """Load example sinogram data from a .zip file"""
+    ret = []
+    with zipfile.ZipFile(str(zipname)) as arc:
+        sino_real = np.loadtxt(arc.open(f_sino_real))
+        sino_imag = np.loadtxt(arc.open(f_sino_imag))
+        sino = sino_real + 1j * sino_imag
+        ret.append(sino)
+        if f_angles:
+            angles = np.loadtxt(arc.open(f_angles))
+            ret.append(angles)
+        if f_phantom:
+            phantom = np.loadtxt(arc.open(f_phantom))
+            ret.append(phantom)
+        if f_info:
+            with arc.open(f_info) as info:
+                cfg = {}
+                for li in info.readlines():
+                    li = li.decode()
+                    if li.count("=") == 1:
+                        key, val = li.split("=")
+                        cfg[key.strip()] = float(val.strip())
+            ret.append(cfg)
+    return ret

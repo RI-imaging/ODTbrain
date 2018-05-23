@@ -1,16 +1,17 @@
 language: python
 python:
-- '3.4'
 - '3.5'
 - '3.6'
 notifications:
   email: false
 env:
   matrix:
-  - NUMPY="1.10.1"
-  - NUMPY="1.11.3"
-  - NUMPY="1.12.1"
-  - NUMPY="1.13.1"
+  - NUMPY="1.10.1" TEST="PYTEST"
+  - NUMPY="1.11.3" TEST="PYTEST"
+  - NUMPY="1.12.1" TEST="PYTEST"
+  - NUMPY="1.13.1" TEST="PYTEST"
+  - NUMPY="1.14.3" TEST="PYTEST"
+  - NUMPY="1.14.3" TEST="FLAKE8"
 install:
 # fftw library
 - travis_retry sudo apt-get update -qq
@@ -22,10 +23,17 @@ install:
 # everything else
 - "travis_retry pip install . --only-binary=:all:"
 # coverage packages
-- travis_retry pip install coverage coveralls
+- travis_retry pip install coverage codecov
+- travis_retry pip install flake8
 - pip freeze
 script:
-- coverage run --source=odtbrain ./setup.py test
-- coverage report -m
-after_success:
-- coveralls --verbose
+- set -ev
+- if [ "${TEST}" == "PYTEST" ]; then
+       coverage run --source=odtbrain ./setup.py test;
+       coverage report -m;
+       codecov;
+  else
+       flake8 odtbrain;
+       flake8 examples;
+       flake8 tests;
+  fi;
