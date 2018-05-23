@@ -1,7 +1,12 @@
+.. _index:
+
 ODTbrain documentation
 ======================
 
-ODTbrain provides image reconstruction algorithms for Optical Diffraction Tomography with a Born and Rytov Approximation-based Inversion to compute the refractive index (n) in 2D and in 3D. This is the documentaion of ODTbrain version |release|.
+ODTbrain provides image reconstruction algorithms for Optical Diffraction
+Tomography with a Born and Rytov Approximation-based Inversion to compute
+the refractive index (n) in 2D and in 3D. This is the documentaion of
+ODTbrain version |release|.
 
 .. toctree::
    :maxdepth: 4
