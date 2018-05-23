@@ -13,15 +13,15 @@ def test_back3d():
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                               dtype=np.float64,
-                                               save_memory=False, **p)
+                                      dtype=np.float64,
+                                      save_memory=False, **p)
         r.append(f)
     # real
     r2 = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                               dtype=np.float64, 
-                                               save_memory=True, **p)
+                                      dtype=np.float64,
+                                      save_memory=True, **p)
         r2.append(f)
     assert np.allclose(np.array(r), np.array(r2))
 
@@ -33,17 +33,17 @@ def test_back3d_tilted():
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
-                                                             dtype=np.float64,
-                                                             save_memory=False, **p)
+                                             dtype=np.float64,
+                                             save_memory=False, **p)
         r.append(f)
     # real
     r2 = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
-                                                             dtype=np.float64, 
-                                                             save_memory=True, **p)
+                                             dtype=np.float64,
+                                             save_memory=True, **p)
         r2.append(f)
-        
+
     assert np.allclose(np.array(r), np.array(r2))
 
 

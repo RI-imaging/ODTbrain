@@ -325,7 +325,7 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
         [+np.cos(phi), 0, np.sin(phi)],
         [0,            1,           0],
         [-np.sin(phi), 0, np.cos(phi)]
-        ])
+    ])
 
     for jj in range(newang.shape[0]):
         newang[jj] = np.dot(Ry, newang[jj])
@@ -975,19 +975,19 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         # Also undo the axis transposition that we performed previously.
 
         outarr.real += scipy.ndimage.interpolation.affine_transform(
-                           fil_p_t.real, drotinv,
-                           offset=offset,
-                           mode="constant",
-                           cval=0,
-                           order=intp_order).transpose(2, 1, 0)[:, ::-1, :]
+            fil_p_t.real, drotinv,
+            offset=offset,
+            mode="constant",
+            cval=0,
+            order=intp_order).transpose(2, 1, 0)[:, ::-1, :]
 
         if not onlyreal:
             outarr.imag += scipy.ndimage.interpolation.affine_transform(
-                               fil_p_t.imag, drotinv,
-                               offset=offset,
-                               mode="constant",
-                               cval=0,
-                               order=intp_order).transpose(2, 1, 0)[:, ::-1, :]
+                fil_p_t.imag, drotinv,
+                offset=offset,
+                mode="constant",
+                cval=0,
+                order=intp_order).transpose(2, 1, 0)[:, ::-1, :]
 
         if count is not None:
             count.value += 1

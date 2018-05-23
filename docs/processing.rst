@@ -7,19 +7,28 @@ Pre- and post-processing
     opt_to_ri
     sinogram_as_radon
     sinogram_as_rytov
-    
-    
-.. automodule:: odtbrain._br
 
-.. currentmodule:: odtbrain
 
-Available approximations
-~~~~~~~~~~~~~~~~~~~~~~~~
+Pre-processing models
+~~~~~~~~~~~~~~~~~~~~~
+Tomographic data sets consist of detector images for different
+rotational positions :math:`\phi_0` of the object. The methods
+described here include pre-processing filters that are applied 
+to the measured field :math:`u(\mathbf{r})` to apply the Radon or the
+Rytov approximation.
+
 .. autofunction:: sinogram_as_radon
 .. autofunction:: sinogram_as_rytov
 
 
-Refractive index computation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Post-processing (Refractive index retrieval)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To obtain the refractive index map :math:`n(\mathbf{r})`
+from an object function :math:`f(\mathbf{r})` returned
+by e.g. :func:`backpropagate_3d`, an additional conversion
+step is necessary. For diffraction based models, :func:`odt_to_ri`
+must be used whereas for Radon-based models :func:`opt_to_ri`
+must be used.
+
 .. autofunction:: odt_to_ri
 .. autofunction:: opt_to_ri

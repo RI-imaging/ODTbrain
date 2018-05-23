@@ -5,7 +5,7 @@ import numpy as np
 import odtbrain
 
 from common_methods import create_test_sino_2d, cutout, \
-                           get_test_parameter_set, write_results, get_results
+    get_test_parameter_set, write_results, get_results
 
 WRITE_RES = False
 

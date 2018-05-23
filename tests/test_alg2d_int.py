@@ -5,7 +5,7 @@ import numpy as np
 import odtbrain
 
 from common_methods import create_test_sino_2d, cutout, \
-                           get_test_parameter_set, write_results, get_results
+    get_test_parameter_set, write_results, get_results
 
 WRITE_RES = False
 
@@ -24,7 +24,6 @@ def test_2d_integrate():
         write_results(myframe, r)
     assert np.allclose(np.array(r).flatten().view(float), get_results(myframe))
 
-    
 
 if __name__ == "__main__":
     # Run all tests

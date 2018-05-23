@@ -2,7 +2,6 @@
 import numpy as np
 
 import odtbrain
-import odtbrain._br
 
 from common_methods import create_test_sino_3d, create_test_sino_3d_tilted, \
     cutout, get_test_parameter_set

@@ -6,7 +6,7 @@ import numpy as np
 import odtbrain
 
 from common_methods import create_test_sino_2d, create_test_sino_3d, \
-                           get_test_parameter_set
+    get_test_parameter_set
 
 
 def test_integrate_2d():
@@ -20,7 +20,7 @@ def test_integrate_2d():
                           count=jmc,
                           max_count=jmm,
                           **p)
-    
+
     assert jmc.value == jmm.value
     assert jmc.value != 0
 
@@ -36,7 +36,7 @@ def test_fmp_2d():
                             count=jmc,
                             max_count=jmm,
                             **p)
-    
+
     assert jmc.value == jmm.value
     assert jmc.value != 0
 

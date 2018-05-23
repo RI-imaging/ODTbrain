@@ -2,7 +2,7 @@
  - BREAKING CHANGES:
    - Dropped support for Python 2
    - Renamed `sum_2d` to `integrate_2d`
- - Refactoring:
+ - Refactoring (#5):
    - Moved each reconstruction algorithm to a separate file
    - Modified code to comply with PEP8
    - Moved long doc strings from source to docs directory
