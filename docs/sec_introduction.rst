@@ -7,20 +7,22 @@ tomography in two and three dimensions.
 
 Installation
 ------------
-To install via the `Python package manager (PyPi)`_, simply issue the
-following command.
+To install via the `Python Package Index (PyPI)`_, run:
 
     pip install odtbrain
 
 
-The `FFTW3 library`_ and the scientific python packages
-:py:mod:`numpy` and :py:mod:`scipy` are required by ODTbrain.
+On some systems, the `FFTW3 library`_ might have to be
+installed manually before installing ODTbrain. All other
+dependencies are installed automatically.
 If the above command does not work, please refer to the 
-installation instructions at the `GitHub repository`_.
+installation instructions at the `GitHub repository`_ or
+`create an issue`_
 
 .. _`FFTW3 library`: http://fftw.org
 .. _`GitHub repository`: https://github.com/RI-imaging/ODTbrain
-.. _`Python package manager (PyPi)`: https://pypi.python.org/pypi/odtbrain/
+.. _`Python Package Index (PyPI)`: https://pypi.python.org/pypi/odtbrain/
+.. _`create an issue`: https://github.com/RI-imaging/ODTbrain/issues
 
 
 Theoretical background

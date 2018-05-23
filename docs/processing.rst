@@ -12,10 +12,10 @@ Pre- and post-processing
 Pre-processing models
 ~~~~~~~~~~~~~~~~~~~~~
 Tomographic data sets consist of detector images for different
-rotational positions :math:`\phi_0` of the object. The methods
-described here include pre-processing filters that are applied 
-to the measured field :math:`u(\mathbf{r})` to apply the Radon or the
-Rytov approximation.
+rotational positions :math:`\phi_0` of the object. Pre-processing
+in this context means that the measured field :math:`u(\mathbf{r})`
+is transformed to either the Rytov approximation (diffraction tomography)
+or the Radon phase (classical tomography).
 
 .. autofunction:: sinogram_as_radon
 .. autofunction:: sinogram_as_rytov

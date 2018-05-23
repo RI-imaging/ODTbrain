@@ -30,7 +30,7 @@ from example_helper import load_data
 
 Ex, cfg = load_data("mie_3d_sphere_field.zip",
                     f_sino_imag="mie_sphere_imag.txt",
-                    f_sino_real="mie_sphere_imag.txt",
+                    f_sino_real="mie_sphere_real.txt",
                     f_info="mie_info.txt")
 
 # Manually set number of angles:

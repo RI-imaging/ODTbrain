@@ -1,7 +1,7 @@
 """Data pre-processing in optical tomography"""
 import numpy as np
 from scipy.stats import mode
-from skimage.restoration import unwrap
+from skimage.restoration import unwrap_phase
 
 
 def align_unwrapped(sino):
@@ -80,8 +80,8 @@ def sinogram_as_radon(uSin, align=True):
 
     See Also
     --------
-    skimage.restoration.unwrap.unwrap_phase: phase unwrapping
-    radontea.backpropagate_3d: e.g. reconstruction via backprojection
+    skimage.restoration.unwrap_phase: phase unwrapping
+    radontea.backproject_3d: e.g. reconstruction via backprojection
     """
     ndims = len(uSin.shape)
 
@@ -94,7 +94,7 @@ def sinogram_as_radon(uSin, align=True):
         # slices one by one.
         phiR = np.angle(uSin)
         for i in range(len(phiR)):
-            phiR[i] = unwrap.unwrap_phase(phiR[i])
+            phiR[i] = unwrap_phase(phiR[i])
 
     if align:
         align_unwrapped(phiR)
@@ -151,7 +151,7 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
 
     See Also
     --------
-    skimage.restoration.unwrap.unwrap_phase: phase unwrapping
+    skimage.restoration.unwrap_phase: phase unwrapping
     """
     ndims = len(uSin.shape)
 
@@ -169,7 +169,7 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         # data. Since we have a sinogram, we need to pass it the
         # slices one by one.
         for i in range(len(phiR)):
-            phiR[i] = unwrap.unwrap_phase(phiR[i])
+            phiR[i] = unwrap_phase(phiR[i])
 
     if align:
         align_unwrapped(phiR)
