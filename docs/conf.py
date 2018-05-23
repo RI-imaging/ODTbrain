@@ -278,7 +278,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', projectname, projectname+' Documentation',
+  ('index', projectname, 'ODTbrain Documentation',
    author, projectname,
    "Algorithms for optical diffraction tomography",
    'Numeric'),
