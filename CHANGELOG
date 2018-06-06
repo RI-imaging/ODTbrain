@@ -1,3 +1,6 @@
+0.2.1
+ - docs: Add example with experimental data (#3)
+ - fix: Allow sinogram data type other than complex128
 0.2.0
  - BREAKING CHANGES:
    - Dropped support for Python 2

@@ -11,9 +11,6 @@ with the Rytov approximation is in good agreement with the
 input data. When only 50 projections are used for the reconstruction,
 artifacts appear. These vanish when more projections are used for
 the reconstruction.
-
-The figure shows different reconstruction approaches for a
-cylinder from data computed with Mie theory.
 """
 import matplotlib.pylab as plt
 import numpy as np

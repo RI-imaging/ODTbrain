@@ -28,6 +28,19 @@ def dl_file(url, dest, chunk_size=6553):
     r.release_conn()
 
 
+def extract_lzma(path):
+    """Extract an lzma file and return the temporary file name"""
+    tlfile = pathlib.Path(path)
+    # open lzma file
+    with tlfile.open("rb") as td:
+        data = lzma.decompress(td.read())
+    # write temporary tar file
+    fd, tmpname = tempfile.mkstemp(prefix="odt_ex_", suffix=".tar")
+    with open(fd, "wb") as fo:
+        fo.write(data)
+    return tmpname
+
+
 def get_file(fname, datapath=datapath):
     """Return path of an example data file
 
@@ -62,14 +75,7 @@ def load_data(fname, **kwargs):
 
 def load_tar_lzma_data(tlfile):
     """Load example sinogram data from a .tar.lzma file"""
-    tlfile = pathlib.Path(tlfile)
-    # open lzma file
-    with tlfile.open("rb") as td:
-        data = lzma.decompress(td.read())
-    # write temporary tar file
-    fd, tmpname = tempfile.mkstemp(prefix="odt_ex_", suffix=".tar")
-    with open(fd, "wb") as fo:
-        fo.write(data)
+    tmpname = extract_lzma(tlfile)
 
     # open tar file
     fields_real = []

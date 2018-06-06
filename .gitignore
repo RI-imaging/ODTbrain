@@ -71,3 +71,5 @@ tests/data/*__*.txt
 *.tar
 .env
 .pytest_cache
+*bib.bak
+*bib.sav

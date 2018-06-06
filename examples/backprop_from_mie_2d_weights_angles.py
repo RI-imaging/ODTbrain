@@ -12,9 +12,6 @@ projections. The second column shows the reconstruction without angular
 weights and the third column shows the reconstruction with angular
 weights. The keyword argument `weight_angles` was introduced in version
 0.1.1.
-
-The illustrates the impact of angular weighting on backpropagation with
-the Rytov approximation.
 """
 import matplotlib.pylab as plt
 import numpy as np

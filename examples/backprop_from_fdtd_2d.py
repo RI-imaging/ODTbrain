@@ -7,10 +7,6 @@ reconstruction of the refractive index with the Rytov approximation
 is in good agreement with the phantom that was used in the
 simulation.
 
-The figure shows a 2D reconstruction from
-:abbr:`FDTD (Finite Difference Time Domain)` data created by
-`meep`_ simulations.
-
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
 import matplotlib.pylab as plt

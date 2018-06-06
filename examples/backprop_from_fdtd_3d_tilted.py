@@ -15,9 +15,7 @@ rotating cell) and tomographic reconstruction is impossible. A brief
 description of this algorithm is given in :cite:`Mueller2015tilted`.
 
 
-The figure shows a 3D reconstruction from
-:abbr:`FDTD (Finite Difference Time Domain)` data created by `meep`_
-simulations. The first column shows the measured phase, visualizing the
+The first column shows the measured phase, visualizing the
 tilt (compare to other examples). The second column shows a
 reconstruction that does not take into account the tilted axis of
 rotation; the result is a blurry reconstruction. The third column

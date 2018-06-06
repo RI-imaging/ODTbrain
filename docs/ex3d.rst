@@ -14,3 +14,4 @@ script folder.
 
 .. fancy_include:: backprop_from_fdtd_3d_tilted2.py
 
+.. fancy_include:: backprop_from_qlsi_3d_hl60.py

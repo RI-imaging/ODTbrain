@@ -8,10 +8,6 @@ are downsampled by a factor of two. The rotational axis is the `y`-axis.
 A total of 180 projections are used for the reconstruction. A detailed
 description of this phantom is given in :cite:`Mueller2015`.
 
-The figure shows a 3D reconstruction from
-:abbr:`FDTD (Finite Difference Time Domain)` data created with
-`meep`_ simulations.
-
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
 import matplotlib.pylab as plt

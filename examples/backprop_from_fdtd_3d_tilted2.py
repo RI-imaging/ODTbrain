@@ -9,11 +9,6 @@ imaging plane. The data are the same as were used in the previous
 example. A brief description of this algorithm is given in
 :cite:`Mueller2015tilted`.
 
-The figure shows the 3D reconstruction from
-:abbr:`FDTD (Finite Difference Time Domain)` data created by `meep`_
-simulations. The known tilted axis of rotation is used in the
-reconstruction process.
-
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
 import matplotlib.pylab as plt

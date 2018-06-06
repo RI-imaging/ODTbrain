@@ -622,7 +622,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     assert num_cores <= _ncores, "`num_cores` must not exceed number " +\
                                  "of physical cores: {}".format(_ncores)
 
-    assert uSin.dtype == np.complex128, "uSin dtype must be complex128."
+    assert np.iscomplexobj(uSin), "uSin dtype must be complex128."
 
     dtype_complex = np.dtype("complex{}".format(
         2 * int(dtype.name.strip("float"))))
