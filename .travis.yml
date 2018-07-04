@@ -21,7 +21,7 @@ install:
 # libraries that do not have wheels on PyPI
 - travis_retry pip install pyfftw
 # everything else
-- "travis_retry pip install .
+- travis_retry pip install .
 # coverage packages
 - travis_retry pip install coverage codecov
 - travis_retry pip install flake8
