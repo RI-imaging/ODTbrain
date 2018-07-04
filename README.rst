@@ -11,7 +11,7 @@ ODTbrain
 Documentation
 -------------
 
-The documentation, including the reference and examples, is available on `readthedocs.io <https://odtbrain.readthedocs.io/en/stable/>`__.
+The documentation, including the reference and examples, is available at `odtbrain.readthedocs.io <https://odtbrain.readthedocs.io/en/stable/>`__.
 
 
 Installation
