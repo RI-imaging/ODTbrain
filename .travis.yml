@@ -30,7 +30,6 @@ install:
 - travis_retry pip install flake8
 - pip freeze
 script:
-- set -ev
 - if [ "${TEST}" == "PYTEST" ]; then
        coverage run --source=odtbrain ./setup.py test;
        coverage report -m;
