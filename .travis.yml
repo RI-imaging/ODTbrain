@@ -12,10 +12,13 @@ env:
   - NUMPY="==1.13.1" TEST="PYTEST"
   - NUMPY="==1.14.3" TEST="PYTEST"
   - NUMPY="" TEST="FLAKE8"
+addons:
+  apt:
+    packages:
+    # fftw libraries
+    - libfftw3-dev
+    - libfftw3-3
 install:
-# fftw library
-- travis_retry sudo apt-get update -qq
-- travis_retry sudo apt-get install -qq libfftw3-3 libfftw3-dev
 # numpy (must be installed before pyfftw)
 - travis_retry pip install "numpy$NUMPY"
 # libraries that do not have wheels on PyPI
