@@ -9,7 +9,7 @@ def align_unwrapped(sino):
 
     All operations are performed in-place.
     """
-    samples = list()
+    samples = []
     if len(sino.shape) == 2:
         # 2D
         # take 1D samples at beginning and end of array

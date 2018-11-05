@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-"""
-Determine package version for git repositories.
+"""Determine package version for git repositories from tags
 
 Each time this file is imported it checks if the ".git" folder is
 present and if so, obtains the version from the git history using
 `git describe`. This information is then stored in the file
 `_version_save.py` which is not versioned by git, but distributed
-along with e.g. pypi.
+along e.g. on PyPI.
 """
 from __future__ import print_function
 
@@ -15,7 +14,7 @@ from __future__ import print_function
 if True:  # pragma: no cover
     import imp
     import os
-    from os.path import join, abspath, dirname
+    from os.path import abspath, basename, dirname, join
     import subprocess
     import sys
     import time
@@ -24,12 +23,12 @@ if True:  # pragma: no cover
 
     def git_describe():
         """
-        Returns a string describing the version returned by the
+        Return a string describing the version returned by the
         command `git describe --tags HEAD`.
         If it is not possible to determine the correct version,
         then an empty string is returned.
         """
-        # make sure we are in a directory that belongs to the correct
+        # Make sure we are in a directory that belongs to the correct
         # repository.
         ourdir = dirname(abspath(__file__))
 
@@ -67,8 +66,7 @@ if True:  # pragma: no cover
         return git_revision
 
     def load_version(versionfile):
-        """ load version from version_save.py
-        """
+        """load version from version_save.py"""
         longversion = ""
         try:
             _version_save = imp.load_source("_version_save", versionfile)
@@ -85,8 +83,7 @@ if True:  # pragma: no cover
         return longversion
 
     def save_version(version, versionfile):
-        """ save version to version_save.py
-        """
+        """save version to version_save.py"""
         data = "#!/usr/bin/env python\n" \
             + "# This file was created automatically\n" \
             + "longversion = '{VERSION}'\n"
@@ -97,7 +94,15 @@ if True:  # pragma: no cover
             msg = "Could not write package version to {}.".format(versionfile)
             warnings.warn(msg)
 
-    versionfile = join(dirname(abspath(__file__)), "_version_save.py")
+    hdir = dirname(abspath(__file__))
+    if basename(__file__) == "conf.py" and "name" in locals():
+        # This script is executed in conf.py from the docs directory
+        versionfile = join(join(join(hdir, ".."),
+                                name),  # noqa: F821
+                           "_version_save.py")
+    else:
+        # This script is imported as a module
+        versionfile = join(hdir, "_version_save.py")
 
     # Determine the accurate version
     longversion = ""
