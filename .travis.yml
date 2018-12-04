@@ -22,7 +22,7 @@ install:
 # numpy (must be installed before pyfftw)
 - travis_retry pip install "numpy$NUMPY"
 # libraries that do not have wheels on PyPI
-- travis_retry pip install pyfftw
+- travis_retry pip install pyfftw --only-binary pyfftw
 # everything else
 - travis_retry pip install .
 # coverage packages
