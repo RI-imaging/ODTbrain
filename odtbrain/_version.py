@@ -138,4 +138,4 @@ if True:  # pragma: no cover
             save_version(longversion, versionfile)
 
     # PEP 440-conform development version:
-    version = ".dev".join(longversion.split("-")[:2])
+    version = ".post".join(longversion.split("-")[:2])
