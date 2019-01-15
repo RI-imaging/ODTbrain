@@ -124,9 +124,9 @@ Running tests
 
     
 
-.. |PyPI Version| image:: http://img.shields.io/pypi/v/odtbrain.svg
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/odtbrain.svg
    :target: https://pypi.python.org/pypi/odtbrain
-.. |Tests Status| image:: http://img.shields.io/travis/RI-imaging/ODTbrain.svg?label=tests
+.. |Tests Status| image:: https://img.shields.io/travis/RI-imaging/ODTbrain.svg?label=tests
    :target: https://travis-ci.org/RI-imaging/ODTbrain
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/RI-imaging/ODTbrain/master.svg
    :target: https://codecov.io/gh/RI-imaging/ODTbrain
