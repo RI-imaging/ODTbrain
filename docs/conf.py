@@ -65,6 +65,7 @@ extensions = ['sphinx.ext.intersphinx',
               'sphinx.ext.napoleon',
               'sphinxcontrib.bibtex',
               'fancy_include',
+              'github_changelog',
               ]
 
 
@@ -90,6 +91,8 @@ projectname = name
 
 project = projectname
 copyright = year + ", " + author  # @ReservedAssignment
+github_project = 'RI-imaging/' + project
+
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
