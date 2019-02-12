@@ -1,6 +1,5 @@
 """3D backpropagation algorithm"""
 import ctypes
-import gc
 import multiprocessing as mp
 import platform
 
@@ -282,14 +281,13 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
 
-    sinogram = uSin
     # Perform weighting
     if weight_angles:
         weights = util.compute_angle_weights_1d(angles).reshape(-1, 1, 1)
-        sinogram *= weights
+        uSin *= weights
 
     # lengths of the input data
-    (la, lny, lnx) = sinogram.shape
+    lny, lnx = uSin.shape[1], uSin.shape[2]
     # The z-size of the output array must match the x-size.
     # The rotation is performed about the y-axis (lny).
     ln = lnx
@@ -300,8 +298,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # a power of 2.
     # transpose so we can call resize correctly
 
-    orderx = max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2)))
-    ordery = max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2)))
+    orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
+    ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
 
     if padding[0]:
         padx = orderx - lnx
@@ -312,39 +310,18 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     else:
         pady = 0
 
-    # Apply a Fourier filter before projecting the sinogram slices.
-    # Resize image to next power of two for fourier analysis
-    # Reduces artifacts
-
     padyl = np.int(np.ceil(pady / 2))
-    padyr = np.int(pady - padyl)
+    padyr = pady - padyl
     padxl = np.int(np.ceil(padx / 2))
-    padxr = np.int(padx - padxl)
+    padxr = padx - padxl
 
-    # TODO: This padding takes up a lot of memory. Move it to a separate
-    # for loop or to the main for-loop.
-    if padval is None:
-        sino = np.pad(sinogram, ((0, 0), (padyl, padyr), (padxl, padxr)),
-                      mode="edge")
-        if verbose > 0:
-            print("......Padding with edge values.")
-    else:
-        sino = np.pad(sinogram, ((0, 0), (padyl, padyr), (padxl, padxr)),
-                      mode="linear_ramp",
-                      end_values=(padval,))
-        if verbose > 0:
-            print("......Verifying padding value: {}".format(padval))
-
-    # save memory
-    del sinogram
+    # zero-padded length of sinogram.
+    lNx, lNy = lnx + padx, lny + pady
+    lNz = ln
 
     if verbose > 0:
         print("......Image size (x,y): {}x{}, padded: {}x{}".format(
-            lnx, lny, sino.shape[2], sino.shape[1]))
-
-    # zero-padded length of sinogram.
-    (lA, lNy, lNx) = sino.shape  # @UnusedVariable
-    lNz = ln
+            lnx, lny, lNx, lNy))
 
     # Ask for the filter. Do not include zero (first element).
     #
@@ -392,9 +369,9 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # Differentials for integral
     dphi0 = 2 * np.pi / A
     # We will later multiply with phi0.
-    #               a, y, x
-    kx = kx.reshape(1, 1, -1)
-    ky = ky.reshape(1, -1, 1)
+    #               y, x
+    kx = kx.reshape(1, -1)
+    ky = ky.reshape(-1, 1)
     # Low-pass filter:
     # less-than-or-equal would give us zero division error.
     filter_klp = (kx**2 + ky**2 < km**2)
@@ -413,40 +390,10 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # to take into account that we have a scattered
     # wave that is normalized by u0.
     prefactor *= np.exp(-1j * km * (M-1) * lD)
-    # Perform filtering of the sinogram,
-    # save memory by in-place operations
-    # projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor
-    # FFTW-flag is "estimate":
-    #   specifies that, instead of actual measurements of different
-    #   algorithms, a simple heuristic is used to pick a (probably
-    #   sub-optimal) plan quickly. With this flag, the input/output
-    #   arrays are not overwritten during planning.
-
-    # Byte-aligned arrays
-    temp_array = pyfftw.n_byte_align_empty(sino[0].shape, 16, dtype_complex)
-
-    myfftw_plan = pyfftw.FFTW(temp_array, temp_array, threads=num_cores,
-                              flags=["FFTW_ESTIMATE"], axes=(0, 1))
 
     if count is not None:
         count.value += 1
 
-    for p in range(len(sino)):
-        # this overwrites sino
-        temp_array[:] = sino[p, :, :]
-        myfftw_plan.execute()
-        sino[p, :, :] = temp_array[:]
-
-    temp_array, myfftw_plan
-
-    projection = sino
-    # - normalize to (lNx * lNy) for FFTW
-    projection[:] *= prefactor / (lNx * lNy)
-
-    # save memory
-    del prefactor, filter_klp
-    #
-    #
     # filter (2) must be applied before rotation as well
     # exp( i (kx t⊥ + kₘ (M - 1) s₀) r )
     #
@@ -487,20 +434,28 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     if count is not None:
         count.value += 1
 
-    #                                  a, z, y,  x
-    # projection = projection.reshape(la, 1, lNy, lNx)
-    projection = projection.reshape(la, lNy, lNx)
-
-    # This frees comparatively few data
-    del M
-
     # Prepare complex output image
     if onlyreal:
         outarr = np.zeros((ln, lny, lnx), dtype=dtype)
     else:
         outarr = np.zeros((ln, lny, lnx), dtype=dtype_complex)
 
-    # Create plan for fftw:
+    # Create plan for FFTW
+    # save memory by in-place operations
+    # projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor
+    # FFTW-flag is "estimate":
+    #   specifies that, instead of actual measurements of different
+    #   algorithms, a simple heuristic is used to pick a (probably
+    #   sub-optimal) plan quickly. With this flag, the input/output
+    #   arrays are not overwritten during planning.
+
+    # Byte-aligned arrays
+    oneslice = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
+
+    myfftw_plan = pyfftw.FFTW(oneslice, oneslice, threads=num_cores,
+                              flags=["FFTW_ESTIMATE"], axes=(0, 1))
+
+    # Create plan for IFFTW:
     inarr = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
     # inarr[:] = (projection[0]*filter2)[0,:,:]
     # plan is "patient":
@@ -529,6 +484,22 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     filtered_proj = np.zeros((ln, lny, lnx), dtype=dtype_complex)
 
     for aa in np.arange(A):
+        if padval is None:
+            oneslice[:] = np.pad(uSin[aa],
+                                 ((padyl, padyr), (padxl, padxr)),
+                                 mode="edge")
+            if verbose > 0:
+                print("......Padding with edge values.")
+        else:
+            oneslice[:] = np.pad(uSin[aa],
+                                 ((padyl, padyr), (padxl, padxr)),
+                                 mode="linear_ramp",
+                                 end_values=(padval,))
+            if verbose > 0:
+                print("......Verifying padding value: {}".format(padval))
+        myfftw_plan.execute()
+        # normalize to (lNx * lNy) for FFTW and multiply with prefactor
+        oneslice *= prefactor / (lNx * lNy)
         # 14x Speedup with fftw3 compared to numpy fft and
         # memory reduction by a factor of 2!
         # ifft will be computed in-place
@@ -542,17 +513,14 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                 # this is comparatively slower than the other case
                 ne.evaluate("exp(factor * zvp) * projectioni",
                             local_dict={"zvp": zv[p],
-                                        "projectioni": projection[aa],
+                                        "projectioni": oneslice,
                                         "factor": f2_exp_fac},
                             out=inarr)
             else:
                 # use universal functions
-                np.multiply(filter2[p], projection[aa], out=inarr)
+                np.multiply(filter2[p], oneslice, out=inarr)
             myifftw_plan.execute()
-            filtered_proj[p, :, :] = inarr[
-                padyl:padyl + lny,
-                padxl:padxl + lnx
-            ]
+            filtered_proj[p, :, :] = inarr[padyl:lny+padyl, padxl:lnx+padxl]
 
         # resize image to original size
         # The copy is necessary to prevent memory leakage.
@@ -578,7 +546,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
             _shared_array[:] = filtered_proj_imag
             # _shared_array[:] = sino_filtered_imag[
             #    :ln, :lny, :lnx] / (lNx * lNy)
-            del filtered_proj_imag
             _mprotate(phi0, lny, pool4loop, intp_order)
             outarr.imag += _shared_array
 
@@ -587,10 +554,5 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     pool4loop.terminate()
     pool4loop.join()
-
-    del _shared_array, inarr, odtbrain._shared_array
-    del shared_array_base
-
-    gc.collect()
 
     return outarr

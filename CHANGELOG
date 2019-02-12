@@ -1,3 +1,6 @@
+0.2.3
+ - enh: reduce memory usage and computation time by padding
+   slice-wise (#7)
 0.2.2
  - docs: minor update and add changelog
 0.2.1
