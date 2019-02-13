@@ -12,6 +12,7 @@ import odtbrain
 
 from . import util
 
+
 _ncores = mp.cpu_count()
 
 
@@ -225,66 +226,42 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     with a numerical focusing algorithm (available in the Python
     package :py:mod:`nrefocus`).
     """
-    ne.set_num_threads(num_cores)
+    A = angles.size
 
-    if copy:
-        uSin = uSin.copy()
+    if len(uSin.shape) != 3:
+        raise ValueError("Input data `uSin` must have shape (A,Ny,Nx).")
+    if len(uSin) != A:
+        raise ValueError("`len(angles)` must be  equal to `len(uSin)`.")
+    if len(list(padding)) != 2:
+        raise ValueError("`padding` must be boolean tuple of length 2!")
+    if np.array(padding).dtype is not np.dtype(bool):
+        raise ValueError("Parameter `padding` must be boolean tuple.")
+    if coords is not None:
+        raise NotImplementedError("Setting coordinates is not yet supported.")
+    if num_cores > _ncores:
+        raise ValueError("`num_cores` must not exceed number "
+                         + "of physical cores: {}".format(_ncores))
 
-    A = angles.shape[0]
-    # jobmanager
-    if max_count is not None:
-        max_count.value += A + 2
-
-    # check for dtype
+    # setup dtype
     if dtype is None:
         dtype = np.float_
     dtype = np.dtype(dtype)
-    assert dtype.name in ["float32",
-                          "float64"], "dtype must be float32 or float64!"
-
-    assert num_cores <= _ncores, "`num_cores` must not exceed number " +\
-                                 "of physical cores: {}".format(_ncores)
-
-    assert np.iscomplexobj(uSin), "uSin dtype must be complex128."
-
+    if dtype.name not in ["float32", "float64"]:
+        raise ValueError("dtype must be float32 or float64!")
     dtype_complex = np.dtype("complex{}".format(
         2 * np.int(dtype.name.strip("float"))))
-
     # set ctype
     ct_dt_map = {np.dtype(np.float32): ctypes.c_float,
                  np.dtype(np.float64): ctypes.c_double
                  }
 
-    assert len(uSin.shape) == 3, "Input data `uSin` must have shape (A,Ny,Nx)."
-    assert len(uSin) == A, "`len(angles)` must be  equal to `len(uSin)`."
-    assert len(
-        list(padding)) == 2, "`padding` must be boolean tuple of length 2!"
-    assert np.array(padding).dtype is np.dtype(
-        bool), "Parameter `padding` must be boolean tuple."
-    assert coords is None, "Setting coordinates is not yet supported."
+    # progress
+    if max_count is not None:
+        max_count.value += A + 2
 
-    # Cut-Off frequency
-    # km [1/px]
-    km = (2 * np.pi * nm) / res
-    # Here, the notation for
-    # a wave propagating to the right is:
-    #
-    #    u0(x) = exp(ikx)
-    #
-    # However, in physics usually we use the other sign convention:
-    #
-    #    u0(x) = exp(-ikx)
-    #
-    # In order to be consistent with programs like Meep or our
-    # scattering script for a dielectric cylinder, we want to use the
-    # latter sign convention.
-    # This is not a big problem. We only need to multiply the imaginary
-    # part of the scattered wave by -1.
+    ne.set_num_threads(num_cores)
 
-    # Perform weighting
-    if weight_angles:
-        weights = util.compute_angle_weights_1d(angles).reshape(-1, 1, 1)
-        uSin *= weights
+    uSin = np.array(uSin, copy=copy)
 
     # lengths of the input data
     lny, lnx = uSin.shape[1], uSin.shape[2]
@@ -292,12 +269,10 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # The rotation is performed about the y-axis (lny).
     ln = lnx
 
-    # We perform padding before performing the Fourier transform.
+    # We perform zero-padding before performing the Fourier transform.
     # This gets rid of artifacts due to false periodicity and also
     # speeds up Fourier transforms of the input image size is not
     # a power of 2.
-    # transpose so we can call resize correctly
-
     orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
     ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
 
@@ -322,6 +297,29 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     if verbose > 0:
         print("......Image size (x,y): {}x{}, padded: {}x{}".format(
             lnx, lny, lNx, lNy))
+
+    # Perform weighting
+    if weight_angles:
+        weights = util.compute_angle_weights_1d(angles).reshape(-1, 1, 1)
+        uSin *= weights
+
+    # Cut-Off frequency
+    # km [1/px]
+    km = (2 * np.pi * nm) / res
+    # Here, the notation for
+    # a wave propagating to the right is:
+    #
+    #    u0(x) = exp(ikx)
+    #
+    # However, in physics usually we use the other sign convention:
+    #
+    #    u0(x) = exp(-ikx)
+    #
+    # In order to be consistent with programs like Meep or our
+    # scattering script for a dielectric cylinder, we want to use the
+    # latter sign convention.
+    # This is not a big problem. We only need to multiply the imaginary
+    # part of the scattered wave by -1.
 
     # Ask for the filter. Do not include zero (first element).
     #
@@ -429,7 +427,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                                           "zv": zv})
         # occupies some amount of ram, but yields faster
         # computation later
-        # filter2[0].size*len(filter2)*128/8/1024**3
 
     if count is not None:
         count.value += 1
@@ -500,9 +497,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         # memory reduction by a factor of 2!
         # ifft will be computed in-place
 
-        # A == la
-        # projection.shape == (A, lNx, lNy)
-        # filter2.shape == (ln, lNx, lNy)
         for p in range(len(zv)):
             if save_memory:
                 # compute filter2 here;
@@ -520,10 +514,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
         # resize image to original size
         # The copy is necessary to prevent memory leakage.
-        # The fftw did not normalize the data.
-        # _shared_array[:] = sino_filtered.real[:ln, :lny, :lnx] / (lNx * lNy)
-        # By performing the "/" operation here, we magically use less
-        # memory and we gain speed...
         _shared_array[:] = filtered_proj.real
 
         phi0 = np.rad2deg(angles[aa])
@@ -537,8 +527,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
         if not onlyreal:
             _shared_array[:] = filtered_proj_imag
-            # _shared_array[:] = sino_filtered_imag[
-            #    :ln, :lny, :lnx] / (lNx * lNy)
             _mprotate(phi0, lny, pool4loop, intp_order)
             outarr.imag += _shared_array
 

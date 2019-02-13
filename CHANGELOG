@@ -3,6 +3,7 @@
    possibly the computation time) of
    - basic 3D backpropagation algorithm (#7)
    - 3D backpropagation with a tilted axis of rotation (#9)
+ - ref: replace asserts with raises (#8)
 0.2.2
  - docs: minor update and add changelog
 0.2.1

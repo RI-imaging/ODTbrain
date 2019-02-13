@@ -1,4 +1,5 @@
 """3D backpropagation algorithm with a tilted axis of rotation"""
+import multiprocessing as mp
 import warnings
 
 import numexpr as ne
@@ -6,9 +7,10 @@ import numpy as np
 import pyfftw
 import scipy.ndimage
 
-
-from ._alg3d_bpp import _ncores
 from . import util
+
+
+_ncores = mp.cpu_count()
 
 
 def estimate_major_rotation_axis(loc):
@@ -551,11 +553,75 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     with a numerical focusing algorithm (available in the Python
     package :py:mod:`nrefocus`).
     """
+    A = angles.shape[0]
+
+    if angles.shape not in [(A,), (A, 1), (A, 3)]:
+        raise ValueError("`angles` must have shape (A,) or (A,3)!")
+    if len(uSin.shape) != 3:
+        raise ValueError("Input data `uSin` must have shape (A,Ny,Nx).")
+    if len(uSin) != A:
+        raise ValueError("`len(angles)` must be  equal to `len(uSin)`.")
+    if len(list(padding)) != 2:
+        raise ValueError("`padding` must be boolean tuple of length 2!")
+    if np.array(padding).dtype is not np.dtype(bool):
+        raise ValueError("Parameter `padding` must be boolean tuple.")
+    if coords is not None:
+        raise NotImplementedError("Setting coordinates is not yet supported.")
+    if num_cores > _ncores:
+        raise ValueError("`num_cores` must not exceed number "
+                         + "of physical cores: {}".format(_ncores))
+
+    # setup dtype
+    if dtype is None:
+        dtype = np.float_
+    dtype = np.dtype(dtype)
+    if dtype.name not in ["float32", "float64"]:
+        raise ValueError("dtype must be float32 or float64!")
+    dtype_complex = np.dtype("complex{}".format(
+        2 * int(dtype.name.strip("float"))))
+
+    # progess monitoring
+    if max_count is not None:
+        max_count.value += A + 2
+
     ne.set_num_threads(num_cores)
 
-    if copy:
-        uSin = uSin.copy()
-        angles = angles.copy()
+    uSin = np.array(uSin, copy=copy)
+    angles = np.array(angles, copy=copy)
+    angles = np.squeeze(angles)  # support shape (A,1)
+
+    # lengths of the input data
+    lny, lnx = uSin.shape[1], uSin.shape[2]
+    ln = lnx
+
+    # We perform zero-padding before performing the Fourier transform.
+    # This gets rid of artifacts due to false periodicity and also
+    # speeds up Fourier transforms of the input image size is not
+    # a power of 2.
+    orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
+    ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
+
+    if padding[0]:
+        padx = orderx - lnx
+    else:
+        padx = 0
+    if padding[1]:
+        pady = ordery - lny
+    else:
+        pady = 0
+
+    padyl = np.int(np.ceil(pady / 2))
+    padyr = pady - padyl
+    padxl = np.int(np.ceil(padx / 2))
+    padxr = padx - padxl
+
+    # zero-padded length of sinogram.
+    lNx, lNy = lnx + padx, lny + pady
+    lNz = ln
+
+    if verbose > 0:
+        print("......Image size (x,y): {}x{}, padded: {}x{}".format(
+            lnx, lny, lNx, lNy))
 
     # `tilted_axis` is required for several things:
     # 1. the filter |kDx*v + kDy*u| with (u,v,w)==tilted_axis
@@ -584,14 +650,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # rotate `tilted_axis` onto the y-z plane.
     tilted_axis_yz = norm_vec(np.dot(rotmat, tilted_axis))
 
-    A = angles.shape[0]
-    angles = np.squeeze(angles)  # Allow shapes (A,1)
-    assert angles.shape in [
-        (A,), (A, 3)], "`angles` must have shape (A,) or (A,3)!"
-    # jobmanager
-    if max_count is not None:
-        max_count.value += A + 2
-
     if len(angles.shape) == 1:
         if weight_angles:
             weights = util.compute_angle_weights_1d(angles).reshape(-1, 1, 1)
@@ -608,28 +666,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
             # instead rotate like `tilted_axis` onto the y-z plane.
             angles[ii] = norm_vec(np.dot(rotmat, angles[ii]))
 
-    # check for dtype
-    if dtype is None:
-        dtype = np.float_
-    dtype = np.dtype(dtype)
-    assert dtype.name in ["float32",
-                          "float64"], "dtype must be float32 or float64!"
-
-    assert num_cores <= _ncores, "`num_cores` must not exceed number " +\
-                                 "of physical cores: {}".format(_ncores)
-
-    assert np.iscomplexobj(uSin), "uSin dtype must be complex128."
-
-    dtype_complex = np.dtype("complex{}".format(
-        2 * int(dtype.name.strip("float"))))
-
-    assert len(uSin.shape) == 3, "Input data `uSin` must have shape (A,Ny,Nx)."
-    assert len(uSin) == A, "`len(angles)` must be  equal to `len(uSin)`."
-    assert len(
-        list(padding)) == 2, "`padding` must be boolean tuple of length 2!"
-    assert np.array(padding).dtype is np.dtype(
-        bool), "Parameter `padding` must be boolean tuple."
-    assert coords is None, "Setting coordinates is not yet supported."
+    if weight_angles:
+        uSin *= weights
 
     # Cut-Off frequency
     # km [1/px]
@@ -648,47 +686,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # latter sign convention.
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
-
-    if weight_angles:
-        uSin *= weights
-
-    # lengths of the input data
-    lny, lnx = uSin.shape[1], uSin.shape[2]
-    ln = lnx
-
-    # We do a zero-padding before performing the Fourier transform.
-    # This gets rid of artifacts due to false periodicity and also
-    # speeds up Fourier transforms of the input image size is not
-    # a power of 2.
-    # transpose so we can call resize correctly
-
-    orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
-    ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
-
-    if padding[0]:
-        padx = orderx - lnx
-    else:
-        padx = 0
-    if padding[1]:
-        pady = ordery - lny
-    else:
-        pady = 0
-
-    # Apply a Fourier filter before projecting the sinogram slices.
-    # Resize image to next power of two for fourier analysis
-    # (reduces artifacts).
-    padyl = np.int(np.ceil(pady / 2))
-    padyr = pady - padyl
-    padxl = np.int(np.ceil(padx / 2))
-    padxr = padx - padxl
-
-    # zero-padded length of sinogram.
-    lNx, lNy = lnx + padx, lny + pady
-    lNz = ln
-
-    if verbose > 0:
-        print("......Image size (x,y): {}x{}, padded: {}x{}".format(
-            lnx, lny, lNx, lNy))
 
     # Ask for the filter. Do not include zero (first element).
     #
