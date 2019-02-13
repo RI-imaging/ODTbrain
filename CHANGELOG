@@ -1,6 +1,8 @@
 0.2.3
- - enh: reduce memory usage and computation time by padding
-   slice-wise (#7)
+ - enh: employ slice-wise padding to reduce the memory usage (and
+   possibly the computation time) of
+   - basic 3D backpropagation algorithm (#7)
+   - 3D backpropagation with a tilted axis of rotation (#9)
 0.2.2
  - docs: minor update and add changelog
 0.2.1

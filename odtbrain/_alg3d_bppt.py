@@ -1,7 +1,4 @@
 """3D backpropagation algorithm with a tilted axis of rotation"""
-import ctypes
-import gc
-import multiprocessing as mp
 import warnings
 
 import numexpr as ne
@@ -12,7 +9,6 @@ import scipy.ndimage
 
 from ._alg3d_bpp import _ncores
 from . import util
-import odtbrain
 
 
 def estimate_major_rotation_axis(loc):
@@ -627,11 +623,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     dtype_complex = np.dtype("complex{}".format(
         2 * int(dtype.name.strip("float"))))
 
-    # set ctype
-    ct_dt_map = {np.dtype(np.float32): ctypes.c_float,
-                 np.dtype(np.float64): ctypes.c_double
-                 }
-
     assert len(uSin.shape) == 3, "Input data `uSin` must have shape (A,Ny,Nx)."
     assert len(uSin) == A, "`len(angles)` must be  equal to `len(uSin)`."
     assert len(
@@ -657,13 +648,12 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # latter sign convention.
     # This is not a big problem. We only need to multiply the imaginary
     # part of the scattered wave by -1.
-    sinogram = uSin
 
     if weight_angles:
-        sinogram *= weights
+        uSin *= weights
 
     # lengths of the input data
-    (la, lny, lnx) = sinogram.shape
+    lny, lnx = uSin.shape[1], uSin.shape[2]
     ln = lnx
 
     # We do a zero-padding before performing the Fourier transform.
@@ -672,8 +662,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # a power of 2.
     # transpose so we can call resize correctly
 
-    orderx = max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2)))
-    ordery = max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2)))
+    orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
+    ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
 
     if padding[0]:
         padx = orderx - lnx
@@ -688,34 +678,17 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # Resize image to next power of two for fourier analysis
     # (reduces artifacts).
     padyl = np.int(np.ceil(pady / 2))
-    padyr = np.int(pady - padyl)
+    padyr = pady - padyl
     padxl = np.int(np.ceil(padx / 2))
-    padxr = np.int(padx - padxl)
+    padxr = padx - padxl
 
-    # TODO: This padding takes up a lot of memory. Move it to a separate
-    # for loop or to the main for-loop.
-    if padval is None:
-        sino = np.pad(sinogram, ((0, 0), (padyl, padyr), (padxl, padxr)),
-                      mode="edge")
-        if verbose > 0:
-            print("......Padding with edge values.")
-    else:
-        sino = np.pad(sinogram, ((0, 0), (padyl, padyr), (padxl, padxr)),
-                      mode="linear_ramp",
-                      end_values=(padval,))
-        if verbose > 0:
-            print("......Verifying padding value: {}".format(padval))
-
-    # save memory
-    del sinogram
+    # zero-padded length of sinogram.
+    lNx, lNy = lnx + padx, lny + pady
+    lNz = ln
 
     if verbose > 0:
         print("......Image size (x,y): {}x{}, padded: {}x{}".format(
-            lnx, lny, sino.shape[2], sino.shape[1]))
-
-    # zero-padded length of sinogram.
-    (lA, lNy, lNx) = sino.shape  # @UnusedVariable
-    lNz = ln
+            lnx, lny, lNx, lNy))
 
     # Ask for the filter. Do not include zero (first element).
     #
@@ -767,8 +740,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     dphi0 = 2 * np.pi / A
     # We will later multiply with phi0.
     #               a, y, x
-    kx = kx.reshape(1, 1, -1)
-    ky = ky.reshape(1, -1, 1)
+    kx = kx.reshape(1, -1)
+    ky = ky.reshape(-1, 1)
     # Low-pass filter:
     # less-than-or-equal would give us zero division error.
     filter_klp = (kx**2 + ky**2 < km**2)
@@ -793,38 +766,10 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # to take into account that we have a scattered
     # wave that is normalized by u0.
     prefactor *= np.exp(-1j * km * (M-1) * lD)
-    # Perform filtering of the sinogram,
-    # save memory by in-place operations
-    # projection = np.fft.fft2(sino, axes=(-1,-2)) * prefactor
-    # Flag is "estimate":
-    #   specifies that, instead of actual measurements of different
-    #   algorithms, a simple heuristic is used to pick a (probably
-    #   sub-optimal) plan quickly. With this flag, the input/output
-    #   arrays are not overwritten during planning.
-
-    # Byte-aligned arrays
-    temp_array = pyfftw.n_byte_align_empty(sino[0].shape, 16, dtype_complex)
-
-    myfftw_plan = pyfftw.FFTW(temp_array, temp_array, threads=num_cores,
-                              flags=["FFTW_ESTIMATE"], axes=(0, 1))
 
     if count is not None:
         count.value += 1
 
-    for p in range(len(sino)):
-        # this overwrites sino
-        temp_array[:] = sino[p, :, :]
-        myfftw_plan.execute()
-        sino[p, :, :] = temp_array[:]
-
-    temp_array, myfftw_plan
-
-    projection = sino
-    projection[:] *= prefactor / (lNx * lNy)
-    projection[:] *= filterabs
-
-    # save memory
-    del prefactor, filter_klp
     #
     #
     # filter (2) must be applied before rotation as well
@@ -855,7 +800,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     z = np.linspace(-center, center, lNz, endpoint=False)
     zv = z.reshape(-1, 1, 1)
 
-    #              z, y, x
+    #              y,   x
     Mp = M.reshape(lNy, lNx)
 
     # filter2 = np.exp(1j * zv * km * (Mp - 1))
@@ -865,22 +810,13 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         pass
     else:
         # compute filter2 now
+        # (this requires more RAM but is faster)
         filter2 = ne.evaluate("exp(factor * zv)",
                               local_dict={"factor": f2_exp_fac,
                                           "zv": zv})
-        # occupies some amount of ram, but yields faster
-        # computation later
-        # filter2[0].size*len(filter2)*128/8/1024**3
 
     if count is not None:
         count.value += 1
-
-    #                                  a, z, y,  x
-    # projection = projection.reshape(la, 1, lNy, lNx)
-    projection = projection.reshape(la, lNy, lNx)
-
-    # This frees comparatively few data
-    del M
 
     # Prepare complex output image
     if onlyreal:
@@ -888,9 +824,21 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     else:
         outarr = np.zeros((ln, lny, lnx), dtype=dtype_complex)
 
-    # Create plan for fftw:
+    # Create plan for FFTW:
+    # Flag is "estimate":
+    #   specifies that, instead of actual measurements of different
+    #   algorithms, a simple heuristic is used to pick a (probably
+    #   sub-optimal) plan quickly. With this flag, the input/output
+    #   arrays are not overwritten during planning.
+
+    # Byte-aligned arrays
+    oneslice = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
+
+    myfftw_plan = pyfftw.FFTW(oneslice, oneslice, threads=num_cores,
+                              flags=["FFTW_ESTIMATE"], axes=(0, 1))
+
+    # Create plan for IFFTW:
     inarr = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
-    # inarr[:] = (projection[0]*filter2)[0,:,:]
     # plan is "patient":
     #    FFTW_PATIENT is like FFTW_MEASURE, but considers a wider range
     #    of algorithms and often produces a “more optimal” plan
@@ -904,15 +852,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                                direction="FFTW_BACKWARD",
                                flags=["FFTW_MEASURE"])
 
-    # assert shared_array.base.base is shared_array_base.get_obj()
-    shared_array_base = mp.Array(ct_dt_map[dtype], ln * lny * lnx)
-    _shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-    _shared_array = _shared_array.reshape(ln, lny, lnx)
-
-    # Initialize the pool with the shared array
-    odtbrain._shared_array = _shared_array
-    pool4loop = mp.Pool(processes=num_cores)
-
     # filtered projections in loop
     filtered_proj = np.zeros((ln, lny, lnx), dtype=dtype_complex)
 
@@ -921,9 +860,18 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     angles = rotate_points_to_axis(points=angles, axis=tilted_axis_yz)
 
     for aa in np.arange(A):
-        # A == la
-        # projection.shape == (A, lNx, lNy)
-        # filter2.shape == (ln, lNx, lNy)
+        if padval is None:
+            oneslice[:] = np.pad(uSin[aa],
+                                 ((padyl, padyr), (padxl, padxr)),
+                                 mode="edge")
+        else:
+            oneslice[:] = np.pad(uSin[aa],
+                                 ((padyl, padyr), (padxl, padxr)),
+                                 mode="linear_ramp",
+                                 end_values=(padval,))
+        myfftw_plan.execute()
+        # normalize to (lNx * lNy) for FFTW and multiply with prefactor, filter
+        oneslice *= filterabs * prefactor / (lNx * lNy)
 
         for p in range(len(zv)):
             if save_memory:
@@ -931,17 +879,14 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                 # this is comparatively slower than the other case
                 ne.evaluate("exp(factor * zvp) * projectioni",
                             local_dict={"zvp": zv[p],
-                                        "projectioni": projection[aa],
+                                        "projectioni": oneslice,
                                         "factor": f2_exp_fac},
                             out=inarr)
             else:
                 # use universal functions
-                np.multiply(filter2[p], projection[aa], out=inarr)
+                np.multiply(filter2[p], oneslice, out=inarr)
             myifftw_plan.execute()
-            filtered_proj[p, :, :] = inarr[
-                padyl:padyl + lny,
-                padxl:padxl + lnx
-            ]
+            filtered_proj[p, :, :] = inarr[padyl:padyl+lny, padxl:padxl+lnx]
 
         # The Cartesian axes in our array are ordered like this: [z,y,x]
         # However, the rotation matrix requires [x,y,z]. Therefore, we
@@ -991,13 +936,5 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
 
         if count is not None:
             count.value += 1
-
-    pool4loop.terminate()
-    pool4loop.join()
-
-    del _shared_array, inarr, odtbrain._shared_array
-    del shared_array_base
-
-    gc.collect()
 
     return outarr

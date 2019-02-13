@@ -488,15 +488,11 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
             oneslice[:] = np.pad(uSin[aa],
                                  ((padyl, padyr), (padxl, padxr)),
                                  mode="edge")
-            if verbose > 0:
-                print("......Padding with edge values.")
         else:
             oneslice[:] = np.pad(uSin[aa],
                                  ((padyl, padyr), (padxl, padxr)),
                                  mode="linear_ramp",
                                  end_values=(padval,))
-            if verbose > 0:
-                print("......Verifying padding value: {}".format(padval))
         myfftw_plan.execute()
         # normalize to (lNx * lNy) for FFTW and multiply with prefactor
         oneslice *= prefactor / (lNx * lNy)
@@ -529,9 +525,6 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         # By performing the "/" operation here, we magically use less
         # memory and we gain speed...
         _shared_array[:] = filtered_proj.real
-        # _shared_array[:] = sino_filtered.real[:ln,
-        #                                       padyl:padyl+lny,
-        #                                       padxl:padxl+lnx] / (lNx * lNy)
 
         phi0 = np.rad2deg(angles[aa])
 
