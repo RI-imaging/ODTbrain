@@ -4,6 +4,9 @@
    - basic 3D backpropagation algorithm (#7)
    - 3D backpropagation with a tilted axis of rotation (#9)
  - ref: replace asserts with raises (#8)
+ - ref: multiprocessing-based rotation does not anymore require
+   a variable (_shared_array) at the top level of the module; As a
+   result, multiprocessing-rotation should now also work on Windows.
 0.2.2
  - docs: minor update and add changelog
 0.2.1

@@ -13,7 +13,3 @@ from ._version import longversion as __version_full__  # noqa F401
 
 __author__ = "Paul Müller"
 __license__ = "BSD (3 clause)"
-
-
-# Shared variable used by 3D backpropagation
-_shared_array = None

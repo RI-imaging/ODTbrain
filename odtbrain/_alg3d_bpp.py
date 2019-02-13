@@ -1,19 +1,35 @@
 """3D backpropagation algorithm"""
 import ctypes
 import multiprocessing as mp
-import platform
 
 import numexpr as ne
 import numpy as np
 import pyfftw
 import scipy.ndimage
 
-import odtbrain
-
 from . import util
 
 
-_ncores = mp.cpu_count()
+ncores = mp.cpu_count()
+mprotate_dict = {}
+
+
+def _cleanup_worker():
+    if "X" in mprotate_dict:
+        mprotate_dict.pop("X")
+    if "X_shape" in mprotate_dict:
+        mprotate_dict.pop("X_shape")
+    if "X_dtype" in mprotate_dict:
+        mprotate_dict.pop("X_dtype")
+
+
+def _init_worker(X, X_shape, X_dtype):
+    """Initializer for pool for _mprotate"""
+    # Using a dictionary is not strictly necessary. You can also
+    # use global variables.
+    mprotate_dict["X"] = X
+    mprotate_dict["X_shape"] = X_shape
+    mprotate_dict["X_dtype"] = X_dtype
 
 
 def _mprotate(ang, lny, pool, order):
@@ -21,8 +37,8 @@ def _mprotate(ang, lny, pool, order):
 
     4x speedup on an intel i7-3820 CPU @ 3.60GHz with 8 cores.
 
-    The function calls _rotate which accesses the
-    `odtbrain._shared_array`. Data is rotated in-place.
+    The function calls _rotate which accesses the `mprotate_dict`.
+    Data is rotated in-place.
 
     Parameters
     ----------
@@ -37,38 +53,29 @@ def _mprotate(ang, lny, pool, order):
     """
     targ_args = list()
 
-    slsize = np.int(np.floor(lny / _ncores))
+    slsize = np.int(np.floor(lny / ncores))
 
-    for t in range(_ncores):
+    for t in range(ncores):
         ymin = t * slsize
         ymax = (t + 1) * slsize
-        if t == _ncores - 1:
+        if t == ncores - 1:
             ymax = lny
         targ_args.append((ymin, ymax, ang, order))
 
-    if platform.system() == "Windows":
-        # Because Windows does not support forking,
-        # the subprocess does not have access to
-        # odtbrain._shared_array. We circumvent
-        # this problem by not using a pool.
-        # We could copy all the data instead and
-        # use a _rotate function that accepts the
-        # array as an argument.
-        for d in targ_args:
-            _rotate(d)
-
-    else:
-        pool.map(_rotate, targ_args)
+    pool.map(_rotate, targ_args)
 
 
 def _rotate(d):
+    arr = np.frombuffer(mprotate_dict["X"],
+                        dtype=mprotate_dict["X_dtype"]).reshape(
+                            mprotate_dict["X_shape"])
     (ymin, ymax, ang, order) = d
     return scipy.ndimage.interpolation.rotate(
-        odtbrain._shared_array[:, ymin:ymax, :],  # input
+        arr[:, ymin:ymax, :],  # input
         angle=-ang,  # angle
         axes=(0, 2),  # axes
         reshape=False,  # reshape
-        output=odtbrain._shared_array[:, ymin:ymax, :],  # output
+        output=arr[:, ymin:ymax, :],  # output
         order=order,  # order
         mode="constant",  # mode
         cval=0)
@@ -78,7 +85,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      weight_angles=True, onlyreal=False,
                      padding=(True, True), padfac=1.75, padval=None,
                      intp_order=2, dtype=None,
-                     num_cores=_ncores,
+                     num_cores=ncores,
                      save_memory=False,
                      copy=True,
                      count=None, max_count=None,
@@ -238,9 +245,9 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         raise ValueError("Parameter `padding` must be boolean tuple.")
     if coords is not None:
         raise NotImplementedError("Setting coordinates is not yet supported.")
-    if num_cores > _ncores:
+    if num_cores > ncores:
         raise ValueError("`num_cores` must not exceed number "
-                         + "of physical cores: {}".format(_ncores))
+                         + "of physical cores: {}".format(ncores))
 
     # setup dtype
     if dtype is None:
@@ -468,14 +475,14 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                                direction="FFTW_BACKWARD",
                                flags=["FFTW_MEASURE"])
 
-    # assert shared_array.base.base is shared_array_base.get_obj()
-    shared_array_base = mp.Array(ct_dt_map[dtype], ln * lny * lnx)
-    _shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-    _shared_array = _shared_array.reshape(ln, lny, lnx)
+    # Setup a shared array
+    shared_array = mp.RawArray(ct_dt_map[dtype], ln * lny * lnx)
+    arr = np.frombuffer(shared_array, dtype=dtype).reshape(ln, lny, lnx)
 
     # Initialize the pool with the shared array
-    odtbrain._shared_array = _shared_array
-    pool4loop = mp.Pool(processes=num_cores)
+    pool4loop = mp.Pool(processes=num_cores,
+                        initializer=_init_worker,
+                        initargs=(shared_array, (ln, lny, lnx), dtype))
 
     # filtered projections in loop
     filtered_proj = np.zeros((ln, lny, lnx), dtype=dtype_complex)
@@ -514,7 +521,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
         # resize image to original size
         # The copy is necessary to prevent memory leakage.
-        _shared_array[:] = filtered_proj.real
+        arr[:] = filtered_proj.real
 
         phi0 = np.rad2deg(angles[aa])
 
@@ -523,17 +530,18 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
         _mprotate(phi0, lny, pool4loop, intp_order)
 
-        outarr.real += _shared_array
+        outarr.real += arr
 
         if not onlyreal:
-            _shared_array[:] = filtered_proj_imag
+            arr[:] = filtered_proj_imag
             _mprotate(phi0, lny, pool4loop, intp_order)
-            outarr.imag += _shared_array
+            outarr.imag += arr
 
         if count is not None:
             count.value += 1
 
     pool4loop.terminate()
     pool4loop.join()
+    _cleanup_worker()
 
     return outarr

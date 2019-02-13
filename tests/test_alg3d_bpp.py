@@ -93,7 +93,9 @@ def test_3d_backprop_phase32():
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d(sino, angles,
-                                      dtype=np.float32, padval=0, **p)
+                                      dtype=np.float32,
+                                      padval=0,
+                                      **p)
         r.append(cutout(f))
     data32 = np.array(r).flatten().view(np.float32)
     data64 = test_3d_backprop_phase()
@@ -105,21 +107,24 @@ def test_3d_mprotate():
     ln = 10
     ln2 = 2*ln
     initial_array = np.arange(ln2**3).reshape((ln2, ln2, ln2))
-    shared_array_base = mp.Array(ctypes.c_double, ln2 * ln2 * ln2)
-    _shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-    _shared_array = _shared_array.reshape(ln2, ln2, ln2)
-    _shared_array[:, :, :] = initial_array
-    odtbrain._shared_array = _shared_array
-    # pool must be created after _shared array
-    pool = mp.Pool(processes=mp.cpu_count())
+    shared_array = mp.RawArray(ctypes.c_double, ln2 * ln2 * ln2)
+    arr = np.frombuffer(shared_array).reshape(ln2, ln2, ln2)
+    arr[:, :, :] = initial_array
+    _alg3d_bpp.mprotate_dict["X"] = shared_array
+    _alg3d_bpp.mprotate_dict["X_shape"] = (ln2, ln2, ln2)
+
+    pool = mp.Pool(processes=mp.cpu_count(),
+                   initializer=_alg3d_bpp._init_worker,
+                   initargs=(shared_array, (ln2, ln2, ln2), np.dtype(float)))
     _alg3d_bpp._mprotate(2, ln, pool, 2)
     if WRITE_RES:
-        write_results(myframe, _shared_array)
-    assert np.allclose(np.array(_shared_array).flatten().view(
+        write_results(myframe, arr)
+    assert np.allclose(np.array(arr).flatten().view(
         float), get_results(myframe))
 
 
 if __name__ == "__main__":
+    test_3d_backprop_phase32()
     # Run all tests
     loc = locals()
     for key in list(loc.keys()):
