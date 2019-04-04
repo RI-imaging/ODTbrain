@@ -376,7 +376,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
                             copy=True,
                             count=None, max_count=None,
                             verbose=0):
-    """3D backpropagation with a tilted axis of rotation
+    r"""3D backpropagation with a tilted axis of rotation
 
     Three-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
@@ -385,28 +385,28 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     :math:`n(x,y,z)`.
 
     This method implements the 3D backpropagation algorithm with
-    a rotational axis that is tilted by :math:`\\theta_\mathrm{tilt}`
+    a rotational axis that is tilted by :math:`\theta_\mathrm{tilt}`
     w.r.t. the imaging plane :cite:`Mueller2015tilted`.
 
     .. math::
         f(\mathbf{r}) =
-            -\\frac{i k_\mathrm{m}}{2\pi}
-            \\sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j}^\mathrm{tilt} \!\!
-            \\left \{
-            \\text{FFT}^{-1}_{\mathrm{2D}}
-            \\left \{
-            \\left| k_\mathrm{Dx} \cdot \cos \\theta_\mathrm{tilt}\\right|
-            \\frac{\\text{FFT}_{\mathrm{2D}} \\left \{
-            u_{\mathrm{B},\phi_j}(x_\mathrm{D}, y_\mathrm{D}) \\right \}}
+            -\frac{i k_\mathrm{m}}{2\pi}
+            \sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j}^\mathrm{tilt} \!\!
+            \left \{
+            \text{FFT}^{-1}_{\mathrm{2D}}
+            \left \{
+            \left| k_\mathrm{Dx} \cdot \cos \theta_\mathrm{tilt}\right|
+            \frac{\text{FFT}_{\mathrm{2D}} \left \{
+            u_{\mathrm{B},\phi_j}(x_\mathrm{D}, y_\mathrm{D}) \right \}}
             {u_0(l_\mathrm{D})}
-            \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot
-            (z_{\phi_j}-l_\mathrm{D}) \\right]
-            \\right \}
-            \\right \}
+            \exp \! \left[i k_\mathrm{m}(M - 1) \cdot
+            (z_{\phi_j}-l_\mathrm{D}) \right]
+            \right \}
+            \right \}
 
     with a modified rotational operator :math:`D_{-\phi_j}^\mathrm{tilt}`
     and a different filter in Fourier space
-    :math:`|k_\mathrm{Dx} \cdot \cos \\theta_\mathrm{tilt}|` when compared
+    :math:`|k_\mathrm{Dx} \cdot \cos \theta_\mathrm{tilt}|` when compared
     to :func:`backpropagate_3d`.
 
 
@@ -449,8 +449,8 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         projections.
 
         .. math::
-            \Delta \phi_0 \\longmapsto \Delta \phi_j =
-                \\frac{\phi_{j+1} - \phi_{j-1}}{2}
+            \Delta \phi_0 \longmapsto \Delta \phi_j =
+                \frac{\phi_{j+1} - \phi_{j-1}}{2}
 
         This currently only works when `angles` has the shape (A,).
     onlyreal: bool
@@ -514,7 +514,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
-        k_m^2 \\left(\\left(\\frac{n(x,z)}{n_m}\\right)^2 -1\\right)`
+        k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)`
 
 
     See Also

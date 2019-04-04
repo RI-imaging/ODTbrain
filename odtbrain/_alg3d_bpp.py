@@ -90,7 +90,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      copy=True,
                      count=None, max_count=None,
                      verbose=0):
-    """3D backpropagation
+    r"""3D backpropagation
 
     Three-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
@@ -104,22 +104,22 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     .. math::
         f(\mathbf{r}) =
-            -\\frac{i k_\mathrm{m}}{2\pi}
-            \\sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j} \!\!
-            \\left \{
-            \\text{FFT}^{-1}_{\mathrm{2D}}
-            \\left \{
-            \\left| k_\mathrm{Dx} \\right|
-            \\frac{\\text{FFT}_{\mathrm{2D}} \\left \{
-            u_{\mathrm{B},\phi_j}(x_\mathrm{D}, y_\mathrm{D}) \\right \}}
+            -\frac{i k_\mathrm{m}}{2\pi}
+            \sum_{j=1}^{N} \! \Delta \phi_0 D_{-\phi_j} \!\!
+            \left \{
+            \text{FFT}^{-1}_{\mathrm{2D}}
+            \left \{
+            \left| k_\mathrm{Dx} \right|
+            \frac{\text{FFT}_{\mathrm{2D}} \left \{
+            u_{\mathrm{B},\phi_j}(x_\mathrm{D}, y_\mathrm{D}) \right \}}
             {u_0(l_\mathrm{D})}
-            \exp \! \\left[i k_\mathrm{m}(M - 1) \cdot
-            (z_{\phi_j}-l_\mathrm{D}) \\right]
-            \\right \}
-            \\right \}
+            \exp \! \left[i k_\mathrm{m}(M - 1) \cdot
+            (z_{\phi_j}-l_\mathrm{D}) \right]
+            \right \}
+            \right \}
 
-    with the forward :math:`\\text{FFT}_{\mathrm{2D}}` and inverse
-    :math:`\\text{FFT}^{-1}_{\mathrm{2D}}` 2D fast Fourier transform, the
+    with the forward :math:`\text{FFT}_{\mathrm{2D}}` and inverse
+    :math:`\text{FFT}^{-1}_{\mathrm{2D}}` 2D fast Fourier transform, the
     rotational operator :math:`D_{-\phi_j}`, the angular distance between the
     projections :math:`\Delta \phi_0`, the ramp filter in Fourier space
     :math:`|k_\mathrm{Dx}|`, and the propagation distance
@@ -151,8 +151,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         projections.
 
         .. math::
-            \Delta \phi_0 \\longmapsto \Delta \phi_j =
-                \\frac{\phi_{j+1} - \phi_{j-1}}{2}
+            \Delta \phi_0 \longmapsto \Delta \phi_j =
+                \frac{\phi_{j+1} - \phi_{j-1}}{2}
 
         .. versionadded:: 0.1.1
     onlyreal: bool
@@ -216,7 +216,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
-        k_m^2 \\left(\\left(\\frac{n(x,z)}{n_m}\\right)^2 -1\\right)`
+        k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)`
 
 
     See Also

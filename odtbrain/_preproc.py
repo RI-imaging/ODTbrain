@@ -58,7 +58,7 @@ def divmod_neg(a, b):
 
 
 def sinogram_as_radon(uSin, align=True):
-    """Compute the phase from a complex wave field sinogram
+    r"""Compute the phase from a complex wave field sinogram
 
     This step is essential when using the ray approximation before
     computation of the refractive index with the inverse Radon
@@ -103,7 +103,7 @@ def sinogram_as_radon(uSin, align=True):
 
 
 def sinogram_as_rytov(uSin, u0=1, align=True):
-    """Convert the complex wave field sinogram to the Rytov phase
+    r"""Convert the complex wave field sinogram to the Rytov phase
 
     This method applies the Rytov approximation to the
     recorded complex wave sinogram. To achieve this, the following
@@ -111,15 +111,15 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
 
     .. math::
         u_\mathrm{B}(\mathbf{r}) = u_\mathrm{0}(\mathbf{r})
-            \ln\!\\left(
-            \\frac{u_\mathrm{R}(\mathbf{r})}{u_\mathrm{0}(\mathbf{r})}
-             +1 \\right)
+            \ln\!\left(
+            \frac{u_\mathrm{R}(\mathbf{r})}{u_\mathrm{0}(\mathbf{r})}
+             +1 \right)
 
     This filter step effectively replaces the Born approximation
     :math:`u_\mathrm{B}(\mathbf{r})` with the Rytov approximation
     :math:`u_\mathrm{R}(\mathbf{r})`, assuming that the scattered
     field is equal to
-    :math:`u(\mathbf{r})\\approx u_\mathrm{R}(\mathbf{r})+
+    :math:`u(\mathbf{r})\approx u_\mathrm{R}(\mathbf{r})+
     u_\mathrm{0}(\mathbf{r})`.
 
 
@@ -134,7 +134,7 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         :math:`u_\mathrm{0}(\mathbf{r})` at the detector.
         If `u0` is "1", it is assumed that the data is already
         background-corrected (
-        `uSin` :math:`= \\frac{u_\mathrm{R}(\mathbf{r})}{
+        `uSin` :math:`= \frac{u_\mathrm{R}(\mathbf{r})}{
         u_\mathrm{0}(\mathbf{r})} + 1`
         ). Note that if the reconstruction distance :math:`l_\mathrm{D}`
         of the original experiment is non-zero and `u0` is set to 1,

@@ -4,7 +4,7 @@ import numpy as np
 
 def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
                  count=None, max_count=None, verbose=0):
-    """(slow) 2D reconstruction with the Fourier diffraction theorem
+    r"""(slow) 2D reconstruction with the Fourier diffraction theorem
 
     Two-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
@@ -49,7 +49,7 @@ def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
-        k_m^2 \\left(\\left(\\frac{n(x,z)}{n_m}\\right)^2 -1\\right)`
+        k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)`
 
 
     See Also

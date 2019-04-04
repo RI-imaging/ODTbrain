@@ -5,7 +5,7 @@ import scipy.interpolate as intp
 
 def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
                    coords=None, count=None, max_count=None, verbose=0):
-    """2D Fourier mapping with the Fourier diffraction theorem
+    r"""2D Fourier mapping with the Fourier diffraction theorem
 
     Two-dimensional diffraction tomography reconstruction
     algorithm for scattering of a plane wave
@@ -58,7 +58,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
         Reconstructed object function :math:`f(\mathbf{r})` as defined
         by the Helmholtz equation.
         :math:`f(x,z) =
-        k_m^2 \\left(\\left(\\frac{n(x,z)}{n_m}\\right)^2 -1\\right)`
+        k_m^2 \left(\left(\frac{n(x,z)}{n_m}\right)^2 -1\right)`
 
 
     See Also
