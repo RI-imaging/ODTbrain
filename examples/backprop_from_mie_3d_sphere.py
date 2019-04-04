@@ -1,4 +1,4 @@
-"""Mie sphere
+r"""Mie sphere
 The *in silico* data set was created with the Mie calculation software
 `GMM-field`_. The data consist of a two-dimensional projection of a
 sphere with radius :math:`R=14\lambda`,
