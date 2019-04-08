@@ -1,3 +1,8 @@
+0.2.5
+ - fix: reconstruction volume rotated by 180° due to floating point
+   inaccuracies (affects `backpropagate_3d_tilted`).
+0.2.4
+ - maintenance release
 0.2.3
  - enh: employ slice-wise padding to reduce the memory usage (and
    possibly the computation time) of

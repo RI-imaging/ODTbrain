@@ -291,7 +291,12 @@ def sphere_points_from_angles_and_tilt(angles, tilted_axis):
 
     # (b) This is the polar angle measured in the x-z plane starting
     #     at the x-axis and measured towards the positive z-axis.
-    phi = np.arctan2(u, w)
+    if np.allclose(u, 0) and np.allclose(w, 0):
+        # Avoid flipping the axis of rotation due to numerical
+        # errors during its computation.
+        phi = 0
+    else:
+        phi = np.arctan2(u, w)
 
     # Determine the projection points on the unit sphere.
     # The resulting circle meets the x-z-plane at phi, and

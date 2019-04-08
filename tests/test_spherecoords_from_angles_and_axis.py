@@ -27,8 +27,7 @@ def test_simple_sphere():
                          [0.87965281125489458, s2/3*2, 0.063156230327168605],
                          [s2/3, s2/3*4, s2/3]],
                         ])
-
-    assert np.allclose(correct.flatten(), np.array(results).flatten())
+    assert np.allclose(correct, np.array(results))
 
 
 if __name__ == "__main__":
