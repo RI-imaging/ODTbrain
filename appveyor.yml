@@ -17,7 +17,7 @@ install:
   - "python --version"
   # install
   - "appveyor-retry pip install wheel"
-  - "appveyor-retry pip install ."
+  - "appveyor-retry pip install . --only-binary pyfftw"
   - "python -m pip freeze"
 
 build: off
