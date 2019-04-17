@@ -7,23 +7,23 @@ notifications:
     on_build_status_changed: false
 
 environment:
-  PYTHON: "C:\\Python36"
+  PYTHON: "C:\\Python36-x64"
 
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   # Check that we have the expected version and architecture for Python
   - "python --version"
   # install
-  - "appveyor-retry python -m pip install wheel"
-  - "appveyor-retry python -m pip install ."
-  - "python -m pip freeze"
+  - "appveyor-retry pip install wheel"
+  - "appveyor-retry pip install ."
+  - "pip freeze"
 
 build: off
 
 test_script:
-  - "appveyor-retry python -m pip install coverage"
-  - "appveyor-retry python -m pip install codecov"
-  - "python -m coverage run --source=odtbrain ./setup.py test"
-  - "python -m coverage report -m"
+  - "appveyor-retry pip install coverage"
+  - "appveyor-retry pip install codecov"
+  - "coverage run --source=odtbrain ./setup.py test"
+  - "coverage report -m"
   # Allow codecov to fail
   - "codecov || exit 0"
