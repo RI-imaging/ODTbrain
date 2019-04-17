@@ -93,8 +93,8 @@ def sinogram_as_radon(uSin, align=True):
         # data. Since we have a sinogram, we need to pass it the
         # slices one by one.
         phiR = np.angle(uSin)
-        for i in range(len(phiR)):
-            phiR[i] = unwrap_phase(phiR[i])
+        for ii in range(len(phiR)):
+            phiR[ii] = unwrap_phase(phiR[ii])
 
     if align:
         align_unwrapped(phiR)
@@ -168,8 +168,8 @@ def sinogram_as_rytov(uSin, u0=1, align=True):
         # Unwrap gets the dimension of the problem from the input
         # data. Since we have a sinogram, we need to pass it the
         # slices one by one.
-        for i in range(len(phiR)):
-            phiR[i] = unwrap_phase(phiR[i])
+        for ii in range(len(phiR)):
+            phiR[ii] = unwrap_phase(phiR[ii])
 
     if align:
         align_unwrapped(phiR)
