@@ -7,7 +7,7 @@ notifications:
     on_build_status_changed: false
 
 environment:
-  - PYTHON: "C:\\Python36"
+  PYTHON: "C:\\Python36"
 
 install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
