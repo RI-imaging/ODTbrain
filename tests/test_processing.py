@@ -79,10 +79,15 @@ def test_sino_radon():
     myframe = sys._getframe()
     sino = get_test_data_set_sino()
     rad = odtbrain.sinogram_as_radon(sino)
+    twopi = 2*np.pi
     # When moving from unwrap to skimage, there was an offset introduced.
     # Since this particular array is not flat at the borders, there is no
     # correct way here. We just subtract 2PI.
-    rad -= 2 * np.pi
+    # 2019-04-18: It turns out that on Windows, this is not the case.
+    # Hence, we only subtract 2PI if the minimum of the array is above
+    # 2PI..
+    if rad.min() > twopi:
+        rad -= twopi
     if WRITE_RES:
         write_results(myframe, rad)
     assert np.allclose(np.array(rad).flatten().view(
@@ -92,7 +97,6 @@ def test_sino_radon():
     # subtracts the background such that the minimum phase change is closest
     # to zero.
     # 2D A
-    twopi = 2*np.pi
     rad2d = odtbrain.sinogram_as_radon(sino[:, :, 0])
     assert np.allclose(0, negative_modulo_rest(
         rad2d - rad[:, :, 0], twopi), atol=1e-6)
