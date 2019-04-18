@@ -11,6 +11,8 @@ env:
   - NUMPY="==1.12.1"
   - NUMPY="==1.13.1"
   - NUMPY="==1.14.3"
+  - NUMPY="==1.16.2"
+  - NUMPY=""
 addons:
   apt:
     packages:
