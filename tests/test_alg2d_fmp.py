@@ -13,8 +13,8 @@ WRITE_RES = False
 def test_2d_fmap():
     myframe = sys._getframe()
     sino, angles = create_test_sino_2d()
-    parameters = get_test_parameter_set(2)
-    r = list()
+    parameters = get_test_parameter_set(1)
+    r = []
     for p in parameters:
         f = odtbrain.fourier_map_2d(sino, angles, **p)
         r.append(cutout(f))

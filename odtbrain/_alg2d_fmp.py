@@ -75,6 +75,13 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
     it to Rytov data (using e.g. :func:`odtbrain.sinogram_as_rytov`)
     with a numerical focusing algorithm (available in the Python
     package :py:mod:`nrefocus`).
+
+    The interpolation in Fourier space (which is done with
+    :func:`scipy.interpolate.griddata`) may be unstable and lead to
+    artifacts if the data to interpolate contains sharp spikes. This
+    issue is not handled at all by this method (in fact, a test has
+    been removed in version 0.2.6 because ``griddata`` gave different
+    results on Windows and Linux).
     """
     ##
     ##
