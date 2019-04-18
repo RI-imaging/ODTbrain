@@ -16,9 +16,9 @@ The documentation, including the reference and examples, is available at `odtbra
 
 Installation
 ------------
-  ::
-  
-      pip install odtbrain
+::
+
+    pip install odtbrain
 
 
 
