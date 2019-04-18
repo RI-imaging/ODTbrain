@@ -106,12 +106,17 @@ def test_sino_rytov():
     myframe = sys._getframe()
     sino = get_test_data_set_sino(rytov=True)
     ryt = odtbrain.sinogram_as_rytov(sino)
+    twopi = 2*np.pi
     if WRITE_RES:
         write_results(myframe, ryt)
     # When moving from unwrap to skimage, there was an offset introduced.
     # Since this particular array is not flat at the borders, there is no
     # correct way here. We just subtract 2PI.
-    ryt.imag -= 2 * np.pi
+    # 2019-04-18: It turns out that on Windows, this is not the case.
+    # Hence, we only subtract 2PI if the minimum of the array is above
+    # 2PI..
+    if ryt.imag.min() > twopi:
+        ryt.imag -= twopi
     assert np.allclose(np.array(ryt).flatten().view(
         float), get_results(myframe))
     # Check the 3D result with the 2D result. They should be the same except
@@ -119,7 +124,6 @@ def test_sino_rytov():
     # subtracts the background such that the median phase change is closest
     # to zero.
     # 2D A
-    twopi = 2*np.pi
     ryt2d = odtbrain.sinogram_as_rytov(sino[:, :, 0])
     assert np.allclose(0, negative_modulo_rest_imag(
         ryt2d - ryt[:, :, 0], twopi).view(float), atol=1e-6)

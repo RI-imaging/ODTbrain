@@ -1,5 +1,6 @@
 0.2.6
  - docs: add hint for windows users how to run the 3D examples
+ - fix: make phase unwrapping deterministic 
 0.2.5
  - fix: reconstruction volume rotated by 180° due to floating point
    inaccuracies (affects `backpropagate_3d_tilted`).
