@@ -834,13 +834,13 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     #   arrays are not overwritten during planning.
 
     # Byte-aligned arrays
-    oneslice = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
+    oneslice = pyfftw.empty_aligned((lNy, lNx), dtype_complex)
 
     myfftw_plan = pyfftw.FFTW(oneslice, oneslice, threads=num_cores,
                               flags=["FFTW_ESTIMATE"], axes=(0, 1))
 
     # Create plan for IFFTW:
-    inarr = pyfftw.n_byte_align_empty((lNy, lNx), 16, dtype_complex)
+    inarr = pyfftw.empty_aligned((lNy, lNx), dtype_complex)
     # plan is "patient":
     #    FFTW_PATIENT is like FFTW_MEASURE, but considers a wider range
     #    of algorithms and often produces a “more optimal” plan
