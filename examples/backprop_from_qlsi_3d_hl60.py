@@ -18,6 +18,10 @@ to the strong compression (scale offset filter) and due to the fact
 that the original sinogram images were cropped from 196x196 px to
 140x140 px (which in particular affects the background-part of the
 refractive index histogram).
+
+The raw data is available
+`on figshare <https://doi.org/10.6084/m9.figshare.8055407.v1>`
+(hl60_sinogram_qpi.h5).
 """
 import pathlib
 import tarfile

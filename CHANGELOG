@@ -1,3 +1,6 @@
+0.3.0
+ - feat: basic missing apple core correction (#6)
+ - docs: reordered 3D examples (decreasing importance)
 0.2.6
  - fix: make phase unwrapping deterministic
  - tests: remove one test of the 2D Fourier mapping algorithm due to

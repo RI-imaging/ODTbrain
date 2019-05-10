@@ -305,6 +305,7 @@ texinfo_documents = [
 intersphinx_mapping = {"python": ('https://docs.python.org/', None),
                        "nrefocus": ('http://nrefocus.readthedocs.io/en/stable', None),
                        "numpy": ('http://docs.scipy.org/doc/numpy', None),
+                       "cellsino": ('http://cellsino.readthedocs.io/en/stable', None),
                        "qpimage": ('http://qpimage.readthedocs.io/en/stable', None),
                        "radontea": ('http://radontea.readthedocs.io/en/stable', None),
                        "scipy": ('https://docs.scipy.org/doc/scipy/reference/', None),

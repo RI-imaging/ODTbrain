@@ -25,7 +25,9 @@ script folder.
             
             # etc.
 
-.. fancy_include:: backprop_from_mie_3d_sphere.py
+.. fancy_include:: backprop_from_rytov_3d_phantom_apple.py
+
+.. fancy_include:: backprop_from_qlsi_3d_hl60.py
 
 .. fancy_include:: backprop_from_fdtd_3d.py
 
@@ -33,4 +35,4 @@ script folder.
 
 .. fancy_include:: backprop_from_fdtd_3d_tilted2.py
 
-.. fancy_include:: backprop_from_qlsi_3d_hl60.py
+.. fancy_include:: backprop_from_mie_3d_sphere.py
