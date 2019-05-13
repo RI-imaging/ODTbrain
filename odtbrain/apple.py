@@ -76,7 +76,7 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
         used for enforcing this condition can be defined with `bg_mask`
     ri_max: float
         Maximum refractive index value (condition set during iteration)
-    enforce_envelope: float (>0) or False
+    enforce_envelope: float in interval [0,1] or False
         Set the suppression factor for frequencies that are above
         the envelope function; disabled if set to False or 0
     max_iter: int
@@ -90,7 +90,7 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
         May be used for tracking progress. At each iteration
         `count.value` is incremented by one.
     max_count: multiprocessing.Value
-        May be used for tracking progress. Is incremented initially.
+        May be used for tracking progress; is incremented initially.
     """
     if enforce_envelope < 0 or enforce_envelope > 1:
         raise ValueError("`enforce_envelope` must be in interval [0, 1]")
@@ -99,6 +99,7 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
         with max_count.get_lock():
             max_count.value += max_iter + 2
 
+    # Location of the apple core
     core = apple_core_3d(shape=ri.shape, res=res, nm=nm)
 
     if count is not None:
@@ -106,6 +107,7 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
             count.value += 1
 
     if ri_min is None:
+        # Set RI of medium as default minimum
         ri_min = nm
 
     data = ri.real.copy()
@@ -116,6 +118,7 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
             count.value += 1
 
     if enforce_envelope:
+        # Envelope function of Fourier amplitude
         ftevlp = envelope_gauss(ftdata, core)
 
     init_state = np.sum(np.abs(ftdata[core])) / data.size
@@ -124,22 +127,22 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
     for ii in range(max_iter):
         # No imaginary RI (no absorption)
         data = data.real
-        # refractive index is higher than air/water/medium
+        # RI is higher than air/water/medium
         lowri = data < ri_min
         if bg_mask is not None:
-            # if given, onnly do this in the masked data regions
+            # If given, only do this in the masked data regions
             lowri *= ~bg_mask
         data[lowri] = ri_min
         if ri_max is not None:
             data[data > ri_max] = ri_max
-        # go into Fourier domain
+        # Go into Fourier domain
         ftdata2 = np.fft.fftn(data)
         if enforce_envelope:
-            # suppress large frequencies
+            # Suppress large frequencies with the envelope
             high = np.abs(ftdata2) > ftevlp
             ftdata2[high] *= enforce_envelope
 
-        # enforce original data
+        # Enforce original data
         ftdata2[~core] = ftdata[~core]
 
         data = np.fft.ifftn(ftdata2)
@@ -182,20 +185,48 @@ def envelope_gauss(ftdata, core):
         Envelope function in Fourier space
     """
     hull = np.abs(ftdata)
-    hull[core] = np.nan
-    # fill unknown values
-    hull2 = np.transpose(hull, (1, 0, 2))
-    hull[core] = hull2[core]
+    hull[core] = np.nan  # label core data with nans
+    # Fill the apple core region with data from known regions from
+    # the other axes (we only need an estimate if the envelope, so
+    # this is a very good estimation of the Fourier amplitudes).
+    shx, shy, _ = hull.shape
+    maxsh = max(shx, shy)
+    dsh = abs(shy - shx) // 2
 
-    if np.sum(np.isnan(hull)):
-        raise NotImplementedError("Probably tilted axis!")
-
-    # gaussian blur
+    # Determine the slice
+    if shx > shy:
+        theslice = (slice(0, shx),
+                    slice(dsh, shy+dsh),
+                    slice(0, shx))
+    else:
+        theslice = (slice(dsh, shx+dsh),
+                    slice(0, shy),
+                    slice(dsh, shx+dsh),
+                    )
+    # 1. Create padded versions of the arrays, because shx and shy
+    # can be different and inserting a transposed array will not work.
+    hull_pad = np.zeros((maxsh, maxsh, maxsh), dtype=float)
+    hull_pad[theslice] = np.fft.fftshift(hull)
+    core_pad = np.zeros((maxsh, maxsh, maxsh), dtype=bool)
+    core_pad[theslice] = np.fft.fftshift(core)
+    # 2. Fill values from other axes were data are missing.
+    hull_pad[core_pad] = np.transpose(hull_pad, (1, 0, 2))[core_pad]
+    # 3. Fill any remaining nan-values (due to different shape or tilt)
+    # with nearest neighbors. Use a distance transform for nearest
+    # neighbor interpolation.
+    invalid = np.isnan(hull_pad)
+    ind = ndi.distance_transform_edt(invalid,
+                                     return_distances=False,
+                                     return_indices=True)
+    hull_pad[:] = hull_pad[tuple(ind)]
+    # 4. Write the data back to the original array.
+    hull[:] = np.fft.ifftshift(hull_pad[theslice])
+    # Perform gaussian blurring (shift data to make it smooth)
     gauss = ndi.gaussian_filter(input=np.fft.fftshift(hull),
                                 sigma=np.max(ftdata.shape)/100,
                                 mode="constant",
                                 cval=0,
                                 truncate=4.0)
-
+    # Shift back gauss
     shifted_gauss = np.fft.ifftshift(gauss)
     return shifted_gauss
