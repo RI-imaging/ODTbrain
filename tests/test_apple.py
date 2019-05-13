@@ -68,8 +68,8 @@ def test_correct_reproduce():
 
     if WRITE_RES:
         write_results(myframe, ro)
-
-    data = np.array(ro).flatten().view(float)
+    # convert to double precision for old test data
+    data = np.array(ro, dtype=np.complex128).flatten().view(float)
     assert np.allclose(data, get_results(myframe))
 
 
@@ -102,7 +102,6 @@ def test_envelope_gauss_shape():
 
 
 if __name__ == "__main__":
-    test_correct_reproduce()
     # Run all tests
     loc = locals()
     for key in list(loc.keys()):

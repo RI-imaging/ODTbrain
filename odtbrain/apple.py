@@ -1,4 +1,7 @@
+import multiprocessing as mp
+
 import numpy as np
+import pyfftw
 import scipy.ndimage as ndi
 
 
@@ -91,6 +94,11 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
         `count.value` is incremented by one.
     max_count: multiprocessing.Value
         May be used for tracking progress; is incremented initially.
+
+    Notes
+    -----
+    Internally, the Fourier transform is performed with single-precision
+    floating point values (complex64).
     """
     if enforce_envelope < 0 or enforce_envelope > 1:
         raise ValueError("`enforce_envelope` must be in interval [0, 1]")
@@ -110,8 +118,24 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
         # Set RI of medium as default minimum
         ri_min = nm
 
-    data = ri.real.copy()
-    ftdata = np.fft.fftn(data)
+    data = pyfftw.empty_aligned(ri.shape, dtype='complex64')
+    ftdata = pyfftw.empty_aligned(ri.shape, dtype='complex64')
+    fftw_forw = pyfftw.FFTW(data, ftdata,
+                            axes=(0, 1, 2),
+                            direction="FFTW_FORWARD",
+                            flags=["FFTW_MEASURE"],
+                            threads=mp.cpu_count())
+    # Note: input array `ftdata` is destroyed when invoking `fftw_back`
+    fftw_back = pyfftw.FFTW(ftdata, data,
+                            axes=(0, 1, 2),
+                            direction="FFTW_BACKWARD",
+                            flags=["FFTW_MEASURE"],
+                            threads=mp.cpu_count())
+
+    data.real[:] = ri.real
+    data.imag[:] = 0
+    fftw_forw.execute()
+    ftdata_orig = ftdata.copy()
 
     if count is not None:
         with count.get_lock():
@@ -119,14 +143,14 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
 
     if enforce_envelope:
         # Envelope function of Fourier amplitude
-        ftevlp = envelope_gauss(ftdata, core)
+        ftevlp = envelope_gauss(ftdata_orig, core)
 
-    init_state = np.sum(np.abs(ftdata[core])) / data.size
+    init_state = np.sum(np.abs(ftdata_orig[core])) / data.size
     prev_state = init_state
 
     for ii in range(max_iter):
         # No imaginary RI (no absorption)
-        data = data.real
+        data.imag[:] = 0
         # RI is higher than air/water/medium
         lowri = data < ri_min
         if bg_mask is not None:
@@ -136,22 +160,23 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
         if ri_max is not None:
             data[data > ri_max] = ri_max
         # Go into Fourier domain
-        ftdata2 = np.fft.fftn(data)
+        fftw_forw.execute()
         if enforce_envelope:
             # Suppress large frequencies with the envelope
-            high = np.abs(ftdata2) > ftevlp
-            ftdata2[high] *= enforce_envelope
+            high = np.abs(ftdata) > ftevlp
+            ftdata[high] *= enforce_envelope
 
         # Enforce original data
-        ftdata2[~core] = ftdata[~core]
+        ftdata[~core] = ftdata_orig[~core]
 
-        data = np.fft.ifftn(ftdata2)
+        fftw_back.execute()
+        data[:] /= fftw_forw.N
 
         if count is not None:
             with count.get_lock():
                 count.value += 1
 
-        cur_state = np.sum(np.abs(ftdata2[core])) / data.size
+        cur_state = np.sum(np.abs(ftdata[core])) / data.size
         cur_diff = cur_state - prev_state
         if ii == 0:
             norm = cur_diff
