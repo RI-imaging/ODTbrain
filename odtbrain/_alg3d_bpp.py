@@ -83,7 +83,7 @@ def _rotate(d):
 
 def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                      weight_angles=True, onlyreal=False,
-                     padding=(True, True), padfac=1.75, padval=None,
+                     padding=(True, True), padfac=1.75, padval="edge",
                      intp_order=2, dtype=None,
                      num_cores=ncores,
                      save_memory=False,
@@ -174,12 +174,12 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         lead to a padded size of 512 for an initial size of 150.
         Values geater than 2 are allowed. This parameter may
         greatly increase memory usage!
-    padval: float or None
+    padval: float or "edge"
         The value used for padding. This is important for the Rytov
         approximation, where an approximat zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi.
-        If `padval` is `None`, then the edge values are used for
+        If `padval` is "edge", then the edge values are used for
         padding (see documentation of :func:`numpy.pad`). If `padval`
         is a float, then padding is done with a linear ramp.
     intp_order: int between 0 and 5
@@ -494,7 +494,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         if not (padding[0] and padding[1]):
             # no padding
             oneslice[:] = uSin[aa]
-        elif padval is None:
+        elif padval == "edge":
             # padding with edge values
             oneslice[:] = np.pad(uSin[aa],
                                  ((padyl, padyr), (padxl, padxr)),

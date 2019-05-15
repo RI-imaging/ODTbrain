@@ -34,14 +34,14 @@ def test_3d_backprop_pad():
     # reference
     rref = list()
     for p in parameters:
-        fref = odtbrain.backpropagate_3d(sino, angles, padval=None,
+        fref = odtbrain.backpropagate_3d(sino, angles, padval="edge",
                                          dtype=np.float64, onlyreal=False, **p)
         rref.append(cutout(fref))
     dataref = np.array(rref).flatten().view(float)
 
     r = list()
     for p in parameters:
-        f = odtbrain.backpropagate_3d_tilted(sino, angles, padval=None,
+        f = odtbrain.backpropagate_3d_tilted(sino, angles, padval="edge",
                                              dtype=np.float64, onlyreal=False,
                                              **p)
         r.append(cutout(f))
@@ -76,7 +76,7 @@ def test_3d_backprop_plane_rotation():
         rref = list()
         for p in parameters:
             fref = odtbrain.backpropagate_3d_tilted(sino, angles,
-                                                    padval=None,
+                                                    padval="edge",
                                                     tilted_axis=tilted_axis,
                                                     padding=(False, False),
                                                     dtype=np.float64,
@@ -114,7 +114,7 @@ def test_3d_backprop_plane_alignment_along_axes():
         # rotate `tilted_axis` onto the y-z plane.
         tilted_axis = np.dot(rotmat, [0, 1, 0])
         fref = odtbrain.backpropagate_3d_tilted(sino, angles,
-                                                padval=None,
+                                                padval="edge",
                                                 tilted_axis=tilted_axis,
                                                 padding=(False, False),
                                                 dtype=np.float64,
