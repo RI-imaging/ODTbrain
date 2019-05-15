@@ -174,13 +174,14 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         lead to a padded size of 512 for an initial size of 150.
         Values geater than 2 are allowed. This parameter may
         greatly increase memory usage!
-    padval: float
+    padval: float or None
         The value used for padding. This is important for the Rytov
         approximation, where an approximat zero in the phase might
         translate to 2πi due to the unwrapping algorithm. In that
         case, this value should be a multiple of 2πi.
         If `padval` is `None`, then the edge values are used for
-        padding (see documentation of :func:`numpy.pad`).
+        padding (see documentation of :func:`numpy.pad`). If `padval`
+        is a float, then padding is done with a linear ramp.
     intp_order: int between 0 and 5
         Order of the interpolation for rotation.
         See :func:`scipy.ndimage.interpolation.rotate` for details.
@@ -280,14 +281,14 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # This gets rid of artifacts due to false periodicity and also
     # speeds up Fourier transforms of the input image size is not
     # a power of 2.
-    orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
-    ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
 
     if padding[0]:
+        orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
         padx = orderx - lnx
     else:
         padx = 0
     if padding[1]:
+        ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
         pady = ordery - lny
     else:
         pady = 0
@@ -298,7 +299,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     padxr = padx - padxl
 
     # zero-padded length of sinogram.
-    lNx, lNy = lnx + padx, lny + pady
+    lNx = lnx + padx
+    lNy = lny + pady
     lNz = ln
 
     if verbose > 0:
@@ -431,7 +433,8 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         # compute filter2 now
         filter2 = ne.evaluate("exp(factor * zv)",
                               local_dict={"factor": f2_exp_fac,
-                                          "zv": zv})
+                                          "zv": zv},
+                              casting="same_kind")
         # occupies some amount of ram, but yields faster
         # computation later
 
@@ -488,11 +491,16 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     filtered_proj = np.zeros((ln, lny, lnx), dtype=dtype_complex)
 
     for aa in np.arange(A):
-        if padval is None:
+        if not (padding[0] and padding[1]):
+            # no padding
+            oneslice[:] = uSin[aa]
+        elif padval is None:
+            # padding with edge values
             oneslice[:] = np.pad(uSin[aa],
                                  ((padyl, padyr), (padxl, padxr)),
                                  mode="edge")
         else:
+            # padding with linear ramp
             oneslice[:] = np.pad(uSin[aa],
                                  ((padyl, padyr), (padxl, padxr)),
                                  mode="linear_ramp",
@@ -512,6 +520,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
                             local_dict={"zvp": zv[p],
                                         "projectioni": oneslice,
                                         "factor": f2_exp_fac},
+                            casting="same_kind",
                             out=inarr)
             else:
                 # use universal functions
