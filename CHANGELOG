@@ -1,6 +1,13 @@
 0.4.0
- - BREAKING CHANGE: Default keyword for `padval` is now "edge"
-   instead of `None`; the meaning is retained
+ - BREAKING CHANGES:
+   - renamed submodule `_preproc` to `_prepare_sino`
+   - renamed submodule `_postproc` to `_translate_ri`
+   - missing apple core correction is now applied to the
+     object function (`f`) instead of the refractive index (`n`),
+     which is the physically correct approach
+   - default keyword for `padval` is now "edge"
+     instead of `None`; the meaning is retained
+ - enh: added symmetric histogram apple core correction method "sh"
  - fix: using "float32" dtype in 3D backpropagation lead to
    casting error in numexpr
  - enh: improve performance when padding is disabled

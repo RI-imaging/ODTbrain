@@ -1,5 +1,5 @@
-Pre- and post-processing
-------------------------
+Data conversion methods
+-----------------------
 .. currentmodule:: odtbrain
 
 .. autosummary:: 
@@ -9,11 +9,11 @@ Pre- and post-processing
     sinogram_as_rytov
 
 
-Pre-processing models
-~~~~~~~~~~~~~~~~~~~~~
+Sinogram preparation
+~~~~~~~~~~~~~~~~~~~~
 Tomographic data sets consist of detector images for different
-rotational positions :math:`\phi_0` of the object. Pre-processing
-in this context means that the measured field :math:`u(\mathbf{r})`
+rotational positions :math:`\phi_0` of the object. Sinogram
+preparation means that the measured field :math:`u(\mathbf{r})`
 is transformed to either the Rytov approximation (diffraction tomography)
 or the Radon phase (classical tomography).
 
@@ -21,8 +21,8 @@ or the Radon phase (classical tomography).
 .. autofunction:: sinogram_as_rytov
 
 
-Post-processing (Refractive index retrieval)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Translation of object function to refractive index
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To obtain the refractive index map :math:`n(\mathbf{r})`
 from an object function :math:`f(\mathbf{r})` returned
 by e.g. :func:`backpropagate_3d`, an additional conversion

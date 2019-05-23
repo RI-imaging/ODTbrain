@@ -1,4 +1,4 @@
-"""Data post-processing in optical tomography"""
+"""Translate reconstructed object functions to refractive index"""
 import numpy as np
 
 

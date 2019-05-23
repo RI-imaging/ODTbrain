@@ -1,4 +1,4 @@
-"""Data pre-processing in optical tomography"""
+"""Sinogram preparation"""
 import numpy as np
 from scipy.stats import mode
 from skimage.restoration import unwrap_phase

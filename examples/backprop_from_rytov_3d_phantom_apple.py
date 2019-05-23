@@ -56,14 +56,20 @@ f = odt.backpropagate_3d(uSin=sino_rytov,
                          angles=angles,
                          res=wavelength/pixel_size,
                          nm=medium_index)
+
 ri = odt.odt_to_ri(f=f,
                    res=wavelength/pixel_size,
                    nm=medium_index)
 
 # apple core correction
-ric = odt.apple.correct(ri=ri,
-                        res=wavelength/pixel_size,
-                        nm=medium_index)
+fc = odt.apple.correct(f=f,
+                       res=wavelength/pixel_size,
+                       nm=medium_index,
+                       method="sh")
+
+ric = odt.odt_to_ri(f=fc,
+                    res=wavelength/pixel_size,
+                    nm=medium_index)
 
 # plotting
 idx = ri.shape[2] // 2

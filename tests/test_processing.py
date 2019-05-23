@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 import odtbrain
-from odtbrain._preproc import divmod_neg
+from odtbrain._prepare_sino import divmod_neg
 
 from common_methods import write_results, get_results
 

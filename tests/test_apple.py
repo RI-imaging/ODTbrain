@@ -33,11 +33,9 @@ def test_correct_counter():
     f = odtbrain.backpropagate_3d(sino, angles, padval=0,
                                   dtype=np.float64,
                                   copy=False, **p)
-    odtbrain.apple.correct(ri=f,
+    odtbrain.apple.correct(f=f,
                            res=p["res"],
                            nm=p["nm"],
-                           ri_min=None,
-                           ri_max=None,
                            enforce_envelope=.95,
                            max_iter=100,
                            min_diff=0.01,
@@ -55,21 +53,19 @@ def test_correct_reproduce():
     f = odtbrain.backpropagate_3d(sryt, angles, padval=0,
                                   dtype=np.float64,
                                   copy=False, **p)
-    ri = odtbrain.odt_to_ri(f, res=p["res"], nm=p["nm"])
-    rc = odtbrain.apple.correct(ri=ri,
+    fc = odtbrain.apple.correct(f=f,
                                 res=p["res"],
                                 nm=p["nm"],
-                                ri_min=None,
-                                ri_max=None,
                                 enforce_envelope=.95,
                                 max_iter=100,
                                 min_diff=0.01)
-    ro = cutout(rc)
+    fo = cutout(fc)
+    fo = np.array(fo, dtype=np.complex128)
 
     if WRITE_RES:
-        write_results(myframe, ro)
-    # convert to double precision for old test data
-    data = np.array(ro, dtype=np.complex128).flatten().view(float)
+        write_results(myframe, fo)
+
+    data = fo.flatten().view(float)
     assert np.allclose(data, get_results(myframe))
 
 
@@ -80,7 +76,7 @@ def test_correct_values():
                                   dtype=np.float64,
                                   copy=False, **p)
     try:
-        odtbrain.apple.correct(ri=f,
+        odtbrain.apple.correct(f=f,
                                res=p["res"],
                                nm=p["nm"],
                                enforce_envelope=1.05,

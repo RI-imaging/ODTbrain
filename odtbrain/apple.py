@@ -53,32 +53,100 @@ def apple_core_3d(shape, res, nm):
     return core
 
 
-def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
+def constraint_nn(data, mask=None, bg_shell=None):
+    """Non-negativity constraint"""
+    # No imaginary RI (no absorption)
+    if np.iscomplexobj(data):
+        data.imag[:] = 0
+    # background medium shell
+    if bg_shell is not None:
+        data.real[bg_shell] = 0
+    # Also remove outer shell
+    spov = spillover_region(data.shape)
+    data.real[spov] = 0
+
+    lowri = data.real < 0
+    if mask is not None:
+        # honor given mask
+        lowri *= mask
+    data.real[lowri] = 0
+
+
+def constraint_sh(data, mask=None, bg_shell=None):
+    """Symmetric histogram background data constraint"""
+    # No imaginary RI (no absorption)
+    if np.iscomplexobj(data):
+        data.imag[:] = 0
+
+    # determine range of medium RI (using background support)
+    spov = spillover_region(data.shape)
+    if bg_shell is not None:
+        spov |= bg_shell
+    fmin = np.min(data.real[spov])
+    fmax = np.max(data.real[spov])
+
+    # center
+    full_hist, full_edge = np.histogram(
+        data.real, bins=100, range=(fmin, fmax))
+    de = full_edge[1] - full_edge[0]
+    full_f = full_edge[1:] - de/2
+    # center index (actually we would expect f_c==0)
+    idx_c = np.argmax(full_hist)
+    # half-maximum indices
+    idx_start = idx_c - count_to_half(full_hist[:idx_c][::-1])
+    idx_end = idx_c + count_to_half(full_hist[idx_c:])
+    # RI values outside
+    below = (data.real > fmin) * (data.real < full_f[idx_start])
+    above = (data.real > full_f[idx_end]) * (data.real < fmax)
+    out = below | above
+    if mask is not None:
+        # honor given mask
+        out *= mask
+    # push RI values to zero
+    data.real[out] *= .5
+
+    if bg_shell is not None:
+        # push known background data to zero
+        data.real[bg_shell] *= .5
+
+
+def correct(f, res, nm, method="nn", mask=None, bg_shell_width=None,
             enforce_envelope=0.95, max_iter=100, min_diff=.01,
             count=None, max_count=None):
     r"""Fill the missing apple core of the object function
 
-    Enforces `ri.imag==0` and `ri.real>=ri_min`; This enforcement
-    is soft, i.e. after the final inverse Fourier transform, these
-    conditions might not be met.
-
     Parameters
     ----------
-    ri: 3D ndarray
-        Complex refractive index :math:`n(\mathbf{r})`
+    f: 3D ndarray
+        Complex objec function :math:`f(\mathbf{r})`
     res: float
         Size of the vacuum wave length :math:`\lambda` in pixels
     nm: float
         Refractive index of the medium :math:`n_\mathrm{m}` that
         surrounds the object in :math:`n(\mathbf{r})`
-    bg_mask: 3D boolean ndarray
-        Defines background region(s) used for enforcing `ri_min`
-    ri_min: float
-        Minimum refractive index value (condition set while iterating);
-        If set to `None`, then `ri_min` is set to `nm`; the region
-        used for enforcing this condition can be defined with `bg_mask`
-    ri_max: float
-        Maximum refractive index value (condition set during iteration)
+    method: str
+        One of:
+
+        - "nn": non-negativity constraint (`f > 0`). This method
+          resembles classic missing apple core correction.
+        - "sh": symmetric histogram constraint (background data in
+          `f`). This method works well for sparse-gradient data (e.g.
+          works better than "nn" for simulated data), but might result
+          in stripe-like artifacts when applied to experimental data.
+
+        The imaginary part of the refractive index is suppressed
+        in both cases.
+        Note that these constraints are soft, i.e. after the final
+        inverse Fourier transform, the conditions might not be met.
+
+    mask: 3D boolean ndarray, or None
+        Optional, defines background region(s) used for enforcing
+        `method`. If a boolean ndarray, the values set to `True` define
+        the used background regions.
+    bg_shell_width: float
+        Optional, defines the width of an ellipsoid shell (outer radii
+        matching image shape) that is used additionally for enforcing
+        `method`.
     enforce_envelope: float in interval [0,1] or False
         Set the suppression factor for frequencies that are above
         the envelope function; disabled if set to False or 0
@@ -108,18 +176,14 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
             max_count.value += max_iter + 2
 
     # Location of the apple core
-    core = apple_core_3d(shape=ri.shape, res=res, nm=nm)
+    core = apple_core_3d(shape=f.shape, res=res, nm=nm)
 
     if count is not None:
         with count.get_lock():
             count.value += 1
 
-    if ri_min is None:
-        # Set RI of medium as default minimum
-        ri_min = nm
-
-    data = pyfftw.empty_aligned(ri.shape, dtype='complex64')
-    ftdata = pyfftw.empty_aligned(ri.shape, dtype='complex64')
+    data = pyfftw.empty_aligned(f.shape, dtype='complex64')
+    ftdata = pyfftw.empty_aligned(f.shape, dtype='complex64')
     fftw_forw = pyfftw.FFTW(data, ftdata,
                             axes=(0, 1, 2),
                             direction="FFTW_FORWARD",
@@ -132,8 +196,9 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
                             flags=["FFTW_MEASURE"],
                             threads=mp.cpu_count())
 
-    data.real[:] = ri.real
+    data.real[:] = f.real
     data.imag[:] = 0
+
     fftw_forw.execute()
     ftdata_orig = ftdata.copy()
 
@@ -148,17 +213,19 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
     init_state = np.sum(np.abs(ftdata_orig[core])) / data.size
     prev_state = init_state
 
+    if bg_shell_width is not None:
+        bg_shell = ellipsoid_shell(data.shape, width=bg_shell_width)
+    else:
+        bg_shell = None
+
     for ii in range(max_iter):
-        # No imaginary RI (no absorption)
-        data.imag[:] = 0
-        # RI is higher than air/water/medium
-        lowri = data < ri_min
-        if bg_mask is not None:
-            # If given, only do this in the masked data regions
-            lowri *= ~bg_mask
-        data[lowri] = ri_min
-        if ri_max is not None:
-            data[data > ri_max] = ri_max
+        if method == "nn":
+            # non-negativity
+            constraint_nn(data=data, mask=mask, bg_shell=bg_shell)
+        elif method == "sh":
+            # symmetric histogram
+            constraint_sh(data=data, mask=mask, bg_shell=bg_shell)
+
         # Go into Fourier domain
         fftw_forw.execute()
         if enforce_envelope:
@@ -166,6 +233,9 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
             high = np.abs(ftdata) > ftevlp
             ftdata[high] *= enforce_envelope
 
+        if method == "sh":
+            # update dc term
+            ftdata_orig[0, 0, 0] = (ftdata_orig[0, 0, 0] + ftdata[0, 0, 0])/2
         # Enforce original data
         ftdata[~core] = ftdata_orig[~core]
 
@@ -193,13 +263,36 @@ def correct(ri, res, nm, bg_mask=None, ri_min=None, ri_max=None,
     return data
 
 
+def count_to_half(array):
+    """Determination of half-initial value index
+
+    Return first index at which array values decrease below 1/2 of
+    the initial initial value `array[0]`.
+    """
+    num = 0
+    for item in array[1:]:
+        if item < array[0] / 2:
+            break
+        else:
+            num += 1
+    return num
+
+
+def ellipsoid_shell(shape, width=20):
+    """Return background ellipsoid shell"""
+    spov_outer = spillover_region(shape, shell=0)
+    spov_inner = spillover_region(shape, shell=width)
+    reg = spov_outer ^ spov_inner
+    return reg
+
+
 def envelope_gauss(ftdata, core):
     r"""Compute a gaussian-filtered envelope, without apple core
 
     Parameters
     ----------
     ftdata: 3D ndarray
-        Fourier transform of the refractive index data
+        Fourier transform of the object function data
         (zero frequency not shifted to center of array)
     core: 3D ndarray (same shape as ftdata)
         Apple core (as defined by :func:`apple_core_3d`)
@@ -255,3 +348,16 @@ def envelope_gauss(ftdata, core):
     # Shift back gauss
     shifted_gauss = np.fft.ifftshift(gauss)
     return shifted_gauss
+
+
+def spillover_region(shape, shell=0):
+    """Return boolean array for region outside ellipsoid"""
+    x = np.arange(shape[0]).reshape(-1, 1, 1)
+    y = np.arange(shape[1]).reshape(1, -1, 1)
+    z = np.arange(shape[2]).reshape(1, 1, -1)
+
+    cx, cy, cz = np.array(shape) / 2
+    spov = (((x-cx)/(cx-shell))**2
+            + ((y-cy)/(cy-shell))**2
+            + ((z-cz)/(cz-shell))**2) > 1
+    return spov

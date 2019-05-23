@@ -262,6 +262,11 @@ def write_results(frame, r):
     Used for writing the results to zip-files in the current directory.
     If put in the directory "data", these files will be used for tests.
     """
+    # cast single precision to double precision
+    if np.iscomplexobj(r):
+        r = np.array(r, dtype=complex)
+    else:
+        r = np.array(r, dtype=float)
     data = np.array(r).flatten().view(float)
     filen = frame.f_globals["__file__"]
     funcname = frame.f_code.co_name
