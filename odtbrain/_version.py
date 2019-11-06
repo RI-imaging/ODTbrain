@@ -37,6 +37,8 @@ Features
 
 Changelog
 ---------
+2019-11-06.2
+ - use os.path.split instead of counting os.path.sep (Windows)
 2019-11-06
  - remove deprecated imp dependency (replace with parser)
  - check whether this file is versioned and its location is correct
@@ -48,7 +50,7 @@ from __future__ import print_function
 # `pragma: no cover` to ignore code coverage here.
 if True:  # pragma: no cover
     import os
-    from os.path import abspath, basename, dirname, join
+    from os.path import abspath, basename, dirname, join, split
     import subprocess
     import sys
     import time
@@ -100,7 +102,7 @@ if True:  # pragma: no cover
             # If it is under version control, it should be located
             # one hierarchy down from the repository root (either
             # __file__ is "docs/conf.py" or "package_name/_version.py".
-            if loc.count(os.path.sep) == 1:
+            if len(split(loc)) == 2:
                 try:
                     git_revision = _minimal_ext_cmd(['git', 'describe',
                                                      '--tags', 'HEAD'])
