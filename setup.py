@@ -29,7 +29,7 @@ if __name__ == "__main__":  # required by Windows/pytest (multiprocessing)
                           "numpy>=1.7.0",
                           "pyfftw>=0.9.2",  # 3D backpropagation
                           "scikit-image>=0.11.0",  # phase-unwrapping
-                          "scipy>=0.10.0",  # initial requirement
+                          "scipy>=1.4.0",  # Updated QHull in griddata
                           ],
         setup_requires=['pytest-runner'],
         tests_require=["pytest"],
