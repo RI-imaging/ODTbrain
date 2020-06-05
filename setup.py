@@ -33,7 +33,7 @@ if __name__ == "__main__":  # required by Windows/pytest (multiprocessing)
                           ],
         setup_requires=['pytest-runner'],
         tests_require=["pytest"],
-        python_requires='>=3.4, <4',
+        python_requires='>=3.5, <4',
         keywords=["odt", "opt", "diffraction", "born", "rytov", "radon",
                   "backprojection", "backpropagation", "inverse problem",
                   "Fourier diffraction theorem", "Fourier slice theorem"],
