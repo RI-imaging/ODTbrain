@@ -55,7 +55,7 @@ Running tests
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/odtbrain.svg
    :target: https://pypi.python.org/pypi/odtbrain
 .. |Tests Status Linux| image:: https://img.shields.io/travis/RI-imaging/ODTbrain.svg?label=tests_linux
-   :target: https://travis-ci.org/RI-imaging/ODTbrain
+   :target: https://travis-ci.com/RI-imaging/ODTbrain
 .. |Tests Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/odtbrain/master.svg?label=tests_win
    :target: https://ci.appveyor.com/project/paulmueller/odtbrain
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/RI-imaging/ODTbrain/master.svg
