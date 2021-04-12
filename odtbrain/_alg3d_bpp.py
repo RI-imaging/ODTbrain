@@ -53,7 +53,7 @@ def _mprotate(ang, lny, pool, order):
     """
     targ_args = list()
 
-    slsize = np.int(np.floor(lny / ncores))
+    slsize = int(np.floor(lny / ncores))
 
     for t in range(ncores):
         ymin = t * slsize
@@ -257,7 +257,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     if dtype.name not in ["float32", "float64"]:
         raise ValueError("dtype must be float32 or float64!")
     dtype_complex = np.dtype("complex{}".format(
-        2 * np.int(dtype.name.strip("float"))))
+        2 * int(dtype.name.strip("float"))))
     # set ctype
     ct_dt_map = {np.dtype(np.float32): ctypes.c_float,
                  np.dtype(np.float64): ctypes.c_double
@@ -283,19 +283,19 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
     # a power of 2.
 
     if padding[0]:
-        orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
+        orderx = int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
         padx = orderx - lnx
     else:
         padx = 0
     if padding[1]:
-        ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
+        ordery = int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
         pady = ordery - lny
     else:
         pady = 0
 
-    padyl = np.int(np.ceil(pady / 2))
+    padyl = int(np.ceil(pady / 2))
     padyr = pady - padyl
-    padxl = np.int(np.ceil(padx / 2))
+    padxl = int(np.ceil(padx / 2))
     padxr = padx - padxl
 
     # zero-padded length of sinogram.

@@ -605,19 +605,19 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     # speeds up Fourier transforms of the input image size is not
     # a power of 2.
     if padding[0]:
-        orderx = np.int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
+        orderx = int(max(64., 2**np.ceil(np.log(lnx * padfac) / np.log(2))))
         padx = orderx - lnx
     else:
         padx = 0
     if padding[1]:
-        ordery = np.int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
+        ordery = int(max(64., 2**np.ceil(np.log(lny * padfac) / np.log(2))))
         pady = ordery - lny
     else:
         pady = 0
 
-    padyl = np.int(np.ceil(pady / 2))
+    padyl = int(np.ceil(pady / 2))
     padyr = pady - padyl
-    padxl = np.int(np.ceil(padx / 2))
+    padxl = int(np.ceil(padx / 2))
     padxr = padx - padxl
 
     # zero-padded length of sinogram.
