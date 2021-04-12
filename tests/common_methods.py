@@ -91,7 +91,7 @@ def create_test_sino_3d(A=9, Nx=22, Ny=22, max_phase=5.0,
     resar = np.zeros((A, Ny, Nx), dtype=np.complex128)
     # 2pi coverage
     angles = np.linspace(0, 2*np.pi, A, endpoint=False)
-    # x-values of Gaussain
+    # x-values of Gaussian
     x = np.linspace(-Nx/2, Nx/2, Nx, endpoint=True).reshape(1, -1)
     y = np.linspace(-Ny/2, Ny/2, Ny, endpoint=True).reshape(-1, 1)
     # SD of Gaussian
@@ -243,7 +243,7 @@ def get_test_parameter_set(set_number=1):
     return parameters
 
 
-def normalize(av, vmin=0, vmax=1):
+def normalize(av, vmin=0., vmax=1.):
     """
     normalize an array to the range vmin/vmax
     """
