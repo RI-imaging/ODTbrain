@@ -30,6 +30,8 @@ jobs:
         # prerequisites
         python -m pip install --upgrade pip wheel
         python -m pip install codecov coverage flake8 pytest
+        # https://github.com/pyFFTW/pyFFTW/issues/252
+        pip install numpy cython
         # install dependencies
         pip install -e .
         # show installed packages
