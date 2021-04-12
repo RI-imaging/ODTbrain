@@ -12,7 +12,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', "3.9"]
+        # Python 3.9 and Windows tests fail because of pyfftw:
+        # https://github.com/pyFFTW/pyFFTW/issues/301
+        python-version: ['3.7', '3.8']
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
