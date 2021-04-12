@@ -1,6 +1,7 @@
 0.4.2
  - build: migrate to GitHub Actions
  - build: setup.py test is deprecated
+ - docs: refurbish docs
 0.4.1
  - setup: bump scipy to 1.4.0 (updated QHull in griddata)
 0.4.0
