@@ -73,3 +73,5 @@ tests/data/*__*.txt
 .pytest_cache
 *bib.bak
 *bib.sav
+
+.idea

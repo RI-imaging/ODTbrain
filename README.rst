@@ -1,7 +1,7 @@
 ODTbrain
 ========
 
-|PyPI Version| |Tests Status Linux| |Tests Status Win| |Coverage Status| |Docs Status|
+|PyPI Version| |Tests Status| |Coverage Status| |Docs Status|
 
 
 **ODTbrain** provides image reconstruction algorithms for **O**\ ptical **D**\ iffraction **T**\ omography with a **B**\ orn and **R**\ ytov
@@ -25,39 +25,29 @@ Installation
 Testing
 -------
 
-After cloning into odtbrain, create a virtual environment
-
-::
+After cloning into odtbrain, create a virtual environment::
 
     virtualenv --system-site-packages env
     source env/bin/activate
 
-Install all dependencies
-
-::
+Install ODTbrain in editable mode::
 
     pip install -e .
     
-Running an example
-
-::
+Running an example::
 
     python examples/backprop_from_fdtd_2d.py
    
-Running tests
+Running tests::
 
-::
+    pip install pytest
+    pytest tests
 
-    python setup.py test
-
-    
 
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/odtbrain.svg
    :target: https://pypi.python.org/pypi/odtbrain
-.. |Tests Status Linux| image:: https://img.shields.io/travis/RI-imaging/ODTbrain.svg?label=tests_linux
-   :target: https://travis-ci.com/RI-imaging/ODTbrain
-.. |Tests Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/odtbrain/master.svg?label=tests_win
-   :target: https://ci.appveyor.com/project/paulmueller/odtbrain
+.. |Tests Status| image:: https://img.shields.io/github/workflow/status/RI-Imaging/ODTbrain/Checks
+   :target: https://github.com/RI-Imaging/ODTbrain/actions?query=workflow%3AChecks
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/RI-imaging/ODTbrain/master.svg
    :target: https://codecov.io/gh/RI-imaging/ODTbrain
 .. |Docs Status| image:: https://readthedocs.org/projects/odtbrain/badge/?version=latest
