@@ -25,6 +25,10 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get install -y libfftw3-dev libfftw3-3
+    - name: Install fftw3 libs (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install fftw
     - name: Install dependencies
       run: |
         # prerequisites
