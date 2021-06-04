@@ -1,3 +1,5 @@
+0.4.3
+ - docs: added original meep C++ simulation files in "misc" (#14)
 0.4.2
  - build: migrate to GitHub Actions
  - build: setup.py test is deprecated
