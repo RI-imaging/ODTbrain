@@ -1,5 +1,7 @@
 0.4.3
  - docs: added original meep C++ simulation files in "misc" (#14)
+ - docs: add ``if __name__ == "__main__"`` guard to 3D backpropagation
+   examples (#15)
 0.4.2
  - build: migrate to GitHub Actions
  - build: setup.py test is deprecated

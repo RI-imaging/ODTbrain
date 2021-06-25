@@ -31,104 +31,106 @@ import odtbrain as odt
 
 from example_helper import load_data
 
-sino, angles, phantom, cfg = \
-    load_data("fdtd_3d_sino_A220_R6.500_tiltyz0.2.tar.lzma")
 
-A = angles.shape[0]
+if __name__ == "__main__":
+    sino, angles, phantom, cfg = \
+        load_data("fdtd_3d_sino_A220_R6.500_tiltyz0.2.tar.lzma")
 
-print("Example: Backpropagation from 3D FDTD simulations")
-print("Refractive index of medium:", cfg["nm"])
-print("Measurement position from object center:", cfg["lD"])
-print("Wavelength sampling:", cfg["res"])
-print("Axis tilt in y-z direction:", cfg["tilt_yz"])
-print("Number of projections:", A)
+    A = angles.shape[0]
 
-print("Performing normal backpropagation.")
-# Apply the Rytov approximation
-sinoRytov = odt.sinogram_as_rytov(sino)
+    print("Example: Backpropagation from 3D FDTD simulations")
+    print("Refractive index of medium:", cfg["nm"])
+    print("Measurement position from object center:", cfg["lD"])
+    print("Wavelength sampling:", cfg["res"])
+    print("Axis tilt in y-z direction:", cfg["tilt_yz"])
+    print("Number of projections:", A)
 
-# Perform naive backpropagation
-f_naiv = odt.backpropagate_3d(uSin=sinoRytov,
-                              angles=angles,
-                              res=cfg["res"],
-                              nm=cfg["nm"],
-                              lD=cfg["lD"]
-                              )
+    print("Performing normal backpropagation.")
+    # Apply the Rytov approximation
+    sinoRytov = odt.sinogram_as_rytov(sino)
 
-print("Performing tilted backpropagation.")
-# Determine tilted axis
-tilted_axis = [0, np.cos(cfg["tilt_yz"]), np.sin(cfg["tilt_yz"])]
+    # Perform naive backpropagation
+    f_naiv = odt.backpropagate_3d(uSin=sinoRytov,
+                                  angles=angles,
+                                  res=cfg["res"],
+                                  nm=cfg["nm"],
+                                  lD=cfg["lD"]
+                                  )
 
-# Perform tilted backpropagation
-f_tilt = odt.backpropagate_3d_tilted(uSin=sinoRytov,
-                                     angles=angles,
-                                     res=cfg["res"],
-                                     nm=cfg["nm"],
-                                     lD=cfg["lD"],
-                                     tilted_axis=tilted_axis,
-                                     )
+    print("Performing tilted backpropagation.")
+    # Determine tilted axis
+    tilted_axis = [0, np.cos(cfg["tilt_yz"]), np.sin(cfg["tilt_yz"])]
 
-# compute refractive index n from object function
-n_naiv = odt.odt_to_ri(f_naiv, res=cfg["res"], nm=cfg["nm"])
-n_tilt = odt.odt_to_ri(f_tilt, res=cfg["res"], nm=cfg["nm"])
+    # Perform tilted backpropagation
+    f_tilt = odt.backpropagate_3d_tilted(uSin=sinoRytov,
+                                         angles=angles,
+                                         res=cfg["res"],
+                                         nm=cfg["nm"],
+                                         lD=cfg["lD"],
+                                         tilted_axis=tilted_axis,
+                                         )
 
-sx, sy, sz = n_tilt.shape
-px, py, pz = phantom.shape
+    # compute refractive index n from object function
+    n_naiv = odt.odt_to_ri(f_naiv, res=cfg["res"], nm=cfg["nm"])
+    n_tilt = odt.odt_to_ri(f_tilt, res=cfg["res"], nm=cfg["nm"])
 
-sino_phase = np.angle(sino)
+    sx, sy, sz = n_tilt.shape
+    px, py, pz = phantom.shape
 
-# compare phantom and reconstruction in plot
-fig, axes = plt.subplots(2, 3, figsize=(8, 4.5))
-kwri = {"vmin": n_tilt.real.min(), "vmax": n_tilt.real.max()}
-kwph = {"vmin": sino_phase.min(), "vmax": sino_phase.max(),
-        "cmap": "coolwarm"}
+    sino_phase = np.angle(sino)
 
-# Sinogram
-axes[0, 0].set_title("phase projection")
-phmap = axes[0, 0].imshow(sino_phase[A // 2, :, :], **kwph)
-axes[0, 0].set_xlabel("detector x")
-axes[0, 0].set_ylabel("detector y")
+    # compare phantom and reconstruction in plot
+    fig, axes = plt.subplots(2, 3, figsize=(8, 4.5))
+    kwri = {"vmin": n_tilt.real.min(), "vmax": n_tilt.real.max()}
+    kwph = {"vmin": sino_phase.min(), "vmax": sino_phase.max(),
+            "cmap": "coolwarm"}
 
-axes[1, 0].set_title("sinogram slice")
-axes[1, 0].imshow(sino_phase[:, :, sino.shape[2] // 2],
-                  aspect=sino.shape[1] / sino.shape[0], **kwph)
-axes[1, 0].set_xlabel("detector y")
-axes[1, 0].set_ylabel("angle [rad]")
-# set y ticks for sinogram
-labels = np.linspace(0, 2 * np.pi, len(axes[1, 1].get_yticks()))
-labels = ["{:.2f}".format(i) for i in labels]
-axes[1, 0].set_yticks(np.linspace(0, len(angles), len(labels)))
-axes[1, 0].set_yticklabels(labels)
+    # Sinogram
+    axes[0, 0].set_title("phase projection")
+    phmap = axes[0, 0].imshow(sino_phase[A // 2, :, :], **kwph)
+    axes[0, 0].set_xlabel("detector x")
+    axes[0, 0].set_ylabel("detector y")
 
-axes[0, 1].set_title("normal (center)")
-rimap = axes[0, 1].imshow(n_naiv[sx // 2].real, **kwri)
-axes[0, 1].set_xlabel("x")
-axes[0, 1].set_ylabel("y")
+    axes[1, 0].set_title("sinogram slice")
+    axes[1, 0].imshow(sino_phase[:, :, sino.shape[2] // 2],
+                      aspect=sino.shape[1] / sino.shape[0], **kwph)
+    axes[1, 0].set_xlabel("detector y")
+    axes[1, 0].set_ylabel("angle [rad]")
+    # set y ticks for sinogram
+    labels = np.linspace(0, 2 * np.pi, len(axes[1, 1].get_yticks()))
+    labels = ["{:.2f}".format(i) for i in labels]
+    axes[1, 0].set_yticks(np.linspace(0, len(angles), len(labels)))
+    axes[1, 0].set_yticklabels(labels)
 
-axes[1, 1].set_title("normal (nucleolus)")
-axes[1, 1].imshow(n_naiv[int(sx / 2 + 2 * cfg["res"])].real, **kwri)
-axes[1, 1].set_xlabel("x")
-axes[1, 1].set_ylabel("y")
+    axes[0, 1].set_title("normal (center)")
+    rimap = axes[0, 1].imshow(n_naiv[sx // 2].real, **kwri)
+    axes[0, 1].set_xlabel("x")
+    axes[0, 1].set_ylabel("y")
 
-axes[0, 2].set_title("tilt correction (center)")
-axes[0, 2].imshow(n_tilt[sx // 2].real, **kwri)
-axes[0, 2].set_xlabel("x")
-axes[0, 2].set_ylabel("y")
+    axes[1, 1].set_title("normal (nucleolus)")
+    axes[1, 1].imshow(n_naiv[int(sx / 2 + 2 * cfg["res"])].real, **kwri)
+    axes[1, 1].set_xlabel("x")
+    axes[1, 1].set_ylabel("y")
 
-axes[1, 2].set_title("tilt correction (nucleolus)")
-axes[1, 2].imshow(n_tilt[int(sx / 2 + 2 * cfg["res"])].real, **kwri)
-axes[1, 2].set_xlabel("x")
-axes[1, 2].set_ylabel("y")
+    axes[0, 2].set_title("tilt correction (center)")
+    axes[0, 2].imshow(n_tilt[sx // 2].real, **kwri)
+    axes[0, 2].set_xlabel("x")
+    axes[0, 2].set_ylabel("y")
 
-# color bars
-cbkwargs = {"fraction": 0.045,
-            "format": "%.3f"}
-plt.colorbar(phmap, ax=axes[0, 0], **cbkwargs)
-plt.colorbar(phmap, ax=axes[1, 0], **cbkwargs)
-plt.colorbar(rimap, ax=axes[0, 1], **cbkwargs)
-plt.colorbar(rimap, ax=axes[1, 1], **cbkwargs)
-plt.colorbar(rimap, ax=axes[0, 2], **cbkwargs)
-plt.colorbar(rimap, ax=axes[1, 2], **cbkwargs)
+    axes[1, 2].set_title("tilt correction (nucleolus)")
+    axes[1, 2].imshow(n_tilt[int(sx / 2 + 2 * cfg["res"])].real, **kwri)
+    axes[1, 2].set_xlabel("x")
+    axes[1, 2].set_ylabel("y")
 
-plt.tight_layout()
-plt.show()
+    # color bars
+    cbkwargs = {"fraction": 0.045,
+                "format": "%.3f"}
+    plt.colorbar(phmap, ax=axes[0, 0], **cbkwargs)
+    plt.colorbar(phmap, ax=axes[1, 0], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[0, 1], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[1, 1], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[0, 2], **cbkwargs)
+    plt.colorbar(rimap, ax=axes[1, 2], **cbkwargs)
+
+    plt.tight_layout()
+    plt.show()

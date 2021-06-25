@@ -129,7 +129,7 @@ exclude_patterns = ['_build']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = projectname+'doc'
