@@ -55,7 +55,7 @@ if __name__ == "__main__":
         for ii in range(len(qps)):
             sino[ii] = qps[ii].field
 
-    # perform backgpropagation
+    # perform backpropagation
     u_sinR = odt.sinogram_as_rytov(sino)
     res = meta["wavelength"] / meta["pixel size"]
     nm = meta["medium index"]
