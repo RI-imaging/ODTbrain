@@ -308,7 +308,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
         # Resize filtered sinogram back to original size
         sino = sino_filtered[:ln, padl:padl + ln]
 
-        rotated_projr = scipy.ndimage.interpolation.rotate(
+        rotated_projr = scipy.ndimage.rotate(
             sino.real, -angles[i] * 180 / np.pi,
             reshape=False, mode="constant", cval=0)
         # Append results
@@ -316,7 +316,7 @@ def backpropagate_2d(uSin, angles, res, nm, lD=0, coords=None,
         outarr += rotated_projr
 
         if not onlyreal:
-            outarr += 1j * scipy.ndimage.interpolation.rotate(
+            outarr += 1j * scipy.ndimage.rotate(
                 sino.imag, -angles[i] * 180 / np.pi,
                 reshape=False, mode="constant", cval=0)
 

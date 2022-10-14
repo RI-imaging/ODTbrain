@@ -1,3 +1,7 @@
+0.4.4
+ - ref: address scipy deprecation warnings
+ - ci: switch to Python 3.10
+ - ci: minor cleanup
 0.4.3
  - docs: added original meep C++ simulation files in "misc" (#14)
  - docs: add ``if __name__ == "__main__"`` guard to 3D backpropagation

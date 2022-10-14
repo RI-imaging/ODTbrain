@@ -136,7 +136,7 @@ def rotation_matrix_from_point(point, ret_inv=False):
         The coordinates of the point in 3D.
     ret_inv: bool
         Also return the inverse of the rotation matrix. The inverse
-        is required for :func:`scipy.ndimage.interpolation.affine_transform`
+        is required for :func:`scipy.ndimage.affine_transform`
         which maps the output coordinates to the input coordinates.
 
     Returns
@@ -195,7 +195,7 @@ def rotation_matrix_from_point_planerot(point, plane_angle, ret_inv=False):
         The coordinates of the point in 3D.
     ret_inv: bool
         Also return the inverse of the rotation matrix. The inverse
-        is required for :func:`scipy.ndimage.interpolation.affine_transform`
+        is required for :func:`scipy.ndimage.affine_transform`
         which maps the output coordinates to the input coordinates.
 
     Returns
@@ -487,7 +487,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
         is a float, then padding is done with a linear ramp.
     intp_order: int between 0 and 5
         Order of the interpolation for rotation.
-        See :func:`scipy.ndimage.interpolation.affine_transform` for details.
+        See :func:`scipy.ndimage.affine_transform` for details.
     dtype: dtype object or argument for :func:`numpy.dtype`
         The data type that is used for calculations (float or double).
         Defaults to `numpy.float_`.
@@ -929,7 +929,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
 
         # Also undo the axis transposition that we performed previously.
 
-        outarr.real += scipy.ndimage.interpolation.affine_transform(
+        outarr.real += scipy.ndimage.affine_transform(
             fil_p_t.real, drotinv,
             offset=offset,
             mode="constant",
@@ -937,7 +937,7 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
             order=intp_order).transpose(2, 1, 0)[:, ::-1, :]
 
         if not onlyreal:
-            outarr.imag += scipy.ndimage.interpolation.affine_transform(
+            outarr.imag += scipy.ndimage.affine_transform(
                 fil_p_t.imag, drotinv,
                 offset=offset,
                 mode="constant",

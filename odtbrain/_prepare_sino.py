@@ -35,7 +35,7 @@ def align_unwrapped(sino):
         steps[i] = samples[i] - t
 
     # if the majority believes so, add a step of PI
-    remove = mode(steps, axis=0)[0][0]
+    remove = mode(steps, axis=0, keepdims=True)[0][0]
 
     # obtain divmod min
     twopi = 2*np.pi

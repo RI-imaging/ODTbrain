@@ -70,7 +70,7 @@ def _rotate(d):
                         dtype=mprotate_dict["X_dtype"]).reshape(
                             mprotate_dict["X_shape"])
     (ymin, ymax, ang, order) = d
-    return scipy.ndimage.interpolation.rotate(
+    return scipy.ndimage.rotate(
         arr[:, ymin:ymax, :],  # input
         angle=-ang,  # angle
         axes=(0, 2),  # axes
@@ -184,7 +184,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
         is a float, then padding is done with a linear ramp.
     intp_order: int between 0 and 5
         Order of the interpolation for rotation.
-        See :func:`scipy.ndimage.interpolation.rotate` for details.
+        See :func:`scipy.ndimage.rotate` for details.
     dtype: dtype object or argument for :func:`numpy.dtype`
         The data type that is used for calculations (float or double).
         Defaults to `numpy.float_`.
