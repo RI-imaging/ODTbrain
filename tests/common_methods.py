@@ -34,7 +34,7 @@ def create_test_sino_2d(A=9, N=22, max_phase=5.0,
     resar = np.zeros((A, N), dtype=np.complex128)
     # 2pi coverage
     angles = np.linspace(0, 2*np.pi, A, endpoint=False)
-    # x-values of Gaussain
+    # x-values of Gaussian
     x = np.linspace(-N/2, N/2, N, endpoint=True)
     # SD of Gaussian
     dev = np.sqrt(N/2)

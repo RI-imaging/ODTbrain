@@ -22,6 +22,9 @@ def test_2d_fmap():
         r.append(cutout(f))
     if WRITE_RES:
         write_results(myframe, r)
+    diff = np.array(r).flatten().view(float) - get_results(myframe)
+    print("DEBUG: ", np.ptp(diff))
+    print("DEBUG: ", np.where(np.abs(diff)>1e-5))
     assert np.allclose(np.array(r).flatten().view(float), get_results(myframe))
 
 
