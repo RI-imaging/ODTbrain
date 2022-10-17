@@ -42,6 +42,13 @@ jobs:
     - name: Test with pytest
       run: |
         coverage run --source=odtbrain -m pytest tests
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Test_artifacts
+        path: |
+          ./*.zip
+
     - name: Lint with flake8
       run: |
         flake8 .
