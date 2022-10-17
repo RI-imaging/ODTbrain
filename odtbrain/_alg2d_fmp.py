@@ -1,4 +1,6 @@
 """2D Fourier mapping"""
+import warnings
+
 import numpy as np
 import scipy.interpolate as intp
 
@@ -83,6 +85,10 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
     been removed in version 0.2.6 because ``griddata`` gave different
     results on Windows and Linux).
     """
+    warnings.warn(
+        "The method `fourier_map_2d` produces inconsistent results on "
+        "different platforms. I have not been able to figure out what "
+        "is going on. See https://github.com/RI-imaging/ODTbrain/issues/13.")
     ##
     ##
     # TODO:
