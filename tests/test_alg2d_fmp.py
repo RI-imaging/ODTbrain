@@ -17,6 +17,8 @@ CI_FAILS = (os.environ.get("RUNNER_OS", "None") == "Linux"
 
 
 @pytest.mark.xfail(CI_FAILS, reason="Unexplained issue #13")
+@pytest.mark.filterwarnings(
+    "ignore::odtbrain.warn.ImplementationAmbiguousWarning")
 def test_2d_fmap():
     myframe = sys._getframe()
     sino, angles = create_test_sino_2d()

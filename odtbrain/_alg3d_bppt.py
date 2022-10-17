@@ -849,7 +849,6 @@ def backpropagate_3d_tilted(uSin, angles, res, nm, lD=0,
     #    (especially for large transforms), but at the expense of
     #    several times longer planning time (especially for large
     #    transforms).
-    # print(inarr.flags)
 
     myifftw_plan = pyfftw.FFTW(inarr, inarr, threads=num_cores,
                                axes=(0, 1),

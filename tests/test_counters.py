@@ -3,12 +3,16 @@ import multiprocessing as mp
 
 import numpy as np
 
+import pytest
+
 import odtbrain
 
 from common_methods import create_test_sino_2d, create_test_sino_3d, \
     get_test_parameter_set
 
 
+@pytest.mark.filterwarnings(
+    "ignore::odtbrain.warn.DataUndersampledWarning")
 def test_integrate_2d():
     sino, angles = create_test_sino_2d(N=10)
     p = get_test_parameter_set(1)[0]
@@ -25,6 +29,8 @@ def test_integrate_2d():
     assert jmc.value != 0
 
 
+@pytest.mark.filterwarnings(
+    "ignore::odtbrain.warn.ImplementationAmbiguousWarning")
 def test_fmp_2d():
     sino, angles = create_test_sino_2d(N=10)
     p = get_test_parameter_set(1)[0]

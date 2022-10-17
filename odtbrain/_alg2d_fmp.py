@@ -4,6 +4,8 @@ import warnings
 import numpy as np
 import scipy.interpolate as intp
 
+from .warn import DataUndersampledWarning, ImplementationAmbiguousWarning
+
 
 def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
                    coords=None, count=None, max_count=None, verbose=0):
@@ -88,7 +90,8 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
     warnings.warn(
         "The method `fourier_map_2d` produces inconsistent results on "
         "different platforms. I have not been able to figure out what "
-        "is going on. See https://github.com/RI-imaging/ODTbrain/issues/13.")
+        "is going on. See https://github.com/RI-imaging/ODTbrain/issues/13.",
+        ImplementationAmbiguousWarning)
     ##
     ##
     # TODO:
@@ -175,18 +178,12 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
     if verbose and np.max(kx**2) <= km**2:
         # Detector is not set up properly. Higher resolution
         # can be achieved.
-        print("......Measurement data is undersampled.")
+        warnings.warn("Measurement data are undersampled.",
+                      DataUndersampledWarning)
     else:
-        print("......Measurement data is oversampled.")
-        # raise NotImplementedError("Oversampled data not yet supported."+
-        #                   " Please rescale xD-axis of the input data.")
-        # DEAL WITH OVERSAMPLED DATA?
-        # lenk = len(kx)
-        # kx = np.fft.ifftshift(np.linspace(-np.sqrt(km),
-        #                                   np.sqrt(km),
-        #                                   len(fx), endpoint=False))
+        # Measurement data are oversampled.
+        pass
 
-    #
     # F(kD-kₘs₀) = - i kₘ sqrt(2/π) / a₀ * M exp(-i kₘ M lD) * UB(kD)
     # kₘM = sqrt( kₘ² - kx² )
     # s₀  = ( -sin(ϕ₀), cos(ϕ₀) )

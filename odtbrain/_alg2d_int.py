@@ -1,5 +1,9 @@
 """2D slow integration"""
+import warnings
+
 import numpy as np
+
+from .warn import DataUndersampledWarning
 
 
 def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
@@ -119,11 +123,9 @@ def integrate_2d(uSin, angles, res, nm, lD=0, coords=None,
     if np.max(kx**2) <= 2 * km**2:
         # Detector is not set up properly. Higher resolution
         # can be achieved.
-        if verbose:
-            print("......Measurement data is undersampled.")
+        warnings.warn("Measurement data are undersampled.",
+                      DataUndersampledWarning)
     else:
-        if verbose:
-            print("......Measurement data is oversampled.")
         raise NotImplementedError("Oversampled data not yet supported." +
                                   " Please rescale input data")
 

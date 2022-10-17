@@ -1,5 +1,6 @@
 0.4.4
  - ref: address scipy deprecation warnings
+ - ref: replace print statements with warnings (#17)
  - ci: switch to Python 3.10
  - ci: minor cleanup
 0.4.3

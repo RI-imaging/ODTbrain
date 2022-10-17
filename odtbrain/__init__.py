@@ -12,6 +12,7 @@ from ._version import version as __version__  # noqa F401
 from ._version import longversion as __version_full__  # noqa F401
 
 from . import apple  # noqa F401
+from . import warn  # noqa F401
 
 
 __author__ = "Paul Müller"
