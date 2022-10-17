@@ -1,4 +1,5 @@
 """Test Fourier mapping algorithm"""
+import os
 import sys
 
 import numpy as np
@@ -8,10 +9,15 @@ import pytest
 from common_methods import create_test_sino_2d, cutout, \
     get_test_parameter_set, write_results, get_results
 
-WRITE_RES = True
+WRITE_RES = False
+
+# See https://github.com/RI-imaging/ODTbrain/issues/13
+CI_FAILS = (os.environ.get("RUNNER_OS", "None") == "Linux"
+            and sys.version_info[0] == 3
+            and sys.version_info[1] == 10)
 
 
-@pytest.mark.xfail(True, reason="don't know why")
+@pytest.mark.xfail(CI_FAILS, reason="Unexplained issue #13")
 def test_2d_fmap():
     myframe = sys._getframe()
     sino, angles = create_test_sino_2d()
@@ -22,9 +28,6 @@ def test_2d_fmap():
         r.append(cutout(f))
     if WRITE_RES:
         write_results(myframe, r)
-    diff = np.array(r).flatten().view(float) - get_results(myframe)
-    print("DEBUG: ", np.ptp(diff))
-    print("DEBUG: ", np.where(np.abs(diff) > 1e-5))
     assert np.allclose(np.array(r).flatten().view(float), get_results(myframe))
 
 
