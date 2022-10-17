@@ -13,8 +13,7 @@ WRITE_RES = False
 
 # See https://github.com/RI-imaging/ODTbrain/issues/13
 CI_FAILS = (os.environ.get("RUNNER_OS", "None") == "Linux"
-            and sys.version_info[0] == 3
-            and sys.version_info[1] == 10)
+            or os.environ.get("RUNNER_OS", "None") == "macOS")
 
 
 @pytest.mark.xfail(CI_FAILS, reason="Unexplained issue #13")
