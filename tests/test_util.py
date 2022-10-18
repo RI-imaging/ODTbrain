@@ -1,6 +1,6 @@
 import numpy as np
 
-import radontea.util as util
+import odtbrain.util as util
 
 
 def test_even():
