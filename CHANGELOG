@@ -1,6 +1,7 @@
 0.4.6
  - fix: handle more special cases when computing weights for
    projections
+ - docs: update example scripts and images
 0.4.5
  - ci: fix build pipeline
 0.4.4

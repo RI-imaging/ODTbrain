@@ -31,7 +31,7 @@ def test_correct_counter():
     sino, angles = create_test_sino_3d(Nx=10, Ny=10)
     p = get_test_parameter_set(1)[0]
     f = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                  dtype=np.float64,
+                                  dtype=float,
                                   copy=False, **p)
     odtbrain.apple.correct(f=f,
                            res=p["res"],
@@ -51,7 +51,7 @@ def test_correct_reproduce():
     p = get_test_parameter_set(1)[0]
     sryt = odtbrain.sinogram_as_rytov(uSin=sino, u0=1, align=False)
     f = odtbrain.backpropagate_3d(sryt, angles, padval=0,
-                                  dtype=np.float64,
+                                  dtype=float,
                                   copy=False, **p)
     fc = odtbrain.apple.correct(f=f,
                                 res=p["res"],
@@ -73,7 +73,7 @@ def test_correct_values():
     sino, angles = create_test_sino_3d(Nx=10, Ny=10)
     p = get_test_parameter_set(1)[0]
     f = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                  dtype=np.float64,
+                                  dtype=float,
                                   copy=False, **p)
     try:
         odtbrain.apple.correct(f=f,

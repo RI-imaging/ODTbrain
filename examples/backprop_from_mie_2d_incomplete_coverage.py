@@ -120,7 +120,8 @@ kw_ri = {"vmin": np.min(np.array([phantom, nRmiss.real, nReven.real])),
 
 kw_ph = {"vmin": np.min(np.array([pheven, phmiss])),
          "vmax": np.max(np.array([pheven, phmiss])),
-         "cmap": "coolwarm"}
+         "cmap": "coolwarm",
+         "interpolation": "none"}
 
 fig, axes = plt.subplots(3, 3, figsize=(8, 6.5))
 

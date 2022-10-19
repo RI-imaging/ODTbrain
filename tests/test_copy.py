@@ -11,10 +11,10 @@ def test_back3d():
     p = get_test_parameter_set(1)[0]
     # complex
     f1 = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                   dtype=np.float64,
+                                   dtype=float,
                                    copy=False, **p)
     f2 = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                   dtype=np.float64,
+                                   dtype=float,
                                    copy=True, **p)
     assert np.allclose(f1, f2)
 
@@ -23,10 +23,10 @@ def test_back3d_tilted():
     sino, angles = create_test_sino_3d(Nx=10, Ny=10)
     p = get_test_parameter_set(1)[0]
     f1 = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
-                                          dtype=np.float64,
+                                          dtype=float,
                                           copy=False, **p)
     f2 = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
-                                          dtype=np.float64,
+                                          dtype=float,
                                           copy=True, **p)
     assert np.allclose(f1, f2)
 

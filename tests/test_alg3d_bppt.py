@@ -14,14 +14,14 @@ def test_3d_backprop_phase_real():
     rref = list()
     for p in parameters:
         fref = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                         dtype=np.float64, onlyreal=True, **p)
+                                         dtype=float, onlyreal=True, **p)
         rref.append(cutout(fref))
     dataref = np.array(rref).flatten().view(float)
 
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
-                                             dtype=np.float64, onlyreal=True,
+                                             dtype=float, onlyreal=True,
                                              **p)
         r.append(cutout(f))
     data = np.array(r).flatten().view(float)
@@ -35,14 +35,14 @@ def test_3d_backprop_pad():
     rref = list()
     for p in parameters:
         fref = odtbrain.backpropagate_3d(sino, angles, padval="edge",
-                                         dtype=np.float64, onlyreal=False, **p)
+                                         dtype=float, onlyreal=False, **p)
         rref.append(cutout(fref))
     dataref = np.array(rref).flatten().view(float)
 
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d_tilted(sino, angles, padval="edge",
-                                             dtype=np.float64, onlyreal=False,
+                                             dtype=float, onlyreal=False,
                                              **p)
         r.append(cutout(f))
     data = np.array(r).flatten().view(float)
@@ -79,7 +79,7 @@ def test_3d_backprop_plane_rotation():
                                                     padval="edge",
                                                     tilted_axis=tilted_axis,
                                                     padding=(False, False),
-                                                    dtype=np.float64,
+                                                    dtype=float,
                                                     onlyreal=False,
                                                     **p)
             rref.append(cutout(fref))
@@ -117,7 +117,7 @@ def test_3d_backprop_plane_alignment_along_axes():
                                                 padval="edge",
                                                 tilted_axis=tilted_axis,
                                                 padding=(False, False),
-                                                dtype=np.float64,
+                                                dtype=float,
                                                 onlyreal=True,
                                                 **p)
         results.append(fref)

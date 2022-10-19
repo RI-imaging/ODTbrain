@@ -22,7 +22,7 @@ def test_3d_backprop_phase():
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                      dtype=np.float64, **p)
+                                      dtype=float, **p)
         r.append(cutout(f))
     if WRITE_RES:
         write_results(myframe, r)
@@ -43,7 +43,7 @@ def test_3d_backprop_nopadreal():
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d(sino, angles, padding=(False, False),
-                                      dtype=np.float64, onlyreal=True, **p)
+                                      dtype=float, onlyreal=True, **p)
         r.append(cutout(f))
     if WRITE_RES:
         write_results(myframe, r)
@@ -74,14 +74,14 @@ def test_3d_backprop_real():
     r = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                      dtype=np.float64,
+                                      dtype=float,
                                       onlyreal=False, **p)
         r.append(f)
     # real
     r2 = list()
     for p in parameters:
         f = odtbrain.backpropagate_3d(sino, angles, padval=0,
-                                      dtype=np.float64,
+                                      dtype=float,
                                       onlyreal=True, **p)
         r2.append(f)
     assert np.allclose(np.array(r).real, np.array(r2))

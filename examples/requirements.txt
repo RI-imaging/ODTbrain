@@ -1,0 +1,4 @@
+cellsino
+nrefocus
+qpimage
+scikit-image

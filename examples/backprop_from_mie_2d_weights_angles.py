@@ -15,7 +15,7 @@ weights. The keyword argument `weight_angles` was introduced in version
 """
 import matplotlib.pylab as plt
 import numpy as np
-import unwrap
+from skimage.restoration import unwrap_phase
 
 import odtbrain as odt
 
@@ -75,7 +75,7 @@ u_sinR = odt.sinogram_as_rytov(sino / u0)
 remove200 = np.argsort(angles % .0002)[:50]
 angles200 = np.delete(angles, remove200, axis=0)
 u_sinR200 = np.delete(u_sinR, remove200, axis=0)
-ph200 = unwrap.unwrap(np.angle(sino / u0))
+ph200 = unwrap_phase(np.angle(sino / u0))
 ph200[remove200] = 0
 
 fR200 = odt.backpropagate_2d(u_sinR200, angles200, res, nmed, lD*res)
@@ -88,7 +88,7 @@ nR200nw = odt.odt_to_ri(fR200nw, res, nmed)
 remove50 = np.argsort(angles % .0002)[:200]
 angles50 = np.delete(angles, remove50, axis=0)
 u_sinR50 = np.delete(u_sinR, remove50, axis=0)
-ph50 = unwrap.unwrap(np.angle(sino / u0))
+ph50 = unwrap_phase(np.angle(sino / u0))
 ph50[remove50] = 0
 
 fR50 = odt.backpropagate_2d(u_sinR50, angles50, res, nmed, lD*res)
@@ -103,7 +103,8 @@ kw_ri = {"vmin": 1.330,
 
 kw_ph = {"vmin": np.min(np.array([ph200, ph50])),
          "vmax": np.max(np.array([ph200, ph50])),
-         "cmap": "coolwarm"}
+         "cmap": "coolwarm",
+         "interpolation": "none"}
 
 fig, axes = plt.subplots(2, 3, figsize=(8, 4))
 axes = np.array(axes).flatten()
