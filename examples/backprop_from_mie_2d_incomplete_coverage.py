@@ -70,7 +70,7 @@ x = np.arange(size) - size / 2.0
 X, Y = np.meshgrid(x, x)
 rad_px = radius * res
 phantom = np.array(((Y - lC * res)**2 + X**2) < rad_px **
-                   2, dtype=np.float) * (ncyl - nmed) + nmed
+                   2, dtype=float) * (ncyl - nmed) + nmed
 
 u_sinR = odt.sinogram_as_rytov(sino / u0)
 

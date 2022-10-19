@@ -69,7 +69,7 @@ def test_back3d():
     jmc = mp.Value("i", 0)
     jmm = mp.Value("i", 0)
     odtbrain.backpropagate_3d(sino, angles, padval=0,
-                              dtype=np.float64,
+                              dtype=float,
                               count=jmc,
                               max_count=jmm,
                               **p)
@@ -84,7 +84,7 @@ def test_back3d_tilted():
     jmc = mp.Value("i", 0)
     jmm = mp.Value("i", 0)
     odtbrain.backpropagate_3d_tilted(sino, angles, padval=0,
-                                     dtype=np.float64,
+                                     dtype=float,
                                      count=jmc,
                                      max_count=jmm,
                                      **p)

@@ -64,7 +64,7 @@ x = np.arange(size) - size / 2
 X, Y = np.meshgrid(x, x)
 rad_px = radius * res
 phantom = np.array(((Y - lC * res)**2 + X**2) < rad_px**2,
-                   dtype=np.float) * (ncyl - nmed) + nmed
+                   dtype=float) * (ncyl - nmed) + nmed
 
 # Born
 u_sinB = (sino / u0 * u0_single - u0_single)  # fake born
