@@ -1,8 +1,6 @@
 """Tests progress counters"""
 import multiprocessing as mp
 
-import numpy as np
-
 import pytest
 
 import odtbrain
