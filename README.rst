@@ -46,7 +46,7 @@ Running tests::
 
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/odtbrain.svg
    :target: https://pypi.python.org/pypi/odtbrain
-.. |Tests Status| image:: https://img.shields.io/github/workflow/status/RI-Imaging/ODTbrain/Checks
+.. |Tests Status| image:: https://img.shields.io/github/actions/workflow/status/RI-Imaging/ODTbrain/check.yml
    :target: https://github.com/RI-Imaging/ODTbrain/actions?query=workflow%3AChecks
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/RI-imaging/ODTbrain/master.svg
    :target: https://codecov.io/gh/RI-imaging/ODTbrain
