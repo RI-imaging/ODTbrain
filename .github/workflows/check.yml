@@ -30,7 +30,7 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew update
-        brew install fftw
+        brew install --overwrite fftw
     - name: Install dependencies
       run: |
         # prerequisites
