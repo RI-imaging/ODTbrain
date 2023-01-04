@@ -27,8 +27,7 @@ The directive
 will display the doc string formatted with the first line as a
 heading, a code block with line numbers, and the image file.
 """
-import io
-import os.path as op
+import pathlib
 
 from docutils.statemachine import ViewList
 from docutils.parsers.rst import Directive
@@ -42,13 +41,13 @@ class IncludeDirective(Directive):
 
     def run(self):
         path = self.state.document.settings.env.config.fancy_include_path
-        full_path = op.join(path, self.arguments[0])
+        path = pathlib.Path(path)
+        full_path = path / self.arguments[0]
 
-        with io.open(full_path, "r") as myfile:
-            text = myfile.read()
+        text = full_path.read_text()
 
         # add reference
-        name = op.basename(full_path)[:-3]
+        name = full_path.stem
         rst = [".. _example_{}:".format(name),
                "",
                ]
@@ -65,18 +64,18 @@ class IncludeDirective(Directive):
 
         # image
         for ext in [".png", ".jpg"]:
-            image_path = full_path[:-3] + ext
-            if op.exists(image_path):
+            image_path = full_path.with_suffix(ext)
+            if image_path.exists():
                 break
         else:
             image_path = ""
         if image_path:
-            rst.append(".. figure:: {}".format(image_path))
+            rst.append(".. figure:: {}".format(image_path.as_posix()))
             rst.append("")
 
         # download file
-        rst.append(":download:`{}<{}>`".format(
-            op.basename(full_path), full_path))
+        rst.append(":download:`{} <{}>`".format(
+            full_path.name, full_path.as_posix()))
 
         # code
         rst.append("")
