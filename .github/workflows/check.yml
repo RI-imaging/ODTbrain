@@ -34,7 +34,7 @@ jobs:
       run: |
         # prerequisites
         python -m pip install --upgrade pip wheel
-        python -m pip install codecov coverage flake8
+        python -m pip install coverage flake8
         # install dependencies
         pip install -e .
         pip install -r tests/requirements.txt
@@ -54,7 +54,5 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 .
-    - name: Submit code coverage
-      run: |
-        coverage report -m
-        codecov
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
