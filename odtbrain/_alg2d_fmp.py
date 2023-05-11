@@ -252,7 +252,7 @@ def fourier_map_2d(uSin, angles, res, nm, lD=0, semi_coverage=False,
 
     # Filter data
     kinx, kiny = np.meshgrid(np.fft.fftshift(kx), np.fft.fftshift(kx))
-    Fcomp[np.where((kinx**2 + kiny**2) > np.sqrt(2) * km)] = 0
+    Fcomp[np.where((kinx**2 + kiny**2) > 2 * km**2)] = 0
     # Fcomp[np.where(kinx**2+kiny**2<km)] = 0
 
     # Fcomp is centered at K = 0 due to the way we chose kintp/coords
