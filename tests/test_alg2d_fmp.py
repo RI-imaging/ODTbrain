@@ -1,5 +1,4 @@
 """Test Fourier mapping algorithm"""
-import os
 import sys
 
 import numpy as np
@@ -10,6 +9,7 @@ from common_methods import create_test_sino_2d, cutout, \
     get_test_parameter_set, write_results, get_results
 
 WRITE_RES = False
+
 
 @pytest.mark.xfail(True, reason="Unexplained issue #13 and new algorithm #19")
 @pytest.mark.filterwarnings(
