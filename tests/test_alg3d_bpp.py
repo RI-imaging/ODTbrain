@@ -15,6 +15,18 @@ from common_methods import create_test_sino_3d, cutout, \
 WRITE_RES = False
 
 
+def helper_3d_backprop_phase():
+    sino, angles = create_test_sino_3d()
+    parameters = get_test_parameter_set(2)
+    r = list()
+    for p in parameters:
+        f = odtbrain.backpropagate_3d(sino, angles, padval=0,
+                                      dtype=float, **p)
+        r.append(cutout(f))
+    data = np.array(r).flatten().view(float)
+    return data
+
+
 def test_3d_backprop_phase():
     myframe = sys._getframe()
     sino, angles = create_test_sino_3d()
@@ -28,7 +40,6 @@ def test_3d_backprop_phase():
         write_results(myframe, r)
     data = np.array(r).flatten().view(float)
     assert np.allclose(data, get_results(myframe))
-    return data
 
 
 def test_3d_backprop_nopadreal():
@@ -56,9 +67,9 @@ def test_3d_backprop_windows():
     We assume that we are not running these tests on windows.
     So we perform a test with fake windows to increase coverage.
     """
-    datalin = test_3d_backprop_phase()
+    datalin = helper_3d_backprop_phase()
     real_system = platform.system
-    datawin = test_3d_backprop_phase()
+    datawin = helper_3d_backprop_phase()
     platform.system = real_system
     assert np.allclose(datalin, datawin)
 
@@ -98,7 +109,7 @@ def test_3d_backprop_phase32():
                                       **p)
         r.append(cutout(f))
     data32 = np.array(r).flatten().view(np.float32)
-    data64 = test_3d_backprop_phase()
+    data64 = helper_3d_backprop_phase()
     assert np.allclose(data32, data64, atol=6e-7, rtol=0)
 
 
@@ -121,12 +132,3 @@ def test_3d_mprotate():
         write_results(myframe, arr)
     assert np.allclose(np.array(arr).flatten().view(
         float), get_results(myframe))
-
-
-if __name__ == "__main__":
-    test_3d_backprop_phase32()
-    # Run all tests
-    loc = locals()
-    for key in list(loc.keys()):
-        if key.startswith("test_") and hasattr(loc[key], "__call__"):
-            loc[key]()
