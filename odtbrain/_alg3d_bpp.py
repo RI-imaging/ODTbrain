@@ -252,7 +252,7 @@ def backpropagate_3d(uSin, angles, res, nm, lD=0, coords=None,
 
     # setup dtype
     if dtype is None:
-        dtype = np.float_
+        dtype = np.float64
     dtype = np.dtype(dtype)
     if dtype.name not in ["float32", "float64"]:
         raise ValueError("dtype must be float32 or float64!")
