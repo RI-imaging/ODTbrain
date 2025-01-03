@@ -65,6 +65,7 @@ target/
 *.rst~
 
 _version_save.py
+_version.py
 
 # extracted test files
 tests/data/*__*.txt
@@ -75,3 +76,6 @@ tests/data/*__*.txt
 *bib.sav
 
 .idea
+
+# used by pyenv-virtualenv:
+.python-version

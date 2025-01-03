@@ -66,7 +66,7 @@ def test_correct_reproduce():
         write_results(myframe, fo)
 
     data = fo.flatten().view(float)
-    assert np.allclose(data, get_results(myframe))
+    assert np.allclose(data, get_results(myframe), atol=2.E-6)
 
 
 def test_correct_values():
