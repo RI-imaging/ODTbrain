@@ -1,8 +1,7 @@
-0.4.9
+0.4.8
  - fix: support numpy 2
  - setup: bumpy scikit-image to 0.21.0 (API)
  - setup: migrate to pyproject.toml
-0.4.8
  - fix: cut-off radius too small in fmap_2d algorithm (#19)
 0.4.7
  - maintenance release
