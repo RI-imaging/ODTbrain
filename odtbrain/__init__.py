@@ -10,7 +10,6 @@ from ._alg3d_bppt import backpropagate_3d_tilted
 from ._prepare_sino import sinogram_as_radon, sinogram_as_rytov
 from ._translate_ri import odt_to_ri, opt_to_ri
 from ._version import version as __version__
-from ._version import longversion as __version_full__
 
 from . import apple
 from . import util

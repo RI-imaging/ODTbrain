@@ -1,0 +1,51 @@
+[build-system]
+# Defined by PEP 518:
+requires = [
+    # for version management
+    "setuptools>=45",
+    "setuptools_scm[toml]>=6.2",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ODTbrain"
+authors = [
+    # In alphabetical order.
+    { name = "Paul Müller" },
+]
+maintainers = [
+    { name = "Paul Müller", email = "dev@craban.de" },
+]
+description = "Algorithms for diffraction tomography"
+readme = "README.rst"
+requires-python = ">=3.5, <4"
+keywords = ["odt", "opt", "diffraction", "born", "rytov", "radon",
+    "backprojection", "backpropagation", "inverse problem",
+    "Fourier diffraction theorem", "Fourier slice theorem"]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Intended Audience :: Science/Research"
+]
+license = {file = "LICENSE"}
+dependencies = [
+    "numexpr",
+    "numpy>=1.7.0",
+    "pyfftw>=0.9.2,<1",
+    "scikit-image>=0.21.0,<1",
+    "scipy>=1.4.0,<2"
+]
+dynamic = ["version"]
+
+[project.urls]
+source = "https://github.com/RI-imaging/ODTbrain"
+tracker = "https://github.com/RI-imaging/ODTbrain/Issues"
+
+[tool.setuptools_scm]
+write_to = "odtbrain/_version.py"
+version_scheme = "post-release"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["odtbrain"]
