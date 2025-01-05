@@ -1,29 +1,26 @@
 name: Release to PyPI
 
-on:  
+on:
   push:
     tags:
       - '*'
 
 jobs:
-  deploy:
-
+  build_sdist_wheel:
+    name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel twine
-        pip install -e .
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ci_qpi
-        TWINE_PASSWORD: ${{ secrets.PYPI_PWD }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload --skip-existing dist/*
+      - uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+
+      - name: Build sdist
+        run: pipx run build --sdist --wheel
+
+      - name: publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_PWD }}
+        run: |
+          pipx install twine
+          twine upload --skip-existing dist/*
