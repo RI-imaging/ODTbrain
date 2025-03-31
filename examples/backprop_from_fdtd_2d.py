@@ -7,6 +7,23 @@ reconstruction of the refractive index with the Rytov approximation
 is in good agreement with the phantom that was used in the
 simulation.
 
+.. note::
+
+   In the initial version of this example, I did not notice that the
+   1D fields in the data file were actually not in-focus. Back then,
+   I used an auto-focusing algorithm to numerically focus the sinogram
+   data to the rotation center, and this distance was inaccurate.
+   Upon closer inspection of the reconstructed image, it turned out that
+   the focus position is still about 0.5 wavelengths away from the
+   rotation center. I have added this information to the `fdtd_info.txt`
+   file in the data archive.
+
+   The take-home message is that for a proper tomographic reconstruction
+   it is important that the distance between the rotation center and
+   the focus of the sinogram is known. If this is not the case, it might
+   make sense to sweep the reconstruction distance and use an
+   appropriate metric to determine the best reconstruction.
+
 .. _`meep`: http://ab-initio.mit.edu/wiki/index.php/Meep
 """
 import matplotlib.pylab as plt
@@ -26,7 +43,7 @@ sino, angles, phantom, cfg = load_data("fdtd_2d_sino_A100_R13.zip",
 
 print("Example: Backpropagation from 2D FDTD simulations")
 print("Refractive index of medium:", cfg["nm"])
-print("Measurement position from object center:", cfg["lD"])
+print("Measurement position from object center in wavelengths:", cfg["lD"])
 print("Wavelength sampling:", cfg["res"])
 print("Performing backpropagation.")
 
